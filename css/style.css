@@ -1217,12 +1217,14 @@ body {
   padding: 0 !important;
   background: transparent !important;
   overflow: hidden !important;
+  display: flex;
+  flex-direction: column;
 }
 
 .locket-camera {
   position: relative;
   width: 100%;
-  height: 100%;
+  flex: 1;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -1259,52 +1261,53 @@ body {
   font-weight: 300;
 }
 
-.camera-capture-ring {
+.camera-shutter {
   position: absolute;
-  bottom: 60px;
+  bottom: 40px;
   left: 50%;
   transform: translateX(-50%);
-  width: 72px;
-  height: 72px;
+  width: 80px;
+  height: 80px;
   z-index: 5;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   display: none;
 }
 
-.camera-capture-ring.visible {
+.camera-shutter.visible {
   display: block;
 }
 
-.capture-ring-outer {
+.shutter-outer {
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  border: 4px solid rgba(255,255,255,0.6);
+  background: rgba(255,255,255,0.2);
   position: absolute;
-  transition: transform 0.15s ease;
+  transition: transform 0.1s ease;
 }
 
-.capture-ring-inner {
-  width: 56px;
-  height: 56px;
+.shutter-inner {
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.15);
+  background: white;
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  transition: all 0.15s ease;
+  transition: all 0.1s ease;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.3);
 }
 
-.camera-capture-ring:active .capture-ring-outer {
-  transform: scale(0.9);
+.camera-shutter:active .shutter-outer {
+  transform: scale(0.85);
 }
 
-.camera-capture-ring:active .capture-ring-inner {
-  background: rgba(255, 107, 107, 0.5);
-  width: 48px;
-  height: 48px;
+.camera-shutter:active .shutter-inner {
+  width: 56px;
+  height: 56px;
+  background: #ff6b6b;
 }
 
 .camera-flash {
@@ -1484,6 +1487,64 @@ body {
   font-size: 12px;
   color: var(--text-muted);
   flex-shrink: 0;
+}
+
+/* ---------- ANLIK GALERI ---------- */
+.locket-gallery {
+  flex-shrink: 0;
+  padding: 8px 12px 12px;
+  background: rgba(0,0,0,0.3);
+  border-top: 1px solid rgba(255,255,255,0.04);
+}
+
+.gallery-header {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  padding-left: 4px;
+}
+
+.gallery-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 4px;
+}
+
+.gallery-item {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  overflow: hidden;
+  scroll-snap-align: start;
+  position: relative;
+  border: 2px solid rgba(255,255,255,0.06);
+  transition: border-color 0.2s ease;
+}
+
+.gallery-item:active {
+  border-color: var(--primary);
+}
+
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.gallery-item .gallery-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  font-size: 9px;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
+}
+
+.gallery-item.active {
+  border-color: var(--primary);
 }
 
 /* ================================

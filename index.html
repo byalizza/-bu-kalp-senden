@@ -264,15 +264,12 @@
             </svg>
             <p>Kamerayı başlatmak için dokun</p>
           </div>
-          <div class="camera-capture-ring" id="cameraCaptureRing">
-            <div class="capture-ring-outer"></div>
-            <div class="capture-ring-inner"></div>
+          <div class="camera-shutter" id="cameraShutter">
+            <div class="shutter-outer"></div>
+            <div class="shutter-inner"></div>
           </div>
           <div class="camera-flash" id="cameraFlash"></div>
           <div class="camera-countdown" id="cameraCountdown">3</div>
-          <div class="camera-status" id="cameraStatus">
-            <span id="cameraStatusText">Kameraya dokunarak çek</span>
-          </div>
           <div class="camera-switch-btn" id="cameraSwitchBtn">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polyline points="1 4 1 10 7 10"/>
@@ -281,21 +278,12 @@
           </div>
         </div>
 
-        <!-- Gelen fotoğraf (tek seferlik görüntüleme) -->
-        <div class="locket-incoming" id="locketIncoming" style="display:none;">
-          <div class="incoming-header">
-            <span class="incoming-label">💎 Yeni bir şipşak geldi</span>
-            <span class="incoming-time" id="incomingTime"></span>
+        <!-- Anlık galerisi -->
+        <div class="locket-gallery" id="locketGallery">
+          <div class="gallery-header">
+            <span>📸 Anlıklar</span>
           </div>
-          <div class="incoming-photo" id="incomingPhoto">
-            <img id="incomingImg" src="" alt="Şipşak fotoğraf">
-            <div class="incoming-overlay" id="incomingOverlay">
-              <span>Fotoğrafı görmek için basılı tut</span>
-            </div>
-          </div>
-          <div class="incoming-expiry" id="incomingExpiry">
-            <span>⏳ <span id="expiryCountdown">24:00:00</span> sonra silinecek</span>
-          </div>
+          <div class="gallery-scroll" id="galleryScroll"></div>
         </div>
       </div>
 

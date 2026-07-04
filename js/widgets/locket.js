@@ -1,68 +1,38 @@
 // ============================================
-// ŞİPŞAK WIDGET - Instagram Instants Tarzı
-// Anlık çek, direkt gönder, tek seferlik gör
+// LOCKET WIDGET - Anlık Fotoğraf Paylaşımı
 // ============================================
 
 const LocketWidget = {
   stream: null,
   facingMode: 'environment',
   isCapturing: false,
-  incomingData: null,
-  holdTimer: null,
-  isRevealed: false,
+  allPhotos: [],
 
   init() {
     this.cameraEl = document.getElementById('locketCamera');
     this.video = document.getElementById('cameraPreview');
     this.canvas = document.getElementById('cameraCanvas');
     this.placeholder = document.getElementById('cameraPlaceholder');
-    this.captureRing = document.getElementById('cameraCaptureRing');
+    this.shutter = document.getElementById('cameraShutter');
     this.flash = document.getElementById('cameraFlash');
     this.countdown = document.getElementById('cameraCountdown');
-    this.statusText = document.getElementById('cameraStatusText');
-    this.statusBar = document.getElementById('cameraStatus');
     this.switchBtn = document.getElementById('cameraSwitchBtn');
-    this.incoming = document.getElementById('locketIncoming');
-    this.incomingImg = document.getElementById('incomingImg');
-    this.incomingOverlay = document.getElementById('incomingOverlay');
-    this.incomingTime = document.getElementById('incomingTime');
-    this.expiryCountdown = document.getElementById('expiryCountdown');
+    this.galleryScroll = document.getElementById('galleryScroll');
 
     this.setupListeners();
-    this.checkIncomingPhotos();
+    this.loadPhotos();
+    this.watchFirebase();
+    this.startCleanup();
   },
 
   setupListeners() {
-    // Placeholder'a tıkla -> kamerayı başlat
     this.placeholder.addEventListener('click', () => this.startCamera());
-
-    // Capture ring'e tıkla -> fotoğraf çek
-    this.captureRing.addEventListener('click', () => this.capture());
-
-    // Kamera değiştir
+    this.shutter.addEventListener('click', () => this.capture());
     this.switchBtn.addEventListener('click', () => {
       this.facingMode = this.facingMode === 'environment' ? 'user' : 'environment';
       this.stopCamera();
       this.startCamera();
     });
-
-    // Gelen fotoğrafla etkileşim (basılı tut -> gör)
-    this.incomingOverlay.addEventListener('mousedown', () => this.startHold());
-    this.incomingOverlay.addEventListener('mouseup', () => this.endHold());
-    this.incomingOverlay.addEventListener('mouseleave', () => this.endHold());
-    this.incomingOverlay.addEventListener('touchstart', (e) => { e.preventDefault(); this.startHold(); });
-    this.incomingOverlay.addEventListener('touchend', () => this.endHold());
-
-    // Ekran görüntüsü koruması - PrintScreen engelleme
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'PrintScreen') {
-        this.showToast('📵 Ekran görüntüsü alınamaz');
-        return false;
-      }
-    });
-
-    // Context menu engelle (sağ tık)
-    this.incoming.addEventListener('contextmenu', (e) => e.preventDefault());
   },
 
   startCamera() {
@@ -71,22 +41,15 @@ const LocketWidget = {
 
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: this.facingMode,
-          width: { ideal: 1080 },
-          height: { ideal: 1920 }
-        },
+        video: { facingMode: this.facingMode, width: { ideal: 1080 }, height: { ideal: 1920 } },
         audio: false
       }).then((stream) => {
         this.stream = stream;
         this.video.srcObject = stream;
         this.video.play();
-        this.captureRing.classList.add('visible');
+        this.shutter.classList.add('visible');
         this.switchBtn.classList.add('visible');
-        this.statusBar.classList.add('visible');
-        this.statusText.textContent = 'Fotoğraf çekmek için dokun';
-      }).catch((err) => {
-        console.error('Kamera hatası:', err);
+      }).catch(() => {
         this.placeholder.style.display = 'flex';
         this.placeholder.style.opacity = '1';
         this.placeholder.querySelector('p').textContent = 'Kamera açılamadı 🙁';
@@ -102,16 +65,14 @@ const LocketWidget = {
       this.stream = null;
     }
     this.video.srcObject = null;
-    this.captureRing.classList.remove('visible');
+    this.shutter.classList.remove('visible');
     this.switchBtn.classList.remove('visible');
-    this.statusBar.classList.remove('visible');
   },
 
   capture() {
     if (this.isCapturing) return;
     this.isCapturing = true;
 
-    // Geri sayım
     this.countdown.textContent = '3';
     this.countdown.classList.add('show');
     this.countdown.style.animation = 'none';
@@ -119,7 +80,7 @@ const LocketWidget = {
     this.countdown.style.animation = 'countdownPop 0.6s ease';
 
     let count = 3;
-    const countInterval = setInterval(() => {
+    const ci = setInterval(() => {
       count--;
       if (count > 0) {
         this.countdown.textContent = count;
@@ -127,7 +88,7 @@ const LocketWidget = {
         void this.countdown.offsetHeight;
         this.countdown.style.animation = 'countdownPop 0.6s ease';
       } else {
-        clearInterval(countInterval);
+        clearInterval(ci);
         this.countdown.classList.remove('show');
         this.takePhoto();
       }
@@ -135,225 +96,122 @@ const LocketWidget = {
   },
 
   takePhoto() {
-    // Flash efekti
     this.flash.classList.add('fire');
     setTimeout(() => this.flash.classList.remove('fire'), 200);
 
-    // Fotoğrafı yakala
     this.canvas.width = this.video.videoWidth || 1080;
     this.canvas.height = this.video.videoHeight || 1920;
     const ctx = this.canvas.getContext('2d');
 
-    // Aynalama (selfie modunda)
     if (this.facingMode === 'user') {
       ctx.translate(this.canvas.width, 0);
       ctx.scale(-1, 1);
     }
     ctx.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
-
-    // Base64'e çevir
     const dataUrl = this.canvas.toDataURL('image/jpeg', 0.85);
 
-    // Kısa bir an göster
     this.video.style.opacity = '0';
-    this.statusText.textContent = '📸 Gönderiliyor...';
 
-    // Firebase'e yükle veya yerel kaydet
-    this.uploadPhoto(dataUrl);
-
-    setTimeout(() => {
-      this.video.style.opacity = '1';
-      this.statusText.textContent = 'Fotoğraf çekmek için dokun';
-      this.isCapturing = false;
-    }, 1500);
-  },
-
-  uploadPhoto(dataUrl) {
-    // Önce sıkıştır (canvas ile)
     const img = new Image();
     img.onload = () => {
-      const canvas = document.createElement('canvas');
+      const c = document.createElement('canvas');
       const max = 720;
       let w = img.width, h = img.height;
       if (w > max || h > max) {
         if (w > h) { h = h * max / w; w = max; }
         else { w = w * max / h; h = max; }
       }
-      canvas.width = w; canvas.height = h;
-      const ctx = canvas.getContext('2d');
+      c.width = w; c.height = h;
+      const cx = c.getContext('2d');
       if (this.facingMode === 'user') {
-        ctx.translate(w, 0);
-        ctx.scale(-1, 1);
+        cx.translate(w, 0);
+        cx.scale(-1, 1);
       }
-      ctx.drawImage(img, 0, 0, w, h);
-      const compressed = canvas.toDataURL('image/jpeg', 0.7);
+      cx.drawImage(img, 0, 0, w, h);
+      const compressed = c.toDataURL('image/jpeg', 0.7);
 
-      // Firebase Realtime DB'ye kaydet
-      const photoData = {
+      const photo = {
         url: compressed,
-        from: APP_CONFIG.welcomeName || 'Aşkım',
+        from: window.currentUser === 'efe' ? 'Efe' : 'Ela',
         timestamp: Date.now(),
-        expiresAt: Date.now() + 24 * 60 * 60 * 1000,
-        viewed: false
+        expiresAt: Date.now() + 24 * 60 * 60 * 1000
       };
+
+      this.allPhotos.unshift(photo);
+      this.renderGallery();
 
       const db = getDatabase();
       if (db) {
-        db.ref(APP_CONFIG.firebasePaths.photos).push(photoData).catch(() => this.saveLocal(compressed));
-      } else {
-        this.saveLocal(compressed);
+        db.ref(APP_CONFIG.firebasePaths.photos).push(photo).catch(() => {});
       }
-      this.showToast('📸 Şipşak gönderildi!');
+
+      this.video.style.opacity = '1';
+      this.isCapturing = false;
     };
     img.src = dataUrl;
   },
 
-  saveLocal(dataUrl) {
-    const photos = JSON.parse(localStorage.getItem('sipsak_photos') || '[]');
-    photos.push({
-      url: dataUrl,
-      from: APP_CONFIG.welcomeName || 'Aşkım',
-      timestamp: Date.now(),
-      expiresAt: Date.now() + 24 * 60 * 60 * 1000,
-      viewed: false
-    });
-    localStorage.setItem('sipsak_photos', JSON.stringify(photos));
-    this.showToast('📸 Şipşak gönderildi!');
+  loadPhotos() {
+    const saved = JSON.parse(localStorage.getItem('locket_gallery') || '[]');
+    this.allPhotos = saved.filter(p => Date.now() < p.expiresAt);
+    this.renderGallery();
   },
 
-  checkIncomingPhotos() {
-    // LocalStorage'dan kontrol et
-    const photos = JSON.parse(localStorage.getItem('sipsak_photos') || '[]');
-    const active = photos.filter(p => Date.now() < p.expiresAt);
+  savePhotos() {
+    try { localStorage.setItem('locket_gallery', JSON.stringify(this.allPhotos)); } catch (e) {}
+  },
 
-    if (active.length > 0) {
-      const latest = active[active.length - 1];
-      this.showIncoming(latest);
-    }
-
-    // Firebase'den dinle
+  watchFirebase() {
     const db = getDatabase();
-    if (db) {
-      db.ref(APP_CONFIG.firebasePaths.photos).limitToLast(1).on('child_added', (snapshot) => {
-        const data = snapshot.val();
-        if (data && data.url && Date.now() < (data.expiresAt || Infinity)) {
-          this.showIncoming(data);
-        }
-      });
-    }
+    if (!db) return;
+    db.ref(APP_CONFIG.firebasePaths.photos).on('child_added', (snapshot) => {
+      const data = snapshot.val();
+      if (!data || !data.url) return;
+      if (Date.now() >= (data.expiresAt || Infinity)) return;
+      const exists = this.allPhotos.some(p => p.timestamp === data.timestamp && p.from === data.from);
+      if (!exists) {
+        this.allPhotos.unshift(data);
+        this.renderGallery();
+      }
+    });
+  },
 
-    // 24 saat temizliği
+  startCleanup() {
     setInterval(() => {
-      const all = JSON.parse(localStorage.getItem('sipsak_photos') || '[]');
-      const fresh = all.filter(p => Date.now() < p.expiresAt);
-      localStorage.setItem('sipsak_photos', JSON.stringify(fresh));
+      const before = this.allPhotos.length;
+      this.allPhotos = this.allPhotos.filter(p => Date.now() < p.expiresAt);
+      if (this.allPhotos.length !== before) {
+        this.savePhotos();
+        this.renderGallery();
+      }
     }, 60000);
   },
 
-  showIncoming(data) {
-    this.incomingData = data;
-    this.incomingImg.src = data.url;
-    this.incomingTime.textContent = data.timestamp
-      ? new Date(data.timestamp).toLocaleString('tr-TR')
-      : '';
-
-    this.incomingOverlay.classList.remove('hidden');
-    this.incomingImg.classList.remove('revealed');
-    this.isRevealed = false;
-
-    this.cameraEl.style.display = 'none';
-    this.incoming.style.display = 'flex';
-
-    // 24 saat sayacını başlat
-    this.startExpiryTimer(data.expiresAt);
-
-    // Otomatik silme zamanlayıcısı
-    if (data.expiresAt) {
-      const timeLeft = data.expiresAt - Date.now();
-      if (timeLeft > 0) {
-        setTimeout(() => {
-          this.incoming.style.display = 'none';
-          this.cameraEl.style.display = 'flex';
-          this.incomingImg.src = '';
-          this.incomingData = null;
-        }, timeLeft);
-      }
-    }
+  renderGallery() {
+    this.savePhotos();
+    this.galleryScroll.innerHTML = '';
+    this.allPhotos.forEach(p => {
+      const div = document.createElement('div');
+      div.className = 'gallery-item';
+      const badge = p.from === 'Efe' ? '💪' : '🌸';
+      div.innerHTML = `<img src="${p.url}" alt="anlik"><span class="gallery-badge">${badge}</span>`;
+      div.addEventListener('click', () => this.openFull(p));
+      this.galleryScroll.appendChild(div);
+    });
   },
 
-  startHold() {
-    if (this.isRevealed) return;
-    this.holdTimer = setTimeout(() => {
-      this.revealPhoto();
-    }, 500);
-  },
-
-  endHold() {
-    if (this.holdTimer) {
-      clearTimeout(this.holdTimer);
-      this.holdTimer = null;
-    }
-    if (this.isRevealed) {
-      this.hidePhoto();
-    }
-  },
-
-  revealPhoto() {
-    this.incomingOverlay.classList.add('hidden');
-    this.incomingImg.classList.add('revealed');
-    this.isRevealed = true;
-    this.showToast('👁️ Bu fotoğraf bir kez görüntülendi');
-
-    // viewed işaretle
-    if (this.incomingData) {
-      this.incomingData.viewed = true;
-      const photos = JSON.parse(localStorage.getItem('sipsak_photos') || '[]');
-      const idx = photos.findIndex(p => p.timestamp === this.incomingData.timestamp);
-      if (idx !== -1) {
-        photos[idx].viewed = true;
-        localStorage.setItem('sipsak_photos', JSON.stringify(photos));
-      }
-    }
-  },
-
-  hidePhoto() {
-    this.incomingOverlay.classList.remove('hidden');
-    this.incomingImg.classList.remove('revealed');
-    this.isRevealed = false;
-  },
-
-  startExpiryTimer(expiresAt) {
-    if (!expiresAt) return;
-    const update = () => {
-      const left = expiresAt - Date.now();
-      if (left <= 0) {
-        this.expiryCountdown.textContent = 'Süresi doldu';
-        return;
-      }
-      const h = Math.floor(left / 3600000);
-      const m = Math.floor((left % 3600000) / 60000);
-      const s = Math.floor((left % 60000) / 1000);
-      this.expiryCountdown.textContent =
-        `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-    };
-    update();
-    setInterval(update, 1000);
-  },
-
-  showToast(msg) {
-    const toast = document.getElementById('notificationToast');
-    toast.querySelector('.toast-title').textContent = 'Şipşak';
-    toast.querySelector('.toast-message').textContent = msg;
-    toast.style.display = 'flex';
-    toast.style.animation = 'none';
-    void toast.offsetHeight;
-    toast.style.animation = 'toastSlideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-    setTimeout(() => {
-      toast.style.opacity = '0';
-      setTimeout(() => {
-        toast.style.display = 'none';
-        toast.style.opacity = '1';
-      }, 500);
-    }, 3000);
+  openFull(photo) {
+    const overlay = document.createElement('div');
+    overlay.className = 'full-photo-overlay';
+    overlay.innerHTML = `
+      <div class="full-photo-bg" style="background:rgba(0,0,0,0.9);position:fixed;top:0;left:0;width:100%;height:100%;z-index:100;display:flex;align-items:center;justify-content:center;flex-direction:column;">
+        <img src="${photo.url}" style="max-width:90%;max-height:70%;border-radius:12px;object-fit:contain;">
+        <div style="margin-top:12px;color:rgba(255,255,255,0.5);font-size:13px;">
+          ${photo.from} · ${new Date(photo.timestamp).toLocaleString('tr-TR')}
+        </div>
+      </div>
+    `;
+    overlay.addEventListener('click', () => document.body.removeChild(overlay));
+    document.body.appendChild(overlay);
   }
 };
