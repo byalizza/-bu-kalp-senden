@@ -67,6 +67,11 @@ const LocketWidget = {
     this.video.srcObject = null;
     this.shutter.classList.remove('visible');
     this.switchBtn.classList.remove('visible');
+    this.placeholder.style.display = 'flex';
+    this.placeholder.style.opacity = '1';
+    this.placeholder.querySelector('p').textContent = 'Kamerayı başlatmak için dokun';
+    this.video.style.opacity = '1';
+    this.isCapturing = false;
   },
 
   capture() {
