@@ -20,6 +20,12 @@ const APP_CONFIG = {
     minute: 30
   },
 
+  // Kullanıcılar
+  users: {
+    efe: { name: 'Efe', emoji: '💪', color: '#4a90d9' },
+    ela: { name: 'Ela', emoji: '🌸', color: '#ff6b6b' }
+  },
+
   // Hoş geldin mesajında görünecek isim
   welcomeName: 'Ela',
 
@@ -29,7 +35,7 @@ const APP_CONFIG = {
   // Firebase yolu
   firebasePaths: {
     photos: 'locket/photos',
-    petMessages: 'pet/messages'
+    messages: 'chat/messages'
   },
 
   // Şarkı listesi (yerel - YouTube üzerinden çalar)

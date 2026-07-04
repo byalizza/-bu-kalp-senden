@@ -1,195 +1,179 @@
 // ============================================
-// MASCOT WIDGET - Sanal Evcil Hayvan (Pofuduk)
+// MESSAGE WIDGET - Kalıcı Mesajlaşma (Pofuduk)
+// Firebase ile senkron, mesajlar hiç silinmez
 // ============================================
 
-const MascotWidget = {
-  messageQueue: [],
-  notificationTimer: null,
+const MessageWidget = {
+  dbRef: null,
+  messages: [],
+  initialized: false,
 
   init() {
-    this.pet = document.getElementById('pet');
-    this.petBubble = document.getElementById('petBubble');
-    this.petMessage = document.getElementById('petMessage');
-    this.chatMessages = document.getElementById('petChatMessages');
-    this.chatInput = document.getElementById('petChatInput');
-    this.chatSend = document.getElementById('petChatSend');
-    this.petContainer = document.getElementById('petContainer');
-    this.statusBadge = document.getElementById('petStatusBadge');
-    this.petEyes = document.querySelectorAll('.pet-pupil');
+    if (this.initialized) return;
+    this.initialized = true;
 
-    this.messages = [...APP_CONFIG.petMessages];
-    this.responses = APP_CONFIG.chatResponses;
+    this.msgList = document.getElementById('msgList');
+    this.msgInput = document.getElementById('msgInput');
+    this.msgSendBtn = document.getElementById('msgSendBtn');
+
+    this.user = window.currentUser || 'efe';
 
     this.setupListeners();
-    this.startIdleAnimations();
-    this.showRandomMessage(3000);
+    this.setupFirebase();
+    this.loadLocalMessages();
   },
 
   setupListeners() {
-    this.petContainer.addEventListener('click', () => {
-      this.petInteraction();
-    });
-
-    this.chatSend.addEventListener('click', () => this.sendChatMessage());
-    this.chatInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') this.sendChatMessage();
-    });
-
-    // Fare/göz takibi
-    document.addEventListener('mousemove', (e) => this.followCursor(e));
-    document.addEventListener('touchmove', (e) => {
-      const touch = e.touches[0];
-      if (touch) this.followCursor(touch);
-    }, { passive: true });
-  },
-
-  followCursor(e) {
-    const rect = this.pet.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-    const deltaX = (e.clientX - centerX) / rect.width;
-    const deltaY = (e.clientY - centerY) / rect.height;
-
-    const moveX = Math.max(-3, Math.min(3, deltaX * 4));
-    const moveY = Math.max(-3, Math.min(3, deltaY * 4));
-
-    this.petEyes.forEach(eye => {
-      eye.style.transform = `translate(calc(-50% + ${moveX}px), calc(-30% + ${moveY}px))`;
+    this.msgSendBtn.addEventListener('click', () => this.sendMessage());
+    this.msgInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') this.sendMessage();
     });
   },
 
-  petInteraction() {
-    this.pet.classList.add('jump');
-    this.pet.classList.add('happy');
+  setupFirebase() {
+    const db = getDatabase();
+    if (!db) return;
 
-    setTimeout(() => {
-      this.pet.classList.remove('jump');
-    }, 500);
+    const path = APP_CONFIG.firebasePaths.messages;
+    this.dbRef = db.ref(path);
 
-    setTimeout(() => {
-      this.pet.classList.remove('happy');
-    }, 1500);
-
-    this.showRandomMessage(0);
-    this.statusBadge.textContent = 'Mutlu';
-
-    setTimeout(() => {
-      this.statusBadge.textContent = 'Sakin';
-    }, 3000);
-  },
-
-  showRandomMessage(delay = 0) {
-    setTimeout(() => {
-      const msg = this.messages[Math.floor(Math.random() * this.messages.length)];
-      this.petMessage.textContent = msg;
-      this.petBubble.style.opacity = '1';
-      this.petBubble.style.transform = 'translateY(0)';
-
-      setTimeout(() => {
-        this.petBubble.style.opacity = '0.7';
-      }, 4000);
-    }, delay);
-  },
-
-  sendChatMessage() {
-    const text = this.chatInput.value.trim();
-    if (!text) return;
-
-    // Kullanıcı mesajını ekle
-    const userMsg = document.createElement('div');
-    userMsg.className = 'chat-msg user-msg';
-    userMsg.textContent = text;
-    this.chatMessages.appendChild(userMsg);
-
-    this.chatInput.value = '';
-
-    // Yanıt bul
-    const response = this.findResponse(text);
-    setTimeout(() => {
-      const petMsg = document.createElement('div');
-      petMsg.className = 'chat-msg pet-msg';
-      petMsg.textContent = response;
-      this.chatMessages.appendChild(petMsg);
-
-      // Konuşma balonunu güncelle
-      this.petMessage.textContent = response;
-      this.petBubble.style.opacity = '1';
-
-      // Otomatik kaydır
-      this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
-    }, 600 + Math.random() * 600);
-
-    this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
-  },
-
-  findResponse(text) {
-    const lower = text.toLowerCase();
-
-    for (const item of this.responses) {
-      for (const keyword of item.keywords) {
-        if (lower.includes(keyword)) {
-          return item.response;
+    // Yeni mesajları dinle
+    this.dbRef.limitToLast(1).on('child_added', (snapshot) => {
+      const msg = snapshot.val();
+      if (msg && msg.id) {
+        // Local'de yoksa ekle
+        const exists = this.messages.some(m => m.id === msg.id);
+        if (!exists) {
+          this.messages.push(msg);
+          this.renderMessage(msg);
+          this.saveToLocal(msg);
         }
       }
+    });
+
+    // Tüm mesajları ilk yüklemede al
+    this.dbRef.once('value', (snapshot) => {
+      const data = snapshot.val();
+      if (!data) return;
+
+      const loaded = [];
+      Object.values(data).forEach(msg => {
+        if (msg && msg.id) {
+          const exists = this.messages.some(m => m.id === msg.id);
+          if (!exists) {
+            loaded.push(msg);
+          }
+        }
+      });
+
+      if (loaded.length > 0) {
+        // Tarihe göre sırala
+        loaded.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+        this.messages = [...this.messages, ...loaded];
+
+        // Local'e kaydet ve render et
+        this.msgList.innerHTML = '';
+        this.messages.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+        this.messages.forEach(msg => {
+          this.renderMessage(msg);
+          this.saveToLocal(msg);
+        });
+        this.scrollToBottom();
+      }
+    });
+  },
+
+  loadLocalMessages() {
+    try {
+      const saved = JSON.parse(localStorage.getItem('chat_messages') || '[]');
+      if (saved.length > 0 && this.messages.length === 0) {
+        this.messages = saved;
+        this.messages.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+        this.messages.forEach(msg => this.renderMessage(msg));
+        this.scrollToBottom();
+      }
+    } catch (e) {
+      console.warn('Local mesaj yüklenemedi:', e);
     }
-
-    const fallbacks = [
-      'Çok tatlısın! Bunu söylediğine sevindim! 💕',
-      'Ne güzel bir şey söyledin! 😊',
-      'Her sözün çok değerli benim için! ✨',
-      'Bunu duymak harikaydı! 💖',
-      'Seninle konuşmak çok güzel! 🥰',
-      'Anlıyorum, devam et lütfen... 🐾'
-    ];
-
-    return fallbacks[Math.floor(Math.random() * fallbacks.length)];
   },
 
-  startIdleAnimations() {
-    // Her 8-12 saniyede bir mesaj göster
-    setInterval(() => {
-      if (Math.random() > 0.4) return;
-      this.showRandomMessage(0);
-    }, 8000 + Math.random() * 4000);
+  sendMessage() {
+    const text = this.msgInput.value.trim();
+    if (!text) return;
+
+    const msg = {
+      id: Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
+      from: this.user,
+      text: text,
+      timestamp: Date.now()
+    };
+
+    this.msgInput.value = '';
+
+    // Önce local ekle (anında göster)
+    this.messages.push(msg);
+    this.renderMessage(msg);
+    this.saveToLocal(msg);
+    this.scrollToBottom();
+
+    // Firebase'e gönder
+    const db = getDatabase();
+    if (db && this.dbRef) {
+      this.dbRef.push(msg).catch(err => {
+        console.warn('Firebase mesaj gönderilemedi:', err);
+      });
+    }
   },
 
-  startNotificationTimer() {
-    const interval = APP_CONFIG.notificationInterval || 3600000;
+  renderMessage(msg) {
+    const sender = msg.from === 'efe' ? 'Efe' : 'Ela';
+    const isMe = msg.from === this.user;
+    const bubbleClass = msg.from === 'efe' ? 'msg-efe' : 'msg-ela';
 
-    // Test için 2 dakikada bir bildirim (gerçekte 1 saat)
-    const testInterval = 2 * 60 * 1000;
+    const div = document.createElement('div');
+    div.className = `msg-bubble ${bubbleClass}`;
+    div.innerHTML = `
+      ${!isMe ? `<span class="msg-sender">${sender}</span>` : ''}
+      <span class="msg-text">${this.escapeHtml(msg.text)}</span>
+      <span class="msg-time">${this.formatTime(msg.timestamp)}</span>
+    `;
+    div.dataset.msgId = msg.id;
+    this.msgList.appendChild(div);
+  },
 
-    this.notificationTimer = setInterval(() => {
-      this.showNotification();
-    }, testInterval);
+  saveToLocal(msg) {
+    try {
+      const saved = JSON.parse(localStorage.getItem('chat_messages') || '[]');
+      const exists = saved.some(m => m.id === msg.id);
+      if (!exists) {
+        saved.push(msg);
+        localStorage.setItem('chat_messages', JSON.stringify(saved));
+      }
+    } catch (e) {
+      // ignore
+    }
+  },
 
-    // İlk bildirimi 30 sn sonra göster
+  scrollToBottom() {
     setTimeout(() => {
-      this.showNotification();
-    }, 30000);
+      this.msgList.scrollTop = this.msgList.scrollHeight;
+    }, 50);
   },
 
-  showNotification() {
-    const msg = this.messages[Math.floor(Math.random() * this.messages.length)];
-    const toast = document.getElementById('notificationToast');
-    const toastIcon = document.getElementById('toastIcon');
-    const toastMessage = document.getElementById('toastMessage');
+  formatTime(ts) {
+    if (!ts) return '';
+    const d = new Date(ts);
+    const now = new Date();
+    const isToday = d.toDateString() === now.toDateString();
+    const hours = d.getHours().toString().padStart(2, '0');
+    const mins = d.getMinutes().toString().padStart(2, '0');
+    if (isToday) return `${hours}:${mins}`;
+    return `${d.getDate().toString().padStart(2, '0')}.${(d.getMonth() + 1).toString().padStart(2, '0')} ${hours}:${mins}`;
+  },
 
-    toastIcon.textContent = '🐣';
-    toastMessage.textContent = msg;
-
-    toast.style.display = 'flex';
-    toast.style.animation = 'none';
-    void toast.offsetHeight;
-    toast.style.animation = 'toastSlideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-
-    setTimeout(() => {
-      toast.style.opacity = '0';
-      toast.style.transition = 'opacity 0.5s ease';
-      setTimeout(() => {
-        toast.style.display = 'none';
-        toast.style.opacity = '1';
-      }, 500);
-    }, 4000);
+  escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
   }
 };

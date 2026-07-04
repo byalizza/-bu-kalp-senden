@@ -22,7 +22,6 @@ const App = {
     LoginWidget.init();
     CounterWidget.init();
     MusicWidget.init();
-    MascotWidget.init();
     MemoriesWidget.init();
     LocketWidget.init();
 
