@@ -5,6 +5,9 @@ const LocketWidget = {
   allPhotos: [],
   currentFilter: 'none',
   likedPhotos: {},
+  seenIds: {},
+  unseenPhotos: [],
+  isShowingQueue: false,
   _startingCamera: false,
 
   init() {
@@ -26,8 +29,14 @@ const LocketWidget = {
     this.galleryOverlay = document.getElementById('locketGalleryOverlay');
     this.galleryGrid = document.getElementById('galleryOverlayGrid');
 
+    this.user = window.currentUser || 'efe';
+    this.myName = this.user === 'efe' ? 'Efe' : 'Ela';
+    this.otherName = this.user === 'efe' ? 'Ela' : 'Efe';
+
     this.setupListeners();
+    this.loadSeen();
     this.loadPhotos();
+    this.loadLikes();
     this.watchFirebase();
     this.startCleanup();
   },
@@ -53,7 +62,7 @@ const LocketWidget = {
 
     this.preview.addEventListener('click', (e) => {
       if (e.target === this.preview || e.target === this.previewImg) {
-        this.hidePreview();
+        this.dismissPreview();
       }
     });
 
@@ -113,7 +122,7 @@ const LocketWidget = {
 
   stopCamera() {
     this._startingCamera = false;
-    this.hidePreview();
+    this.hidePreviewNow();
     if (this.stream) {
       this.stream.getTracks().forEach(track => track.stop());
       this.stream = null;
@@ -133,6 +142,39 @@ const LocketWidget = {
     this.video.style.opacity = '1';
     this.isCapturing = false;
   },
+
+  // ========== QUEUE / UNSEEN ==========
+
+  // Locket widget aktif olduğunda çağrılır
+  onActivate() {
+    this.user = window.currentUser || 'efe';
+    this.myName = this.user === 'efe' ? 'Efe' : 'Ela';
+    this.otherName = this.user === 'efe' ? 'Ela' : 'Efe';
+    this.buildUnseenQueue();
+    if (this.unseenPhotos.length > 0 && !this.isShowingQueue) {
+      this.showFromQueue();
+    }
+  },
+
+  buildUnseenQueue() {
+    this.unseenPhotos = [];
+    for (const p of this.allPhotos) {
+      const pid = p.id || p.timestamp;
+      if (p.from !== this.myName && !this.seenIds[pid]) {
+        this.unseenPhotos.push(p);
+      }
+    }
+    // en yeniden eskiye sırala (zaten öyle)
+  },
+
+  showFromQueue() {
+    if (this.unseenPhotos.length === 0) return;
+    this.isShowingQueue = true;
+    const photo = this.unseenPhotos.shift();
+    this.showPreview(photo, true);
+  },
+
+  // ========== CAPTURE ==========
 
   capture() {
     if (this.isCapturing) return;
@@ -200,7 +242,7 @@ const LocketWidget = {
 
       const photo = {
         url: compressed,
-        from: window.currentUser === 'efe' ? 'Efe' : 'Ela',
+        from: this.myName,
         timestamp: Date.now(),
         expiresAt: Date.now() + 24 * 60 * 60 * 1000,
         id: Date.now().toString(36) + Math.random().toString(36).substr(2, 5)
@@ -214,13 +256,19 @@ const LocketWidget = {
         db.ref(APP_CONFIG.firebasePaths.photos).push(photo).catch(() => {});
       }
 
-      this.showPreview(photo);
+      // Kendi fotoğrafımı göster (izleme kuyruğuna ekleme)
+      const pid = photo.id || photo.timestamp;
+      this.seenIds[pid] = true;
+      this.saveSeen();
+      this.showPreview(photo, false);
       this.isCapturing = false;
     };
     img.src = dataUrl;
   },
 
-  showPreview(photo) {
+  // ========== PREVIEW ==========
+
+  showPreview(photo, isFromQueue) {
     this.shutter.classList.remove('visible');
     this.shutter.style.setProperty('display', 'none', 'important');
     this.switchBtn.classList.remove('visible');
@@ -228,7 +276,7 @@ const LocketWidget = {
     this.filtersEl.classList.remove('visible');
     this.filtersEl.style.setProperty('display', 'none', 'important');
     this.galleryBtn.style.display = 'none';
-    this.video.style.opacity = '0';
+    if (this.video) this.video.style.opacity = '0';
 
     this.previewImg.src = photo.url;
     this.previewSender.textContent = photo.from === 'Efe' ? '💪 Efe' : '🌸 Ela';
@@ -240,10 +288,33 @@ const LocketWidget = {
 
     this.preview.style.display = 'flex';
     this.preview.style.animation = 'fadeIn 0.3s ease';
+    this.preview.dataset.queue = isFromQueue ? '1' : '0';
   },
 
-  hidePreview() {
+  dismissPreview() {
+    const isFromQueue = this.preview.dataset.queue === '1';
     this.preview.style.display = 'none';
+
+    if (isFromQueue) {
+      if (this.unseenPhotos.length > 0) {
+        this.showFromQueue();
+      } else {
+        this.isShowingQueue = false;
+        this.showCameraAfterDismiss();
+      }
+    } else {
+      // Kendi fotoğrafımı kapattım → kalan unseen varsa göster
+      this.buildUnseenQueue();
+      if (this.unseenPhotos.length > 0) {
+        this.isShowingQueue = true;
+        this.showFromQueue();
+      } else {
+        this.showCameraAfterDismiss();
+      }
+    }
+  },
+
+  showCameraAfterDismiss() {
     this.video.style.opacity = '1';
     if (this.stream) {
       this.shutter.classList.add('visible');
@@ -255,6 +326,13 @@ const LocketWidget = {
       this.galleryBtn.style.display = 'flex';
     }
   },
+
+  hidePreviewNow() {
+    this.preview.style.display = 'none';
+    this.isShowingQueue = false;
+  },
+
+  // ========== LIKE ==========
 
   likeCurrentPhoto() {
     const photoId = this.previewLikeBtn.dataset.photoId;
@@ -273,8 +351,27 @@ const LocketWidget = {
     try { localStorage.setItem('locket_likes', JSON.stringify(this.likedPhotos)); } catch (e) {}
   },
 
+  // ========== PERSISTENCE ==========
+
+  loadSeen() {
+    try { this.seenIds = JSON.parse(localStorage.getItem('locket_seen_' + this.user) || '{}'); } catch (e) { this.seenIds = {}; }
+  },
+
+  saveSeen() {
+    try { localStorage.setItem('locket_seen_' + this.user, JSON.stringify(this.seenIds)); } catch (e) {}
+  },
+
   loadLikes() {
     try { this.likedPhotos = JSON.parse(localStorage.getItem('locket_likes') || '{}'); } catch (e) { this.likedPhotos = {}; }
+  },
+
+  loadPhotos() {
+    const saved = JSON.parse(localStorage.getItem('locket_gallery') || '[]');
+    this.allPhotos = saved.filter(p => Date.now() < p.expiresAt);
+  },
+
+  savePhotos() {
+    try { localStorage.setItem('locket_gallery', JSON.stringify(this.allPhotos)); } catch (e) {}
   },
 
   getFilterCSS(name) {
@@ -287,15 +384,7 @@ const LocketWidget = {
     return filters[name] || 'none';
   },
 
-  loadPhotos() {
-    this.loadLikes();
-    const saved = JSON.parse(localStorage.getItem('locket_gallery') || '[]');
-    this.allPhotos = saved.filter(p => Date.now() < p.expiresAt);
-  },
-
-  savePhotos() {
-    try { localStorage.setItem('locket_gallery', JSON.stringify(this.allPhotos)); } catch (e) {}
-  },
+  // ========== FIREBASE ==========
 
   watchFirebase() {
     const db = getDatabase();
@@ -304,11 +393,31 @@ const LocketWidget = {
       const data = snapshot.val();
       if (!data || !data.url) return;
       if (Date.now() >= (data.expiresAt || Infinity)) return;
-      const exists = this.allPhotos.some(p => p.timestamp === data.timestamp && p.from === data.from);
-      if (!exists) {
-        if (!data.id) data.id = data.timestamp.toString(36);
-        this.allPhotos.unshift(data);
-        this.savePhotos();
+
+      // Benzersiz kontrol
+      const exists = this.allPhotos.some(p => p.id === data.id || (p.timestamp === data.timestamp && p.from === data.from));
+      if (exists) return;
+
+      if (!data.id) data.id = data.timestamp.toString(36);
+      this.allPhotos.unshift(data);
+      this.savePhotos();
+
+      // Başkasının fotoğrafı geldi
+      if (data.from !== this.myName) {
+        const pid = data.id || data.timestamp;
+        if (!this.seenIds[pid]) {
+          this.unseenPhotos.push(data);
+          // Eğer widget aktif ve kamera görünüyorsa hemen göster
+          const widget = document.getElementById('locketWidget');
+          if (widget && widget.classList.contains('active') && this.stream && !this.isShowingQueue) {
+            this.showFromQueue();
+          }
+        }
+      } else {
+        // Kendi fotoğrafım Firebase'den de geldi
+        const pid = data.id || data.timestamp;
+        this.seenIds[pid] = true;
+        this.saveSeen();
       }
     });
   },
@@ -323,6 +432,8 @@ const LocketWidget = {
     }, 60000);
   },
 
+  // ========== GALLERY ==========
+
   openGallery() {
     this.galleryGrid.innerHTML = '';
     if (this.allPhotos.length === 0) {
@@ -332,10 +443,11 @@ const LocketWidget = {
         const div = document.createElement('div');
         div.className = 'gallery-grid-item';
         const badge = p.from === 'Efe' ? '💪' : '🌸';
-        div.innerHTML = `<img src="${p.url}" alt=""><span class="gallery-grid-badge">${badge}</span>`;
+        const time = new Date(p.timestamp).toLocaleString('tr-TR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+        div.innerHTML = `<img src="${p.url}" alt=""><span class="gallery-grid-badge">${badge}</span><span class="gallery-grid-time">${time}</span>`;
         div.addEventListener('click', () => {
           this.closeGallery();
-          this.showPreview(p);
+          this.showPreview(p, false);
         });
         this.galleryGrid.appendChild(div);
       });
