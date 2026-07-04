@@ -8,6 +8,11 @@ const App = {
   async init() {
     initFirebase();
 
+    // Anında tam ekran (her ihtimale karşı splash ve sonrasında da dene)
+    document.documentElement.requestFullscreen().catch(() => {});
+    setTimeout(() => document.documentElement.requestFullscreen().catch(() => {}), 500);
+    setTimeout(() => document.documentElement.requestFullscreen().catch(() => {}), 1500);
+
     setTimeout(() => {
       document.getElementById('splashScreen').style.display = 'none';
       document.getElementById('loginScreen').style.display = 'flex';
