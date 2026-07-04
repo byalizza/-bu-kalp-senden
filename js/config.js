@@ -41,6 +41,12 @@ const APP_CONFIG = {
     songs: 'songs'
   },
 
+  // Şarkı listesi (assets/sounds/ klasöründen çalar)
+  // Kullanım: MP3'ü assets/sounds/ klasörüne yükle, buraya adını ekle
+  playlist: [
+    // { title: 'Şarkı Adı', artist: 'Sanatçı', fileName: 'dosya.mp3', lyrics: 'sözler...' }
+  ],
+
   // Sanal evcil hayvan mesajları
   petMessages: [
     'Seni çok seviyorum! 💕',

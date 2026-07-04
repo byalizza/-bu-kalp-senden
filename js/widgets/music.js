@@ -1,5 +1,5 @@
 // ============================================
-// MUSIC WIDGET - assets/sounds + Firebase Sync
+// MUSIC WIDGET - assets/sounds klasöründen çalar
 // ============================================
 
 const MusicWidget = {
@@ -8,7 +8,6 @@ const MusicWidget = {
   audio: null,
   lyricsVisible: false,
   playlist: [],
-  dbRef: null,
 
   init() {
     this.audio = document.getElementById('bgMusic');
@@ -26,7 +25,7 @@ const MusicWidget = {
     this.nowPlayingBadge = document.getElementById('nowPlayingBadge');
 
     this.setupListeners();
-    this.setupFirebase();
+    this.loadFromConfig();
   },
 
   setupListeners() {
@@ -49,41 +48,9 @@ const MusicWidget = {
     });
   },
 
-  setupFirebase() {
-    const db = getDatabase();
-    if (!db) { this.loadLocal(); return; }
-
-    const path = APP_CONFIG.firebasePaths.playlist;
-    this.dbRef = db.ref(path);
-
-    this.dbRef.on('value', (snapshot) => {
-      try {
-        const data = snapshot.val();
-        this.playlist = [];
-        if (data) {
-          Object.keys(data).forEach(key => {
-            const s = data[key];
-            if (s) { s._key = key; this.playlist.push(s); }
-          });
-        }
-        this.saveLocal();
-        this.renderPlaylist();
-      } catch (e) { /* ignore */ }
-    }, (err) => { this.loadLocal(); });
-  },
-
-  loadLocal() {
-    try {
-      this.playlist = JSON.parse(localStorage.getItem('playlist_data') || '[]');
-      this.renderPlaylist();
-    } catch (e) {
-      this.playlist = [];
-      this.renderPlaylist();
-    }
-  },
-
-  saveLocal() {
-    try { localStorage.setItem('playlist_data', JSON.stringify(this.playlist)); } catch (e) {}
+  loadFromConfig() {
+    this.playlist = APP_CONFIG.playlist ? APP_CONFIG.playlist.map(s => ({ ...s })) : [];
+    this.renderPlaylist();
   },
 
   renderPlaylist() {
