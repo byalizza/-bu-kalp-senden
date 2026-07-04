@@ -169,48 +169,50 @@ const LocketWidget = {
   },
 
   uploadPhoto(dataUrl) {
-    // Blob'a çevir
-    const byteString = atob(dataUrl.split(',')[1]);
-    const mimeString = dataUrl.split(',')[0].split(':')[1].split(';')[0];
-    const ab = new ArrayBuffer(byteString.length);
-    const ia = new Uint8Array(ab);
-    for (let i = 0; i < byteString.length; i++) {
-      ia[i] = byteString.charCodeAt(i);
-    }
-    const blob = new Blob([ab], { type: mimeString });
+    // Önce sıkıştır (canvas ile)
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const max = 720;
+      let w = img.width, h = img.height;
+      if (w > max || h > max) {
+        if (w > h) { h = h * max / w; w = max; }
+        else { w = w * max / h; h = max; }
+      }
+      canvas.width = w; canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      if (this.facingMode === 'user') {
+        ctx.translate(w, 0);
+        ctx.scale(-1, 1);
+      }
+      ctx.drawImage(img, 0, 0, w, h);
+      const compressed = canvas.toDataURL('image/jpeg', 0.7);
 
-    const storage = getStorage();
-    if (storage) {
-      const path = `${APP_CONFIG.firebasePaths.photos}/${Date.now()}_sipsak.jpg`;
-      const uploadTask = storage.ref(path).put(blob);
-      uploadTask.then(snapshot => snapshot.ref.getDownloadURL())
-        .then(url => {
-          const db = getDatabase();
-          if (db) {
-            db.ref(APP_CONFIG.firebasePaths.photos).push({
-              url: url,
-              from: APP_CONFIG.welcomeName,
-              timestamp: Date.now(),
-              expiresAt: Date.now() + 24 * 60 * 60 * 1000,
-              viewed: false
-            });
-          }
-        }).catch(err => {
-          console.error('Yükleme hatası:', err);
-          // Yerel dene
-          this.saveLocal(dataUrl);
-        });
-    } else {
-      this.saveLocal(dataUrl);
-    }
+      // Firebase Realtime DB'ye kaydet
+      const photoData = {
+        url: compressed,
+        from: APP_CONFIG.welcomeName || 'Aşkım',
+        timestamp: Date.now(),
+        expiresAt: Date.now() + 24 * 60 * 60 * 1000,
+        viewed: false
+      };
+
+      const db = getDatabase();
+      if (db) {
+        db.ref(APP_CONFIG.firebasePaths.photos).push(photoData).catch(() => this.saveLocal(compressed));
+      } else {
+        this.saveLocal(compressed);
+      }
+      this.showToast('📸 Şipşak gönderildi!');
+    };
+    img.src = dataUrl;
   },
 
   saveLocal(dataUrl) {
-    // LocalStorage'a kaydet
     const photos = JSON.parse(localStorage.getItem('sipsak_photos') || '[]');
     photos.push({
       url: dataUrl,
-      from: APP_CONFIG.welcomeName,
+      from: APP_CONFIG.welcomeName || 'Aşkım',
       timestamp: Date.now(),
       expiresAt: Date.now() + 24 * 60 * 60 * 1000,
       viewed: false
