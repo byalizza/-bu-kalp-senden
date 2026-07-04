@@ -66,6 +66,12 @@ const App = {
           MessageWidget.hideBadge();
           MessageWidget.scrollToBottom();
         }
+
+        if (typeof LocketWidget !== 'undefined') {
+          if (targetId !== 'locketWidget') {
+            LocketWidget.stopCamera();
+          }
+        }
       });
     });
   }
