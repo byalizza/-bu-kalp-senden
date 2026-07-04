@@ -6,21 +6,22 @@ const APP_CONFIG = {
   // Özel tarih şifresi (GG/AA/YYYY)
   // DEĞİŞTİR: Buraya kendi özel tarihinizi girin
   secretDate: {
-    day: 14,
-    month: 2,
-    year: 2024
+    day: 18,
+    month: 4,
+    year: 2025
   },
 
   // İlişki başlangıç tarihi (sayaç için)
-  // DEĞİŞTİR: Buraya kendi başlangıç tarihinizi girin
   relationshipStart: {
-    day: 14,
-    month: 2,
-    year: 2024
+    day: 19,
+    month: 3,
+    year: 2025,
+    hour: 15,
+    minute: 30
   },
 
   // Hoş geldin mesajında görünecek isim
-  welcomeName: 'Aşkım',
+  welcomeName: 'Ela',
 
   // Bildirim aralığı (milisaniye cinsinden) - varsayılan: 1 saat
   notificationInterval: 60 * 60 * 1000,

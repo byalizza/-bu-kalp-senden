@@ -17,7 +17,7 @@ const CounterWidget = {
 
   getStartDate() {
     const start = APP_CONFIG.relationshipStart;
-    return new Date(start.year, start.month - 1, start.day);
+    return new Date(start.year, start.month - 1, start.day, start.hour || 0, start.minute || 0);
   },
 
   start() {
