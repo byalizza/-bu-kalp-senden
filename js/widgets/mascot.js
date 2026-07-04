@@ -47,6 +47,7 @@ const MessageWidget = {
     this.msgInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') this.sendMessage();
     });
+    this.msgInput.addEventListener('focus', () => setTimeout(() => this.scrollToBottom(), 300));
 
     // Pofuduk'a tıklama / sevme
     this.petEl.addEventListener('click', () => this.petInteraction());

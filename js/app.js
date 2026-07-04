@@ -45,7 +45,7 @@ const App = {
     if (window.visualViewport) {
       window.visualViewport.addEventListener('resize', () => {
         if (typeof MessageWidget !== 'undefined' && MessageWidget.initialized) {
-          MessageWidget.scrollToBottom();
+          setTimeout(() => MessageWidget.scrollToBottom(), 100);
         }
       });
     }
