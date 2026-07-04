@@ -99,9 +99,8 @@ const MusicWidget = {
       this.audio.load();
       this.nowPlayingBadge.textContent = (song.title || '').substring(0, 15);
     } else {
-      this.audio.src = `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${(index % 16) + 1}.mp3`;
-      this.audio.load();
-      this.nowPlayingBadge.textContent = (song.title || '').substring(0, 15);
+      this.audio.src = '';
+      this.nowPlayingBadge.textContent = 'Dosya bulunamadı';
     }
 
     document.querySelectorAll('.playlist-item').forEach((el, i) => {
