@@ -27,8 +27,28 @@ const App = {
 
     // MessageWidget sadece welcome sonrası init edilir (login.js içinde)
     this.setupFullscreen();
+    this.setupInitialWidgetState();
+    this.setupKeyboardHandler();
     this.isReady = true;
     console.log('💖 Bu Kalp Senden Vazgeçmeyecek - Uygulama hazır!');
+  },
+
+  setupInitialWidgetState() {
+    document.querySelectorAll('.widget').forEach(w => {
+      if (!w.classList.contains('active')) {
+        w.style.display = 'none';
+      }
+    });
+  },
+
+  setupKeyboardHandler() {
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', () => {
+        if (typeof MessageWidget !== 'undefined' && MessageWidget.initialized) {
+          MessageWidget.scrollToBottom();
+        }
+      });
+    }
   },
 
   setupFullscreen() {
