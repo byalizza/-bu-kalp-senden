@@ -290,7 +290,7 @@ const LocketWidget = {
     if (this.video) this.video.style.opacity = '0';
 
     this.previewImg.src = photo.url;
-    this.previewSender.textContent = photo.from === 'Efe' ? '💪 Efe' : '🌸 Ela';
+    this.previewSender.textContent = photo.from === 'Efe' ? 'Efe' : 'Ela';
 
     const isLiked = this.likedPhotos[photo.id || photo.timestamp];
     this.previewLikeBtn.textContent = isLiked ? '❤️ Beğendin' : '💕 Beğen';
@@ -452,7 +452,7 @@ const LocketWidget = {
       this.allPhotos.forEach(p => {
         const div = document.createElement('div');
         div.className = 'gallery-grid-item';
-        const badge = p.from === 'Efe' ? '💪' : '🌸';
+        const badge = p.from; // 'Efe' or 'Ela'
         const time = new Date(p.timestamp).toLocaleString('tr-TR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
         div.innerHTML = `<img src="${p.url}" alt=""><span class="gallery-grid-badge">${badge}</span><span class="gallery-grid-time">${time}</span>`;
         div.addEventListener('click', () => {

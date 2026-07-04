@@ -224,14 +224,9 @@ body {
   box-shadow: 0 0 30px rgba(255, 71, 87, 0.15);
 }
 
-.select-btn-emoji {
-  font-size: 42px;
-  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
-}
-
 .select-btn-text {
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 20px;
+  font-weight: 700;
   color: var(--text-primary);
   letter-spacing: 0.5px;
 }
