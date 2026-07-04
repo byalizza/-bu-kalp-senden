@@ -67,10 +67,6 @@ const MusicWidget = {
           });
         }
         this.saveLocal();
-        if (this.playlist.length === 0 && APP_CONFIG.playlist) {
-          this.playlist = APP_CONFIG.playlist.map(s => ({ ...s }));
-          this.syncToFirebase();
-        }
         this.renderPlaylist();
       } catch (e) { /* ignore */ }
     }, (err) => { this.loadLocal(); });
@@ -78,29 +74,16 @@ const MusicWidget = {
 
   loadLocal() {
     try {
-      const saved = JSON.parse(localStorage.getItem('playlist_data') || '[]');
-      if (saved.length > 0) {
-        this.playlist = saved;
-      } else if (APP_CONFIG.playlist) {
-        this.playlist = APP_CONFIG.playlist.map(s => ({ ...s }));
-      }
+      this.playlist = JSON.parse(localStorage.getItem('playlist_data') || '[]');
       this.renderPlaylist();
     } catch (e) {
-      this.playlist = APP_CONFIG.playlist ? APP_CONFIG.playlist.map(s => ({ ...s })) : [];
+      this.playlist = [];
       this.renderPlaylist();
     }
   },
 
   saveLocal() {
     try { localStorage.setItem('playlist_data', JSON.stringify(this.playlist)); } catch (e) {}
-  },
-
-  syncToFirebase() {
-    if (!this.dbRef) return;
-    this.playlist.forEach(s => {
-      const { _key, ...data } = s;
-      this.dbRef.push(data);
-    });
   },
 
   renderPlaylist() {

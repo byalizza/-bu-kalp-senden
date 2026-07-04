@@ -41,45 +41,6 @@ const APP_CONFIG = {
     songs: 'songs'
   },
 
-  // Şarkı listesi (assets/sounds/ klasöründen çalar)
-  playlist: [
-    {
-      id: 'song1',
-      title: 'Ah Be Kardeşim',
-      artist: 'Yalın',
-      fileName: '',
-      lyrics: 'Ah be kardeşim\nNe çabuk geçti yıllar\nAh be kardeşim\nNerelerde şimdi o eski dostlar...\n\nBu kalp seni unutur mu?\nBu kalp senden vazgeçer mi?\nHer şey bir anda olur\nAma sevmek bir ömür sürer...'
-    },
-    {
-      id: 'song2',
-      title: 'Seni Severdim',
-      artist: 'Yalın',
-      fileName: '',
-      lyrics: 'Seni severdim en güzel günlerimde\nSeni severdim en sevdiğim şehirlerde\nBir bahar akşamı gibiydin\nİçimde hep taze kaldın...\n\nYıllar geçse de\nBu kalp hep seninle atar\nSenden başkasını sevmez\nBu kalp senden vazgeçmez...'
-    },
-    {
-      id: 'song3',
-      title: 'Ben Böyle Değildim',
-      artist: 'Yalın',
-      fileName: '',
-      lyrics: 'Ben böyle değildim sen gelmeden önce\nBir başkaydı dünya, bir başkaydı gece\nSen geldin ve her şey değişti\nİçimde bir bahar çiçeği açtı...\n\nBu kalp sana emanet\nSakın kırma onu\nSevgiyle büyüttüm ben\nSenin için korudum...'
-    },
-    {
-      id: 'song4',
-      title: 'Küçücük Bir Kız',
-      artist: 'Yalın',
-      fileName: '',
-      lyrics: 'Küçücük bir kızdın sen\nGözlerin ışıl ışıl\nDünyalar kadar masum\nBir o kadar da güzeldin...\n\nBüyüdün ve ben buldum seni\nŞimdi hayatımın anlamısın\nHer gün yeniden seviyorum\nBu kalp senden vazgeçmeyecek...'
-    },
-    {
-      id: 'song5',
-      title: 'Seninle Ben',
-      artist: 'Yalın',
-      fileName: '',
-      lyrics: 'Seninle ben\nBir ömür boyu yan yana\nSeninle ben\nHer zorluğa karşı durana...\n\nEllerim ellerinde\nGözlerim gözlerinde\nBu dünyanın tüm güzellikleri\nBir sende bir de bende...'
-    }
-  ],
-
   // Sanal evcil hayvan mesajları
   petMessages: [
     'Seni çok seviyorum! 💕',
