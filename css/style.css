@@ -80,6 +80,16 @@ body {
   animation-delay: 2.2s;
 }
 
+.splash-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
+  padding: 0 28px;
+}
+
 .splash-heart {
   margin-bottom: 24px;
   filter: drop-shadow(0 0 40px rgba(255, 71, 87, 0.6));
