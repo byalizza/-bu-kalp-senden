@@ -20,15 +20,13 @@ const LoginWidget = {
     this.createParticles('loginParticles');
     this.createParticles('selectParticles');
 
-    // Kayıtlı kullanıcı varsa doğrudan ilerle
-    const saved = localStorage.getItem('app_user');
-    if (saved) {
-      this.currentUser = saved;
-      if (saved === 'ela') {
-        this.enterAsEla();
-      } else {
-        this.showLoginScreen();
-      }
+    // Sıradaki kullanıcıyı belirle (dönüşümlü)
+    const lastUser = localStorage.getItem('last_user');
+    if (lastUser) {
+      this.currentUser = lastUser === 'efe' ? 'ela' : 'efe';
+      localStorage.setItem('last_user', this.currentUser);
+      window.currentUser = this.currentUser;
+      this.showLoginScreen();
     } else {
       this.userSelectScreen.style.display = 'flex';
     }
@@ -37,15 +35,16 @@ const LoginWidget = {
   setupListeners() {
     document.getElementById('selectEfeBtn').addEventListener('click', () => {
       this.currentUser = 'efe';
-      localStorage.setItem('app_user', 'efe');
+      localStorage.setItem('last_user', 'efe');
       this.userSelectScreen.style.display = 'none';
       this.showLoginScreen();
     });
 
     document.getElementById('selectElaBtn').addEventListener('click', () => {
       this.currentUser = 'ela';
-      localStorage.setItem('app_user', 'ela');
-      this.enterAsEla();
+      localStorage.setItem('last_user', 'ela');
+      this.userSelectScreen.style.display = 'none';
+      this.showLoginScreen();
     });
 
     this.loginBtn.addEventListener('click', () => this.checkPassword());
@@ -89,12 +88,6 @@ const LoginWidget = {
   showLoginScreen() {
     this.loginScreen.style.display = 'flex';
     this.loginScreen.style.animation = 'fadeIn 0.6s ease';
-  },
-
-  enterAsEla() {
-    this.userSelectScreen.style.display = 'none';
-    this.loginScreen.style.display = 'none';
-    this.goToApp();
   },
 
   checkPassword() {
