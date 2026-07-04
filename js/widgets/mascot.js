@@ -33,6 +33,8 @@ const MessageWidget = {
     this.petEmoji = document.getElementById('msgPetEmoji');
 
     this.user = window.currentUser || 'efe';
+    this.badge = document.getElementById('msgBadge');
+    this.navBtn = document.getElementById('navMesaj');
 
     this.setupListeners();
     this.setupFirebase();
@@ -85,6 +87,12 @@ const MessageWidget = {
             this.messages.push(msg);
             this.renderMessage(msg);
             this.saveToLocal(msg);
+            const isActive = document.getElementById('petWidget').classList.contains('active');
+            if (isActive) {
+              this.scrollToBottom();
+            } else {
+              this.showBadge();
+            }
           }
         }
       } catch (e) { /* ignore */ }
@@ -176,6 +184,10 @@ const MessageWidget = {
       }
     } catch (e) { /* ignore */ }
   },
+
+  showBadge() { if (this.badge) this.badge.style.display = 'block'; },
+
+  hideBadge() { if (this.badge) this.badge.style.display = 'none'; },
 
   scrollToBottom() {
     setTimeout(() => {

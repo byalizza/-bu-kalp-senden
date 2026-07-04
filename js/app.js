@@ -43,6 +43,11 @@ const App = {
         document.querySelectorAll('.widget').forEach(w => w.classList.remove('active'));
         const target = document.getElementById(targetId);
         if (target) target.classList.add('active');
+
+        if (targetId === 'petWidget' && typeof MessageWidget !== 'undefined') {
+          MessageWidget.hideBadge();
+          MessageWidget.scrollToBottom();
+        }
       });
     });
   }

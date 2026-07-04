@@ -576,6 +576,21 @@ body {
   transform: translateX(-50%) scaleX(1);
 }
 
+.nav-badge {
+  position: absolute;
+  top: 4px;
+  right: calc(50% - 24px);
+  width: 8px;
+  height: 8px;
+  background: #ff3b30;
+  border-radius: 50%;
+  border: 2px solid rgba(13,13,13,0.9);
+}
+
+.nav-item {
+  position: relative;
+}
+
 /* ---------- WIDGET CONTAINER ---------- */
 .widget-container {
   flex: 1;
