@@ -72,30 +72,13 @@ const MemoriesWidget = {
   loadLocal() {
     if (this.memories.length > 0) return;
     try {
-      const saved = JSON.parse(localStorage.getItem('memories_data') || '[]');
-      if (saved.length > 0) {
-        this.memories = saved;
-        this.render();
-      } else if (APP_CONFIG.memories && APP_CONFIG.memories.length > 0) {
-        this.memories = APP_CONFIG.memories.map(m => ({ ...m }));
-        this.render();
-        this.syncToFirebase();
-      } else {
-        this.render();
-      }
+      this.memories = JSON.parse(localStorage.getItem('memories_data') || '[]');
+      this.render();
     } catch (e) { this.render(); }
   },
 
   saveLocal() {
     try { localStorage.setItem('memories_data', JSON.stringify(this.memories)); } catch (e) {}
-  },
-
-  syncToFirebase() {
-    if (!this.dbRef) return;
-    this.memories.forEach(m => {
-      const { _key, ...data } = m;
-      this.dbRef.push(data);
-    });
   },
 
   render() {

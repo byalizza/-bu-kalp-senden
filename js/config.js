@@ -80,36 +80,4 @@ const APP_CONFIG = {
     { keywords: ['dans', 'oyna', 'şarkı', 'müzik'], response: 'Müzik mi? Hadi dans edelim! 🎵💃' }
   ],
 
-  // Gizli anılar (şablon)
-  // DEĞİŞTİR: Kendi anılarınızla doldurun
-  memories: [
-    {
-      id: 'mem1',
-      title: 'İlk Tanışma',
-      date: '14 Şubat 2024',
-      story: 'İlk kez göz göze geldiğimiz o an, zaman durmuştu. Etraftaki her şey silikleşmiş, sadece sen kalmıştın gözümde. O gün bugündür bu kalp sadece senin için atıyor. Konuşmaya başladığımızda sesinin bu kadar güzel olacağını tahmin etmezdim. Her sözcüğün kulağıma bir melodi gibi geliyordu. O an anladım ki bu bir başlangıçtı, hiç bitmeyecek bir hikayenin ilk sayfası...',
-      emoji: '💫'
-    },
-    {
-      id: 'mem2',
-      title: 'İlk Buluşma',
-      date: '20 Şubat 2024',
-      story: 'Ellerim ilk kez ellerini tuttuğunda dünyanın en güzel hissiydi bu. O an her şey yerli yerine oturdu. Kalbim öyle hızlı atıyordu ki duyacağından korktum. Saatlerce konuştuk, hiç bitmesin istedik o gece. Yıldızlar bile o gece bizim için daha parlak parlıyordu. Seninle geçen her dakika ayrı bir güzellik katıyor hayatıma.',
-      emoji: '🌙'
-    },
-    {
-      id: 'mem3',
-      title: 'İlk "Seni Seviyorum"',
-      date: '14 Mart 2024',
-      story: 'O üç kelime... İçimde fırtınalar kopuyordu. Gözlerinin içine bakıp söylediğinde dünyanın en güzel sesini duymuştum. Seni seviyorum dediğin an kalbim durdu sandım. Sonra yeniden başladı, ama bu sefer sadece senin için atıyordu. O andan beri bu kalp hep senin için çarpıyor, hep seni seviyor.',
-      emoji: '💖'
-    },
-    {
-      id: 'mem4',
-      title: 'İlk Tatilimiz',
-      date: '1 Temmuz 2024',
-      story: 'Deniz, kum, güneş ve sen... Daha ne isterdim ki? Gün batımında el ele yürümek, dalgaların sesinde sana fısıldamak. O an dondurmak istedim zamanı. Güldüğünde gözlerinin kenarında oluşan çizgiler, saçlarının rüzgarda dağılışı, her şeyinle mükemmeldin. Keşke o tatil hiç bitmeseydi.',
-      emoji: '🌊'
-    }
-  ]
 };
