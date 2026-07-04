@@ -20,12 +20,14 @@ const LoginWidget = {
     this.createParticles('loginParticles');
     this.createParticles('selectParticles');
 
-    // Sıradaki kullanıcıyı belirle (dönüşümlü)
-    const lastUser = localStorage.getItem('last_user');
-    if (lastUser) {
-      this.currentUser = lastUser === 'efe' ? 'ela' : 'efe';
-      localStorage.setItem('last_user', this.currentUser);
-      window.currentUser = this.currentUser;
+    // Eski dönüşümlü sistem varsa temizle
+    if (localStorage.getItem('last_user')) localStorage.removeItem('last_user');
+
+    // Kayıtlı kullanıcı varsa onu kullan, yoksa seçim ekranı
+    const saved = localStorage.getItem('app_user');
+    if (saved) {
+      this.currentUser = saved;
+      window.currentUser = saved;
       this.showLoginScreen();
     } else {
       this.userSelectScreen.style.display = 'flex';
@@ -35,14 +37,14 @@ const LoginWidget = {
   setupListeners() {
     document.getElementById('selectEfeBtn').addEventListener('click', () => {
       this.currentUser = 'efe';
-      localStorage.setItem('last_user', 'efe');
+      localStorage.setItem('app_user', 'efe');
       this.userSelectScreen.style.display = 'none';
       this.showLoginScreen();
     });
 
     document.getElementById('selectElaBtn').addEventListener('click', () => {
       this.currentUser = 'ela';
-      localStorage.setItem('last_user', 'ela');
+      localStorage.setItem('app_user', 'ela');
       this.userSelectScreen.style.display = 'none';
       this.showLoginScreen();
     });
