@@ -67,10 +67,8 @@ const App = {
           MessageWidget.scrollToBottom();
         }
 
-        if (typeof LocketWidget !== 'undefined') {
-          if (targetId !== 'locketWidget') {
-            LocketWidget.stopCamera();
-          }
+        if (typeof LocketWidget !== 'undefined' && targetId !== 'locketWidget') {
+          LocketWidget.stopCamera();
         }
       });
     });

@@ -48,7 +48,9 @@ const LocketWidget = {
         this.video.srcObject = stream;
         this.video.play();
         this.shutter.classList.add('visible');
+        this.shutter.style.display = '';
         this.switchBtn.classList.add('visible');
+        this.switchBtn.style.display = '';
       }).catch(() => {
         this.placeholder.style.display = 'flex';
         this.placeholder.style.opacity = '1';
@@ -66,7 +68,9 @@ const LocketWidget = {
     }
     this.video.srcObject = null;
     this.shutter.classList.remove('visible');
+    this.shutter.style.display = 'none';
     this.switchBtn.classList.remove('visible');
+    this.switchBtn.style.display = 'none';
     this.placeholder.style.display = 'flex';
     this.placeholder.style.opacity = '1';
     this.placeholder.querySelector('p').textContent = 'Kamerayı başlatmak için dokun';
