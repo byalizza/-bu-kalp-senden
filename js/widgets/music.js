@@ -1,7 +1,3 @@
-// ============================================
-// MUSIC WIDGET - assets/sounds klasöründen çalar
-// ============================================
-
 const MusicWidget = {
   currentIndex: 0,
   isPlaying: false,
@@ -13,6 +9,8 @@ const MusicWidget = {
   init() {
     this.audio = document.getElementById('bgMusic');
     this.playBtn = document.getElementById('playPauseBtn');
+    this.prevBtn = document.getElementById('prevBtn');
+    this.nextBtn = document.getElementById('nextBtn');
     this.progressFill = document.getElementById('progressFill');
     this.progressBar = document.getElementById('progressBar');
     this.currentTimeEl = document.getElementById('currentTime');
@@ -24,6 +22,7 @@ const MusicWidget = {
     this.lyricsContent = document.getElementById('lyricsContent');
     this.lyricsCloseBtn = document.getElementById('lyricsCloseBtn');
     this.nowPlayingBadge = document.getElementById('nowPlayingBadge');
+    this.volumeSlider = document.getElementById('volumeSlider');
 
     this.toggleBtn = document.getElementById('musicToggleBtn');
 
@@ -34,6 +33,8 @@ const MusicWidget = {
   setupListeners() {
     this.playBtn.addEventListener('click', () => this.togglePlay());
     this.toggleBtn.addEventListener('click', () => this.togglePlay());
+    this.prevBtn.addEventListener('click', () => this.prev());
+    this.nextBtn.addEventListener('click', () => this.next());
     this.lyricsCloseBtn.addEventListener('click', () => this.hideLyrics());
 
     this.progressBar.addEventListener('click', (e) => {
@@ -41,6 +42,12 @@ const MusicWidget = {
       const percent = (e.clientX - rect.left) / rect.width;
       if (this.audio && this.audio.duration) {
         this.audio.currentTime = percent * this.audio.duration;
+      }
+    });
+
+    this.volumeSlider.addEventListener('input', () => {
+      if (this.audio) {
+        this.audio.volume = parseFloat(this.volumeSlider.value);
       }
     });
 
@@ -56,6 +63,7 @@ const MusicWidget = {
     this.playlist = APP_CONFIG.playlist ? APP_CONFIG.playlist.map(s => ({ ...s })) : [];
     this.renderPlaylist();
     this.updatePlayButton();
+    if (this.audio) this.audio.volume = parseFloat(this.volumeSlider?.value || 0.7);
   },
 
   renderPlaylist() {
@@ -140,14 +148,21 @@ const MusicWidget = {
     }
   },
 
+  prev() {
+    this.play((this.currentIndex - 1 + this.playlist.length) % this.playlist.length);
+  },
+
+  next() {
+    this.play((this.currentIndex + 1) % this.playlist.length);
+  },
+
   updatePlayButton() {
-    const icon = this.isPlaying
-      ? '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>'
-      : '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>';
     this.playBtn.innerHTML = this.isPlaying
       ? '<svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>'
       : '<svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>';
-    this.toggleBtn.innerHTML = icon;
+    this.toggleBtn.innerHTML = this.isPlaying
+      ? '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>'
+      : '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>';
   },
 
   updateProgress() {
@@ -166,8 +181,6 @@ const MusicWidget = {
     const s = Math.floor(seconds % 60);
     return `${m}:${s.toString().padStart(2, '0')}`;
   },
-
-  next() { this.play((this.currentIndex + 1) % this.playlist.length); },
 
   toggleLyrics(index) {
     const song = this.playlist[index];
