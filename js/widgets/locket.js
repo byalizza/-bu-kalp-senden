@@ -29,7 +29,6 @@ const LocketWidget = {
     this.expiryCountdown = document.getElementById('expiryCountdown');
 
     this.setupListeners();
-    this.setupFirebase();
     this.checkIncomingPhotos();
   },
 

@@ -121,7 +121,6 @@ const MusicWidget = {
         return;
       });
       this.isPlaying = true;
-      this.startProgressUpdate();
     }
     this.updatePlayButton();
   },
