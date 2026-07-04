@@ -31,18 +31,6 @@ const MusicWidget = {
     this.setupListeners();
     this.setupFirebase();
     this.addEditButton();
-    this.loadYouTubeAPI();
-  },
-
-  loadYouTubeAPI() {
-    if (window.YT) return;
-    const tag = document.createElement('script');
-    tag.src = 'https://www.youtube.com/iframe_api';
-    const first = document.getElementsByTagName('script')[0];
-    first.parentNode.insertBefore(tag, first);
-    window.onYouTubeIframeAPIReady = () => {
-      this.playerReady = true;
-    };
   },
 
   setupListeners() {
@@ -133,11 +121,10 @@ const MusicWidget = {
     this.playlist.forEach((song, index) => {
       const item = document.createElement('button');
       item.className = 'playlist-item' + (index === this.currentIndex ? ' active' : '');
-      const hasYT = song.youtubeId || this.getYoutubeId(song.url || '');
       item.innerHTML = `
         <span class="pl-index">${index + 1}</span>
         <div class="pl-info">
-          <div class="pl-name">${this.esc(song.title || '')} ${hasYT ? '🎬' : ''}</div>
+          <div class="pl-name">${this.esc(song.title || '')}</div>
           <div class="pl-artist">${this.esc(song.artist || '')}</div>
         </div>
         <button class="pl-lyric-btn" data-index="${index}">Söz</button>
@@ -157,10 +144,16 @@ const MusicWidget = {
     });
   },
 
-  getYoutubeId(url) {
-    if (!url) return '';
-    const match = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-    return match ? match[1] : '';
+  getSongUrl(song) {
+    if (song.fileName) {
+      return `assets/sounds/${song.fileName.replace(/^\/+/, '')}`;
+    }
+    if (song.audioUrl) return song.audioUrl;
+    if (song.url) {
+      // YouTube URL'si değilse direkt kullan
+      if (!song.url.includes('youtube') && !song.url.includes('youtu.be')) return song.url;
+    }
+    return '';
   },
 
   play(index) {
@@ -171,31 +164,9 @@ const MusicWidget = {
     this.currentSongName.textContent = song.title || 'Bilinmeyen';
     this.currentArtist.textContent = song.artist || '';
 
-    const ytId = song.youtubeId || this.getYoutubeId(song.url || '');
-    if (ytId) {
-      this.audio.src = `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${(index % 16) + 1}.mp3`;
-      this.audio.load();
-      this.nowPlayingBadge.textContent = '🎬 YouTube - ' + (song.title || '').substring(0, 12);
-      const ytUrl = `https://www.youtube.com/watch?v=${ytId}`;
-      if (this.playerReady && window.YT) {
-        if (!this.player) {
-          this.player = new YT.Player('ytPlayer', {
-            height: '0', width: '0',
-            videoId: ytId,
-            events: {
-              onStateChange: (e) => {
-                if (e.data === YT.PlayerState.ENDED) this.next();
-              }
-            }
-          });
-        } else {
-          this.player.loadVideoById(ytId);
-        }
-      } else {
-        window.open(ytUrl, '_blank');
-      }
-    } else if (song.audioUrl) {
-      this.audio.src = song.audioUrl;
+    const src = this.getSongUrl(song);
+    if (src) {
+      this.audio.src = src;
       this.audio.load();
       this.nowPlayingBadge.textContent = (song.title || '').substring(0, 15);
     } else {
@@ -284,7 +255,7 @@ const MusicWidget = {
     document.getElementById('songEditTitleInput').value = song.title || '';
     document.getElementById('songEditArtist').value = song.artist || '';
     document.getElementById('songEditLyrics').value = song.lyrics || '';
-    document.getElementById('songEditUrl').value = (song.youtubeId ? `https://youtube.com/watch?v=${song.youtubeId}` : (song.url || ''));
+    document.getElementById('songEditFile').value = (song.fileName || '');
     document.getElementById('songEditError').textContent = '';
     document.getElementById('songEditDeleteBtn').style.display = isEdit ? 'inline-block' : 'none';
     document.getElementById('songEditModal').style.display = 'flex';
@@ -304,12 +275,11 @@ const MusicWidget = {
     const title = document.getElementById('songEditTitleInput').value.trim();
     const artist = document.getElementById('songEditArtist').value.trim();
     const lyrics = document.getElementById('songEditLyrics').value.trim();
-    const url = document.getElementById('songEditUrl').value.trim();
+    const fileName = document.getElementById('songEditFile').value.trim();
 
     if (!title) { document.getElementById('songEditError').textContent = 'Şarkı adı gerekli'; return; }
 
-    const ytId = this.getYoutubeId(url);
-    const songData = { title, artist: artist || 'Bilinmeyen', lyrics, url, youtubeId: ytId };
+    const songData = { title, artist: artist || 'Bilinmeyen', lyrics, fileName, audioUrl: '' };
 
     if (this.editSongIndex >= 0 && this.editSongIndex < this.playlist.length) {
       this.playlist[this.editSongIndex] = { ...songData, _key: this.playlist[this.editSongIndex]._key };
