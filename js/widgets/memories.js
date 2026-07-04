@@ -226,17 +226,7 @@ const MemoriesWidget = {
     };
 
     if (photoFile) {
-      const storage = getStorage();
-      if (storage) {
-        const path = `memories/${Date.now()}_${photoFile.name}`;
-        storage.ref(path).put(photoFile).then(s => s.ref.getDownloadURL()).then(url => {
-          saveToFirebase(url);
-        }).catch(() => saveToFirebase(''));
-      } else {
-        const reader = new FileReader();
-        reader.onload = (e) => saveToFirebase(e.target.result);
-        reader.readAsDataURL(photoFile);
-      }
+      this.compressImage(photoFile, (base64) => saveToFirebase(base64));
     } else {
       saveToFirebase('');
     }
@@ -259,6 +249,28 @@ const MemoriesWidget = {
 
   memoryEditModalClose() {
     document.getElementById('memoryEditModal').style.display = 'none';
+  },
+
+  compressImage(file, callback) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let w = img.width, h = img.height;
+        const max = 800;
+        if (w > max || h > max) {
+          if (w > h) { h = h * max / w; w = max; }
+          else { w = w * max / h; h = max; }
+        }
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        callback(canvas.toDataURL('image/jpeg', 0.6));
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
   },
 
   escapeHtml(text) {
