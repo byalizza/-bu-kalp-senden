@@ -27,6 +27,7 @@ const App = {
       document.getElementById('loginScreen').style.display = 'flex';
       document.getElementById('loginScreen').style.animation = 'fadeIn 0.6s ease';
 
+      this.navHistory = [];
       this.initializeWidgets();
       this.setupNavigation();
       this.setupBackButton();
@@ -83,39 +84,49 @@ const App = {
     });
   },
 
+  switchTo(targetId, saveHistory) {
+    if (!targetId) return;
+    const navItems = document.querySelectorAll('.nav-item');
+    const currentActive = document.querySelector('.nav-item.active');
+    if (saveHistory && currentActive) {
+      const prevId = currentActive.dataset.target;
+      if (prevId !== targetId) this.navHistory.push(prevId);
+    }
+
+    navItems.forEach(n => n.classList.remove('active'));
+    const targetNav = document.querySelector(`.nav-item[data-target="${targetId}"]`);
+    if (targetNav) targetNav.classList.add('active');
+
+    document.querySelectorAll('.widget').forEach(w => {
+      w.classList.remove('active');
+      w.style.display = 'none';
+    });
+    const target = document.getElementById(targetId);
+    if (target) {
+      target.classList.add('active');
+      target.style.display = '';
+    }
+
+    if (targetId === 'petWidget' && typeof MessageWidget !== 'undefined') {
+      MessageWidget.hideBadge();
+      MessageWidget.scrollToBottom();
+    }
+
+    if (typeof LocketWidget !== 'undefined' && targetId !== 'locketWidget') {
+      LocketWidget._hasActivated = false;
+      LocketWidget.stopCamera();
+    }
+
+    if (targetId === 'locketWidget' && typeof LocketWidget !== 'undefined') {
+      setTimeout(() => LocketWidget.onActivate(), 100);
+    }
+  },
+
   setupNavigation() {
     const navItems = document.querySelectorAll('.nav-item');
-
     navItems.forEach(item => {
       item.addEventListener('click', () => {
-        const targetId = item.dataset.target;
-
-        navItems.forEach(n => n.classList.remove('active'));
-        item.classList.add('active');
-
-        document.querySelectorAll('.widget').forEach(w => {
-          w.classList.remove('active');
-          w.style.display = 'none';
-        });
-        const target = document.getElementById(targetId);
-        if (target) {
-          target.classList.add('active');
-          target.style.display = '';
-        }
-
-        if (targetId === 'petWidget' && typeof MessageWidget !== 'undefined') {
-          MessageWidget.hideBadge();
-          MessageWidget.scrollToBottom();
-        }
-
-        if (typeof LocketWidget !== 'undefined' && targetId !== 'locketWidget') {
-          LocketWidget._hasActivated = false;
-          LocketWidget.stopCamera();
-        }
-
-        if (targetId === 'locketWidget' && typeof LocketWidget !== 'undefined') {
-          setTimeout(() => LocketWidget.onActivate(), 100);
-        }
+        this.switchTo(item.dataset.target, true);
       });
     });
   },
@@ -123,7 +134,10 @@ const App = {
   setupBackButton() {
     const btn = document.getElementById('backBtn');
     if (!btn) return;
-    btn.addEventListener('click', () => history.back());
+    btn.addEventListener('click', () => {
+      const prev = this.navHistory.pop();
+      if (prev) this.switchTo(prev, false);
+    });
   }
 };
 
