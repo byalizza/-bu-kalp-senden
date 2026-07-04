@@ -279,6 +279,16 @@
         <div class="locket-camera" id="locketCamera">
           <video id="cameraPreview" class="camera-preview" autoplay playsinline muted></video>
           <canvas id="cameraCanvas" class="camera-canvas" hidden></canvas>
+
+          <!-- Yeni fotoğraf önizleme -->
+          <div class="locket-preview" id="locketPreview" style="display:none;">
+            <img id="previewImage" class="preview-image" alt="anlik">
+            <div class="preview-bottom">
+              <span class="preview-sender" id="previewSender"></span>
+              <button class="preview-like-btn" id="previewLikeBtn">💕 Beğen</button>
+            </div>
+          </div>
+
           <div class="camera-placeholder" id="cameraPlaceholder">
             <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.3">
               <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
@@ -305,14 +315,16 @@
               <path d="M3.51 15a9 9 0 102.13-9.36L1 10"/>
             </svg>
           </div>
+          <button class="camera-gallery-btn" id="cameraGalleryBtn" title="Galeri">📷</button>
         </div>
 
-        <!-- Anlık galerisi -->
-        <div class="locket-gallery" id="locketGallery">
-          <div class="gallery-header">
-            <span>📸 Anlıklar</span>
+        <!-- Galeri overlay (tüm fotoğraflar) -->
+        <div class="locket-gallery-overlay" id="locketGalleryOverlay" style="display:none;">
+          <div class="gallery-overlay-header">
+            <span>📸 Tüm Anlıklar</span>
+            <button class="gallery-overlay-close" id="galleryOverlayClose">✕</button>
           </div>
-          <div class="gallery-scroll" id="galleryScroll"></div>
+          <div class="gallery-overlay-grid" id="galleryOverlayGrid"></div>
         </div>
       </div>
 

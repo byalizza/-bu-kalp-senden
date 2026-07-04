@@ -4,9 +4,10 @@ const LocketWidget = {
   isCapturing: false,
   allPhotos: [],
   currentFilter: 'none',
+  likedPhotos: {},
+  _startingCamera: false,
 
   init() {
-    this.cameraEl = document.getElementById('locketCamera');
     this.video = document.getElementById('cameraPreview');
     this.canvas = document.getElementById('cameraCanvas');
     this.placeholder = document.getElementById('cameraPlaceholder');
@@ -15,7 +16,15 @@ const LocketWidget = {
     this.countdown = document.getElementById('cameraCountdown');
     this.switchBtn = document.getElementById('cameraSwitchBtn');
     this.filtersEl = document.getElementById('cameraFilters');
-    this.galleryScroll = document.getElementById('galleryScroll');
+    this.galleryBtn = document.getElementById('cameraGalleryBtn');
+
+    this.preview = document.getElementById('locketPreview');
+    this.previewImg = document.getElementById('previewImage');
+    this.previewSender = document.getElementById('previewSender');
+    this.previewLikeBtn = document.getElementById('previewLikeBtn');
+
+    this.galleryOverlay = document.getElementById('locketGalleryOverlay');
+    this.galleryGrid = document.getElementById('galleryOverlayGrid');
 
     this.setupListeners();
     this.loadPhotos();
@@ -26,6 +35,8 @@ const LocketWidget = {
   setupListeners() {
     this.placeholder.addEventListener('click', () => this.startCamera());
     this.shutter.addEventListener('click', () => this.capture());
+    this.galleryBtn.addEventListener('click', () => this.openGallery());
+
     this.switchBtn.addEventListener('click', () => {
       this.facingMode = this.facingMode === 'environment' ? 'user' : 'environment';
       this.stopCamera();
@@ -39,6 +50,22 @@ const LocketWidget = {
         this.setFilter(btn.dataset.filter);
       });
     });
+
+    this.preview.addEventListener('click', (e) => {
+      if (e.target === this.preview || e.target === this.previewImg) {
+        this.hidePreview();
+      }
+    });
+
+    this.previewLikeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.likeCurrentPhoto();
+    });
+
+    document.getElementById('galleryOverlayClose').addEventListener('click', () => this.closeGallery());
+    this.galleryOverlay.addEventListener('click', (e) => {
+      if (e.target === this.galleryOverlay) this.closeGallery();
+    });
   },
 
   setFilter(name) {
@@ -48,8 +75,6 @@ const LocketWidget = {
       this.video.classList.add('cam-filter-' + name);
     }
   },
-
-  _startingCamera: false,
 
   startCamera() {
     if (this._startingCamera) return;
@@ -72,6 +97,7 @@ const LocketWidget = {
         this.switchBtn.style.removeProperty('display');
         this.filtersEl.classList.add('visible');
         this.filtersEl.style.removeProperty('display');
+        this.galleryBtn.style.display = 'flex';
         this._startingCamera = false;
       }).catch(() => {
         this._startingCamera = false;
@@ -87,6 +113,7 @@ const LocketWidget = {
 
   stopCamera() {
     this._startingCamera = false;
+    this.hidePreview();
     if (this.stream) {
       this.stream.getTracks().forEach(track => track.stop());
       this.stream = null;
@@ -99,6 +126,7 @@ const LocketWidget = {
     this.switchBtn.style.setProperty('display', 'none', 'important');
     this.filtersEl.classList.remove('visible');
     this.filtersEl.style.setProperty('display', 'none', 'important');
+    this.galleryBtn.style.display = 'none';
     this.placeholder.style.display = 'flex';
     this.placeholder.style.opacity = '1';
     this.placeholder.querySelector('p').textContent = 'Kamerayı başlatmak için dokun';
@@ -152,8 +180,6 @@ const LocketWidget = {
     ctx.filter = 'none';
     const dataUrl = this.canvas.toDataURL('image/jpeg', 0.85);
 
-    this.video.style.opacity = '0';
-
     const img = new Image();
     img.onload = () => {
       const c = document.createElement('canvas');
@@ -176,21 +202,79 @@ const LocketWidget = {
         url: compressed,
         from: window.currentUser === 'efe' ? 'Efe' : 'Ela',
         timestamp: Date.now(),
-        expiresAt: Date.now() + 24 * 60 * 60 * 1000
+        expiresAt: Date.now() + 24 * 60 * 60 * 1000,
+        id: Date.now().toString(36) + Math.random().toString(36).substr(2, 5)
       };
 
       this.allPhotos.unshift(photo);
-      this.renderGallery();
+      this.savePhotos();
 
       const db = getDatabase();
       if (db) {
         db.ref(APP_CONFIG.firebasePaths.photos).push(photo).catch(() => {});
       }
 
-      this.video.style.opacity = '1';
+      this.showPreview(photo);
       this.isCapturing = false;
     };
     img.src = dataUrl;
+  },
+
+  showPreview(photo) {
+    this.shutter.classList.remove('visible');
+    this.shutter.style.setProperty('display', 'none', 'important');
+    this.switchBtn.classList.remove('visible');
+    this.switchBtn.style.setProperty('display', 'none', 'important');
+    this.filtersEl.classList.remove('visible');
+    this.filtersEl.style.setProperty('display', 'none', 'important');
+    this.galleryBtn.style.display = 'none';
+    this.video.style.opacity = '0';
+
+    this.previewImg.src = photo.url;
+    this.previewSender.textContent = photo.from === 'Efe' ? '💪 Efe' : '🌸 Ela';
+
+    const isLiked = this.likedPhotos[photo.id || photo.timestamp];
+    this.previewLikeBtn.textContent = isLiked ? '❤️ Beğendin' : '💕 Beğen';
+    this.previewLikeBtn.classList.toggle('liked', !!isLiked);
+    this.previewLikeBtn.dataset.photoId = photo.id || photo.timestamp;
+
+    this.preview.style.display = 'flex';
+    this.preview.style.animation = 'fadeIn 0.3s ease';
+  },
+
+  hidePreview() {
+    this.preview.style.display = 'none';
+    this.video.style.opacity = '1';
+    if (this.stream) {
+      this.shutter.classList.add('visible');
+      this.shutter.style.removeProperty('display');
+      this.switchBtn.classList.add('visible');
+      this.switchBtn.style.removeProperty('display');
+      this.filtersEl.classList.add('visible');
+      this.filtersEl.style.removeProperty('display');
+      this.galleryBtn.style.display = 'flex';
+    }
+  },
+
+  likeCurrentPhoto() {
+    const photoId = this.previewLikeBtn.dataset.photoId;
+    if (!photoId) return;
+
+    const already = this.likedPhotos[photoId];
+    if (already) {
+      delete this.likedPhotos[photoId];
+      this.previewLikeBtn.textContent = '💕 Beğen';
+      this.previewLikeBtn.classList.remove('liked');
+    } else {
+      this.likedPhotos[photoId] = true;
+      this.previewLikeBtn.textContent = '❤️ Beğendin';
+      this.previewLikeBtn.classList.add('liked');
+    }
+    try { localStorage.setItem('locket_likes', JSON.stringify(this.likedPhotos)); } catch (e) {}
+  },
+
+  loadLikes() {
+    try { this.likedPhotos = JSON.parse(localStorage.getItem('locket_likes') || '{}'); } catch (e) { this.likedPhotos = {}; }
   },
 
   getFilterCSS(name) {
@@ -204,9 +288,9 @@ const LocketWidget = {
   },
 
   loadPhotos() {
+    this.loadLikes();
     const saved = JSON.parse(localStorage.getItem('locket_gallery') || '[]');
     this.allPhotos = saved.filter(p => Date.now() < p.expiresAt);
-    this.renderGallery();
   },
 
   savePhotos() {
@@ -222,8 +306,9 @@ const LocketWidget = {
       if (Date.now() >= (data.expiresAt || Infinity)) return;
       const exists = this.allPhotos.some(p => p.timestamp === data.timestamp && p.from === data.from);
       if (!exists) {
+        if (!data.id) data.id = data.timestamp.toString(36);
         this.allPhotos.unshift(data);
-        this.renderGallery();
+        this.savePhotos();
       }
     });
   },
@@ -234,36 +319,31 @@ const LocketWidget = {
       this.allPhotos = this.allPhotos.filter(p => Date.now() < p.expiresAt);
       if (this.allPhotos.length !== before) {
         this.savePhotos();
-        this.renderGallery();
       }
     }, 60000);
   },
 
-  renderGallery() {
-    this.savePhotos();
-    this.galleryScroll.innerHTML = '';
-    this.allPhotos.forEach(p => {
-      const div = document.createElement('div');
-      div.className = 'gallery-item';
-      const badge = p.from === 'Efe' ? '💪' : '🌸';
-      div.innerHTML = `<img src="${p.url}" alt="anlik"><span class="gallery-badge">${badge}</span>`;
-      div.addEventListener('click', () => this.openFull(p));
-      this.galleryScroll.appendChild(div);
-    });
+  openGallery() {
+    this.galleryGrid.innerHTML = '';
+    if (this.allPhotos.length === 0) {
+      this.galleryGrid.innerHTML = '<div class="gallery-empty">Henüz fotoğraf yok</div>';
+    } else {
+      this.allPhotos.forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'gallery-grid-item';
+        const badge = p.from === 'Efe' ? '💪' : '🌸';
+        div.innerHTML = `<img src="${p.url}" alt=""><span class="gallery-grid-badge">${badge}</span>`;
+        div.addEventListener('click', () => {
+          this.closeGallery();
+          this.showPreview(p);
+        });
+        this.galleryGrid.appendChild(div);
+      });
+    }
+    this.galleryOverlay.style.display = 'flex';
   },
 
-  openFull(photo) {
-    const overlay = document.createElement('div');
-    overlay.className = 'full-photo-overlay';
-    overlay.innerHTML = `
-      <div class="full-photo-bg" style="background:rgba(0,0,0,0.92);position:fixed;top:0;left:0;width:100%;height:100%;z-index:100;display:flex;align-items:center;justify-content:center;flex-direction:column;">
-        <img src="${photo.url}" style="max-width:90%;max-height:70%;border-radius:12px;object-fit:contain;box-shadow:0 8px 40px rgba(0,0,0,0.5);">
-        <div style="margin-top:12px;color:rgba(255,255,255,0.5);font-size:13px;">
-          ${photo.from} · ${new Date(photo.timestamp).toLocaleString('tr-TR')}
-        </div>
-      </div>
-    `;
-    overlay.addEventListener('click', () => document.body.removeChild(overlay));
-    document.body.appendChild(overlay);
+  closeGallery() {
+    this.galleryOverlay.style.display = 'none';
   }
 };
