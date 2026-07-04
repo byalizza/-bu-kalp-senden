@@ -276,21 +276,30 @@ const MusicWidget = {
     const done = (audioUrl) => {
       if (audioUrl) songData.audioUrl = audioUrl;
 
+      // Önce yerel ekle (anında görünsün)
+      if (this.editSongIndex >= 0 && this.editSongIndex < this.playlist.length) {
+        this.playlist[this.editSongIndex] = { ...songData, _key: this.playlist[this.editSongIndex]._key };
+      } else {
+        this.playlist.push({ ...songData });
+      }
+      this.renderPlaylist();
+      this.saveLocal();
+      this.songModalClose();
+
+      // Arka planda Firebase'e kaydet
       const db = getDatabase();
+      if (!db || !this.dbRef) return;
+
       if (this.editSongIndex >= 0 && this.editSongIndex < this.playlist.length) {
         const existing = this.playlist[this.editSongIndex];
-        if (existing._key && db) {
-          db.ref(`${APP_CONFIG.firebasePaths.playlist}/${existing._key}`).update(songData);
+        if (existing._key) {
+          db.ref(`${APP_CONFIG.firebasePaths.playlist}/${existing._key}`).update(songData).catch(() => {});
         } else {
-          this.playlist[this.editSongIndex] = { ...songData };
-          if (db) this.dbRef.push(songData);
+          this.dbRef.push(songData).catch(() => {});
         }
       } else {
-        if (db) { this.dbRef.push(songData); }
-        else { this.playlist.push(songData); this.saveLocal(); this.renderPlaylist(); }
+        this.dbRef.push(songData).catch(() => {});
       }
-      if (!db) { this.saveLocal(); this.renderPlaylist(); }
-      this.songModalClose();
     };
 
     if (file) {

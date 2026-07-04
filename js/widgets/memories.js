@@ -198,29 +198,31 @@ const MemoriesWidget = {
 
     const saveToFirebase = (imgUrl) => {
       if (imgUrl) memory.image = imgUrl;
+
+      // Önce yerel olarak ekle/güncelle (anında görünsün)
+      if (this.editIndex >= 0 && this.editIndex < this.memories.length) {
+        this.memories[this.editIndex] = { ...memory, _key: this.memories[this.editIndex]._key };
+      } else {
+        this.memories.push({ ...memory });
+      }
+      this.render();
+      this.saveLocal();
+      this.memoryEditModalClose();
+
+      // Sonra Firebase'e kaydet (arka planda)
       const db = getDatabase();
+      if (!db || !this.dbRef) return;
 
       if (this.editIndex >= 0 && this.editIndex < this.memories.length) {
-        // Güncelle
         const existing = this.memories[this.editIndex];
-        if (existing._key && db) {
-          db.ref(`${APP_CONFIG.firebasePaths.memories}/${existing._key}`).update(memory);
+        if (existing._key) {
+          db.ref(`${APP_CONFIG.firebasePaths.memories}/${existing._key}`).update(memory).catch(() => {});
         } else {
-          this.memories[this.editIndex] = { ...memory };
-          if (db) this.dbRef.push(memory);
+          this.dbRef.push(memory).catch(() => {});
         }
       } else {
-        // Yeni ekle
-        if (db) {
-          this.dbRef.push(memory);
-        } else {
-          this.memories.push(memory);
-          this.render();
-        }
+        this.dbRef.push(memory).catch(() => {});
       }
-
-      if (!db) { this.saveLocal(); this.render(); }
-      this.memoryEditModalClose();
     };
 
     if (photoFile) {
