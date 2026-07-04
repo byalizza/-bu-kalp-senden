@@ -1,12 +1,9 @@
-// ============================================
-// LOCKET WIDGET - Anlık Fotoğraf Paylaşımı
-// ============================================
-
 const LocketWidget = {
   stream: null,
   facingMode: 'environment',
   isCapturing: false,
   allPhotos: [],
+  currentFilter: 'none',
 
   init() {
     this.cameraEl = document.getElementById('locketCamera');
@@ -17,6 +14,7 @@ const LocketWidget = {
     this.flash = document.getElementById('cameraFlash');
     this.countdown = document.getElementById('cameraCountdown');
     this.switchBtn = document.getElementById('cameraSwitchBtn');
+    this.filtersEl = document.getElementById('cameraFilters');
     this.galleryScroll = document.getElementById('galleryScroll');
 
     this.setupListeners();
@@ -33,6 +31,22 @@ const LocketWidget = {
       this.stopCamera();
       this.startCamera();
     });
+
+    this.filtersEl.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        this.filtersEl.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.setFilter(btn.dataset.filter);
+      });
+    });
+  },
+
+  setFilter(name) {
+    this.currentFilter = name;
+    this.video.className = 'camera-preview';
+    if (name !== 'none') {
+      this.video.classList.add('cam-filter-' + name);
+    }
   },
 
   _startingCamera: false,
@@ -56,6 +70,8 @@ const LocketWidget = {
         this.shutter.style.removeProperty('display');
         this.switchBtn.classList.add('visible');
         this.switchBtn.style.removeProperty('display');
+        this.filtersEl.classList.add('visible');
+        this.filtersEl.style.removeProperty('display');
         this._startingCamera = false;
       }).catch(() => {
         this._startingCamera = false;
@@ -76,10 +92,13 @@ const LocketWidget = {
       this.stream = null;
     }
     this.video.srcObject = null;
+    this.video.className = 'camera-preview';
     this.shutter.classList.remove('visible');
     this.shutter.style.setProperty('display', 'none', 'important');
     this.switchBtn.classList.remove('visible');
     this.switchBtn.style.setProperty('display', 'none', 'important');
+    this.filtersEl.classList.remove('visible');
+    this.filtersEl.style.setProperty('display', 'none', 'important');
     this.placeholder.style.display = 'flex';
     this.placeholder.style.opacity = '1';
     this.placeholder.querySelector('p').textContent = 'Kamerayı başlatmak için dokun';
@@ -125,7 +144,12 @@ const LocketWidget = {
       ctx.translate(this.canvas.width, 0);
       ctx.scale(-1, 1);
     }
+
+    if (this.currentFilter !== 'none') {
+      ctx.filter = this.getFilterCSS(this.currentFilter);
+    }
     ctx.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
+    ctx.filter = 'none';
     const dataUrl = this.canvas.toDataURL('image/jpeg', 0.85);
 
     this.video.style.opacity = '0';
@@ -167,6 +191,16 @@ const LocketWidget = {
       this.isCapturing = false;
     };
     img.src = dataUrl;
+  },
+
+  getFilterCSS(name) {
+    const filters = {
+      warm: 'sepia(0.3) saturate(1.3) brightness(1.1)',
+      cool: 'hue-rotate(180deg) saturate(0.8) brightness(0.95)',
+      vintage: 'sepia(0.6) contrast(0.85) brightness(0.9)',
+      dramatic: 'contrast(1.4) saturate(0.7) brightness(0.85)'
+    };
+    return filters[name] || 'none';
   },
 
   loadPhotos() {
@@ -222,8 +256,8 @@ const LocketWidget = {
     const overlay = document.createElement('div');
     overlay.className = 'full-photo-overlay';
     overlay.innerHTML = `
-      <div class="full-photo-bg" style="background:rgba(0,0,0,0.9);position:fixed;top:0;left:0;width:100%;height:100%;z-index:100;display:flex;align-items:center;justify-content:center;flex-direction:column;">
-        <img src="${photo.url}" style="max-width:90%;max-height:70%;border-radius:12px;object-fit:contain;">
+      <div class="full-photo-bg" style="background:rgba(0,0,0,0.92);position:fixed;top:0;left:0;width:100%;height:100%;z-index:100;display:flex;align-items:center;justify-content:center;flex-direction:column;">
+        <img src="${photo.url}" style="max-width:90%;max-height:70%;border-radius:12px;object-fit:contain;box-shadow:0 8px 40px rgba(0,0,0,0.5);">
         <div style="margin-top:12px;color:rgba(255,255,255,0.5);font-size:13px;">
           ${photo.from} · ${new Date(photo.timestamp).toLocaleString('tr-TR')}
         </div>
