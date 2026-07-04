@@ -8,6 +8,7 @@ const MusicWidget = {
   audio: null,
   lyricsVisible: false,
   playlist: [],
+  _playFailed: false,
 
   init() {
     this.audio = document.getElementById('bgMusic');
@@ -123,12 +124,17 @@ const MusicWidget = {
       this.isPlaying = false;
       this.updatePlayButton();
     } else {
-      this.play(this.currentIndex);
+      if (!this.audio.src || this._playFailed) {
+        this._playFailed = false;
+        this.play(this.currentIndex);
+      }
       this.audio.play().then(() => {
         this.isPlaying = true;
+        this._playFailed = false;
         this.updatePlayButton();
       }).catch(() => {
         this.isPlaying = false;
+        this._playFailed = true;
         this.updatePlayButton();
       });
     }
