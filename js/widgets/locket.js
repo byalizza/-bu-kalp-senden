@@ -48,6 +48,7 @@ const LocketWidget = {
         video: { facingMode: this.facingMode, width: { ideal: 1080 }, height: { ideal: 1920 } },
         audio: false
       }).then((stream) => {
+        if (!this._startingCamera) { stream.getTracks().forEach(t => t.stop()); return; }
         this.stream = stream;
         this.video.srcObject = stream;
         this.video.play();
