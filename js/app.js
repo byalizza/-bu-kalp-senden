@@ -19,12 +19,13 @@ const App = {
   },
 
   initializeWidgets() {
-    LoginWidget.init();
-    CounterWidget.init();
-    MusicWidget.init();
-    MemoriesWidget.init();
-    LocketWidget.init();
+    try { LoginWidget.init(); } catch (e) { console.warn('Login hatası:', e); }
+    try { CounterWidget.init(); } catch (e) { console.warn('Sayaç hatası:', e); }
+    try { MusicWidget.init(); } catch (e) { console.warn('Müzik hatası:', e); }
+    try { MemoriesWidget.init(); } catch (e) { console.warn('Anılar hatası:', e); }
+    try { LocketWidget.init(); } catch (e) { console.warn('Şipşak hatası:', e); }
 
+    // MessageWidget sadece welcome sonrası init edilir (login.js içinde)
     this.isReady = true;
     console.log('💖 Bu Kalp Senden Vazgeçmeyecek - Uygulama hazır!');
   },
@@ -54,6 +55,7 @@ const App = {
 const ConfettiEffects = {
   fire(duration = 2000) {
     const canvas = document.getElementById('confettiCanvas');
+    if (!canvas) return;
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;

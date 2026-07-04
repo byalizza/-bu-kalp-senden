@@ -1,5 +1,5 @@
 // ============================================
-// MESSAGE WIDGET - Kalıcı Mesajlaşma (Pofuduk)
+// MESSAGE WIDGET - Pofuduk + Kalıcı Mesajlaşma
 // Firebase ile senkron, mesajlar hiç silinmez
 // ============================================
 
@@ -7,6 +7,18 @@ const MessageWidget = {
   dbRef: null,
   messages: [],
   initialized: false,
+  petMessages: [
+    'Seni çok seviyorum! 💕',
+    'Seni çok özledim! 😊',
+    'Karnım acıktı, beni doyur! 🐾',
+    'Hadi oyun oynayalım! 🎾',
+    'Seninle olmak çok güzel! ✨',
+    'Dünyanın en tatlı insanısın! 🌟',
+    'Sarıl bana lütfen! 🤗',
+    'Bugün harika görünüyorsun! 💫',
+    'Beraber çok mutluyum! 🥰',
+    'Gülüşün dünyayı aydınlatıyor! ☀️'
+  ],
 
   init() {
     if (this.initialized) return;
@@ -15,12 +27,17 @@ const MessageWidget = {
     this.msgList = document.getElementById('msgList');
     this.msgInput = document.getElementById('msgInput');
     this.msgSendBtn = document.getElementById('msgSendBtn');
+    this.petEl = document.getElementById('msgPet');
+    this.petBubble = document.getElementById('msgPetBubble');
+    this.petText = document.getElementById('msgPetText');
+    this.petEmoji = document.getElementById('msgPetEmoji');
 
     this.user = window.currentUser || 'efe';
 
     this.setupListeners();
     this.setupFirebase();
     this.loadLocalMessages();
+    this.startPetAnimations();
   },
 
   setupListeners() {
@@ -28,6 +45,27 @@ const MessageWidget = {
     this.msgInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') this.sendMessage();
     });
+
+    // Pofuduk'a tıklama / sevme
+    this.petEl.addEventListener('click', () => this.petInteraction());
+  },
+
+  petInteraction() {
+    this.petEmoji.style.transform = 'scale(1.4)';
+    setTimeout(() => { this.petEmoji.style.transform = 'scale(1)'; }, 300);
+
+    const msg = this.petMessages[Math.floor(Math.random() * this.petMessages.length)];
+    this.petText.textContent = msg;
+    this.petBubble.style.background = 'rgba(255,107,107,0.15)';
+    setTimeout(() => { this.petBubble.style.background = 'rgba(255,107,107,0.08)'; }, 500);
+  },
+
+  startPetAnimations() {
+    setInterval(() => {
+      if (Math.random() > 0.5) return;
+      const msg = this.petMessages[Math.floor(Math.random() * this.petMessages.length)];
+      this.petText.textContent = msg;
+    }, 10000 + Math.random() * 8000);
   },
 
   setupFirebase() {
@@ -37,50 +75,44 @@ const MessageWidget = {
     const path = APP_CONFIG.firebasePaths.messages;
     this.dbRef = db.ref(path);
 
-    // Yeni mesajları dinle
+    // Firebase bağlantı hatasını sessizce yönet
     this.dbRef.limitToLast(1).on('child_added', (snapshot) => {
-      const msg = snapshot.val();
-      if (msg && msg.id) {
-        // Local'de yoksa ekle
-        const exists = this.messages.some(m => m.id === msg.id);
-        if (!exists) {
-          this.messages.push(msg);
-          this.renderMessage(msg);
-          this.saveToLocal(msg);
-        }
-      }
-    });
-
-    // Tüm mesajları ilk yüklemede al
-    this.dbRef.once('value', (snapshot) => {
-      const data = snapshot.val();
-      if (!data) return;
-
-      const loaded = [];
-      Object.values(data).forEach(msg => {
+      try {
+        const msg = snapshot.val();
         if (msg && msg.id) {
           const exists = this.messages.some(m => m.id === msg.id);
           if (!exists) {
-            loaded.push(msg);
+            this.messages.push(msg);
+            this.renderMessage(msg);
+            this.saveToLocal(msg);
           }
         }
-      });
+      } catch (e) { /* ignore */ }
+    }, (err) => { /* permission denied - ignore */ });
 
-      if (loaded.length > 0) {
-        // Tarihe göre sırala
-        loaded.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-        this.messages = [...this.messages, ...loaded];
+    this.dbRef.once('value', (snapshot) => {
+      try {
+        const data = snapshot.val();
+        if (!data) return;
 
-        // Local'e kaydet ve render et
-        this.msgList.innerHTML = '';
-        this.messages.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-        this.messages.forEach(msg => {
-          this.renderMessage(msg);
-          this.saveToLocal(msg);
+        const loaded = [];
+        Object.values(data).forEach(msg => {
+          if (msg && msg.id) {
+            const exists = this.messages.some(m => m.id === msg.id);
+            if (!exists) loaded.push(msg);
+          }
         });
-        this.scrollToBottom();
-      }
-    });
+
+        if (loaded.length > 0) {
+          loaded.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+          this.messages = [...this.messages, ...loaded];
+          this.msgList.innerHTML = '';
+          this.messages.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+          this.messages.forEach(msg => { this.renderMessage(msg); this.saveToLocal(msg); });
+          this.scrollToBottom();
+        }
+      } catch (e) { /* ignore */ }
+    }, (err) => { /* permission denied - ignore */ });
   },
 
   loadLocalMessages() {
@@ -92,9 +124,7 @@ const MessageWidget = {
         this.messages.forEach(msg => this.renderMessage(msg));
         this.scrollToBottom();
       }
-    } catch (e) {
-      console.warn('Local mesaj yüklenemedi:', e);
-    }
+    } catch (e) { /* ignore */ }
   },
 
   sendMessage() {
@@ -110,18 +140,14 @@ const MessageWidget = {
 
     this.msgInput.value = '';
 
-    // Önce local ekle (anında göster)
     this.messages.push(msg);
     this.renderMessage(msg);
     this.saveToLocal(msg);
     this.scrollToBottom();
 
-    // Firebase'e gönder
     const db = getDatabase();
     if (db && this.dbRef) {
-      this.dbRef.push(msg).catch(err => {
-        console.warn('Firebase mesaj gönderilemedi:', err);
-      });
+      this.dbRef.push(msg).catch(() => {});
     }
   },
 
@@ -144,14 +170,11 @@ const MessageWidget = {
   saveToLocal(msg) {
     try {
       const saved = JSON.parse(localStorage.getItem('chat_messages') || '[]');
-      const exists = saved.some(m => m.id === msg.id);
-      if (!exists) {
+      if (!saved.some(m => m.id === msg.id)) {
         saved.push(msg);
         localStorage.setItem('chat_messages', JSON.stringify(saved));
       }
-    } catch (e) {
-      // ignore
-    }
+    } catch (e) { /* ignore */ }
   },
 
   scrollToBottom() {
