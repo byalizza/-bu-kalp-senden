@@ -1,5 +1,5 @@
 // ============================================
-// MUSIC WIDGET - YouTube URL + Firebase Sync
+// MUSIC WIDGET - assets/sounds + Firebase Sync
 // ============================================
 
 const MusicWidget = {
@@ -9,8 +9,6 @@ const MusicWidget = {
   lyricsVisible: false,
   playlist: [],
   dbRef: null,
-  player: null,
-  playerReady: false,
 
   init() {
     this.audio = document.getElementById('bgMusic');
@@ -26,11 +24,9 @@ const MusicWidget = {
     this.lyricsContent = document.getElementById('lyricsContent');
     this.lyricsCloseBtn = document.getElementById('lyricsCloseBtn');
     this.nowPlayingBadge = document.getElementById('nowPlayingBadge');
-    this.widgetHeader = document.querySelector('#musicWidget .widget-header');
 
     this.setupListeners();
     this.setupFirebase();
-    this.addEditButton();
   },
 
   setupListeners() {
@@ -51,15 +47,6 @@ const MusicWidget = {
     this.audio.addEventListener('error', () => {
       this.nowPlayingBadge.textContent = 'Yükleme hatası';
     });
-  },
-
-  addEditButton() {
-    const btn = document.createElement('button');
-    btn.className = 'widget-edit-btn';
-    btn.id = 'playlistEditBtn';
-    btn.textContent = '➕ Şarkı Ekle';
-    btn.addEventListener('click', () => this.openSongModal(-1));
-    this.widgetHeader.appendChild(btn);
   },
 
   setupFirebase() {
@@ -136,10 +123,6 @@ const MusicWidget = {
         }
         this.play(index);
       });
-      let pressTimer;
-      item.addEventListener('touchstart', () => { pressTimer = setTimeout(() => this.openSongModal(index), 600); });
-      item.addEventListener('touchend', () => clearTimeout(pressTimer));
-      item.addEventListener('contextmenu', (e) => { e.preventDefault(); this.openSongModal(index); });
       this.playlistEl.appendChild(item);
     });
   },
@@ -239,80 +222,6 @@ const MusicWidget = {
       this.play(0);
       setTimeout(() => this.togglePlay(), 500);
     }, 1000);
-  },
-
-  // ========== SONG EDIT MODAL ==========
-  openSongModal(index) {
-    this.editSongIndex = index;
-    const isEdit = index >= 0 && index < this.playlist.length;
-    const song = isEdit ? this.playlist[index] : {};
-
-    document.getElementById('songEditTitle').textContent = isEdit ? 'Şarkı Düzenle' : 'Yeni Şarkı Ekle';
-    document.getElementById('songEditTitleInput').value = song.title || '';
-    document.getElementById('songEditArtist').value = song.artist || '';
-    document.getElementById('songEditLyrics').value = song.lyrics || '';
-    document.getElementById('songEditFile').value = (song.fileName || '');
-    document.getElementById('songEditError').textContent = '';
-    document.getElementById('songEditDeleteBtn').style.display = isEdit ? 'inline-block' : 'none';
-    document.getElementById('songEditModal').style.display = 'flex';
-
-    ['songEditSaveBtn', 'songEditDeleteBtn', 'songEditClose'].forEach(id => {
-      const el = document.getElementById(id);
-      const clone = el.cloneNode(true);
-      el.parentNode.replaceChild(clone, el);
-    });
-
-    document.getElementById('songEditSaveBtn').addEventListener('click', () => this.saveSong());
-    document.getElementById('songEditDeleteBtn').addEventListener('click', () => this.deleteSong());
-    document.getElementById('songEditClose').addEventListener('click', () => this.songModalClose());
-  },
-
-  saveSong() {
-    const title = document.getElementById('songEditTitleInput').value.trim();
-    const artist = document.getElementById('songEditArtist').value.trim();
-    const lyrics = document.getElementById('songEditLyrics').value.trim();
-    const fileName = document.getElementById('songEditFile').value.trim();
-
-    if (!title) { document.getElementById('songEditError').textContent = 'Şarkı adı gerekli'; return; }
-
-    const songData = { title, artist: artist || 'Bilinmeyen', lyrics, fileName, audioUrl: '' };
-
-    if (this.editSongIndex >= 0 && this.editSongIndex < this.playlist.length) {
-      this.playlist[this.editSongIndex] = { ...songData, _key: this.playlist[this.editSongIndex]._key };
-    } else {
-      this.playlist.push({ ...songData });
-    }
-    this.renderPlaylist();
-    this.saveLocal();
-    this.songModalClose();
-
-    const db = getDatabase();
-    if (!db || !this.dbRef) return;
-    if (this.editSongIndex >= 0 && this.editSongIndex < this.playlist.length) {
-      const existing = this.playlist[this.editSongIndex];
-      if (existing._key) db.ref(`${APP_CONFIG.firebasePaths.playlist}/${existing._key}`).update(songData).catch(() => {});
-      else this.dbRef.push(songData).catch(() => {});
-    } else {
-      this.dbRef.push(songData).catch(() => {});
-    }
-  },
-
-  deleteSong() {
-    if (this.editSongIndex < 0 || this.editSongIndex >= this.playlist.length) return;
-    const song = this.playlist[this.editSongIndex];
-    const db = getDatabase();
-    if (song._key && db) {
-      db.ref(`${APP_CONFIG.firebasePaths.playlist}/${song._key}`).remove();
-    } else {
-      this.playlist.splice(this.editSongIndex, 1);
-      this.saveLocal();
-      this.renderPlaylist();
-    }
-    this.songModalClose();
-  },
-
-  songModalClose() {
-    document.getElementById('songEditModal').style.display = 'none';
   },
 
   esc(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }

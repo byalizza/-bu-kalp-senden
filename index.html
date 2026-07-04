@@ -378,37 +378,6 @@
   </div>
 
   <!-- ========== ŞARKI EKLEME MODAL ========== -->
-  <div id="songEditModal" class="modal-overlay" style="display:none;">
-    <div class="modal-content form-modal">
-      <button class="modal-close" id="songEditClose">✕</button>
-      <h3 class="form-title" id="songEditTitle">Yeni Şarkı Ekle</h3>
-      <div class="form-body">
-        <div class="form-group">
-          <label>Şarkı Adı</label>
-          <input type="text" id="songEditTitleInput" class="form-input" placeholder="Şarkı adı">
-        </div>
-        <div class="form-group">
-          <label>Sanatçı</label>
-          <input type="text" id="songEditArtist" class="form-input" placeholder="Sanatçı adı">
-        </div>
-        <div class="form-group">
-          <label>Dosya Adı (assets/sounds/ içine koy)</label>
-          <input type="text" id="songEditFile" class="form-input" placeholder="sarkim.mp3">
-          <span class="form-hint">Önce MP3'ü GitHub'da <code>assets/sounds/</code> klasörüne yükle, buraya adını yaz</span>
-        </div>
-        <div class="form-group">
-          <label>Şarkı Sözleri (isteğe bağlı)</label>
-          <textarea id="songEditLyrics" class="form-textarea" rows="4" placeholder="Şarkı sözleri..."></textarea>
-        </div>
-        <div class="form-actions">
-          <button id="songEditDeleteBtn" class="form-btn form-btn-danger" style="display:none;">Sil</button>
-          <button id="songEditSaveBtn" class="form-btn form-btn-primary">Kaydet</button>
-        </div>
-        <p id="songEditError" class="form-error"></p>
-      </div>
-    </div>
-  </div>
-
   <!-- ========== NOTIFICATION TOAST ========== -->
   <div id="notificationToast" class="toast" style="display:none;">
     <div class="toast-icon" id="toastIcon">🐣</div>
@@ -424,7 +393,6 @@
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 
   <!-- App Scripts -->
   <script src="js/config.js"></script>
