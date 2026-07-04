@@ -8,17 +8,22 @@ const App = {
   async init() {
     initFirebase();
 
-    // İlk kullanıcı dokunuşunda tam ekran
-    const goFullscreen = () => {
-      document.documentElement.requestFullscreen().catch(() => {});
-      document.removeEventListener('click', goFullscreen);
-      document.removeEventListener('touchstart', goFullscreen);
-    };
-    document.addEventListener('click', goFullscreen);
-    document.addEventListener('touchstart', goFullscreen);
+    // Splash'a tıklayınca tam ekran + login'e geç
+    const splash = document.getElementById('splashScreen');
+    const splashInner = document.getElementById('splashInner');
+    if (splashInner) {
+      splashInner.style.cursor = 'pointer';
+      const onSplashTap = () => {
+        document.documentElement.requestFullscreen().catch(() => {});
+        splashInner.removeEventListener('click', onSplashTap);
+        splashInner.removeEventListener('touchstart', onSplashTap);
+      };
+      splashInner.addEventListener('click', onSplashTap);
+      splashInner.addEventListener('touchstart', onSplashTap);
+    }
 
     setTimeout(() => {
-      document.getElementById('splashScreen').style.display = 'none';
+      splash.style.display = 'none';
       document.getElementById('loginScreen').style.display = 'flex';
       document.getElementById('loginScreen').style.animation = 'fadeIn 0.6s ease';
 
