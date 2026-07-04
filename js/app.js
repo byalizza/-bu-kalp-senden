@@ -8,10 +8,14 @@ const App = {
   async init() {
     initFirebase();
 
-    // Anında tam ekran (her ihtimale karşı splash ve sonrasında da dene)
-    document.documentElement.requestFullscreen().catch(() => {});
-    setTimeout(() => document.documentElement.requestFullscreen().catch(() => {}), 500);
-    setTimeout(() => document.documentElement.requestFullscreen().catch(() => {}), 1500);
+    // İlk kullanıcı dokunuşunda tam ekran
+    const goFullscreen = () => {
+      document.documentElement.requestFullscreen().catch(() => {});
+      document.removeEventListener('click', goFullscreen);
+      document.removeEventListener('touchstart', goFullscreen);
+    };
+    document.addEventListener('click', goFullscreen);
+    document.addEventListener('touchstart', goFullscreen);
 
     setTimeout(() => {
       document.getElementById('splashScreen').style.display = 'none';
