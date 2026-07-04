@@ -20,34 +20,69 @@ const LoginWidget = {
     this.createParticles('loginParticles');
     this.createParticles('selectParticles');
 
-    // Eski dönüşümlü sistem varsa temizle
+    // Eski sistem varsa temizle
     if (localStorage.getItem('last_user')) localStorage.removeItem('last_user');
 
-    // Kayıtlı kullanıcı varsa onu kullan, yoksa seçim ekranı
+    // Kayıtlı kullanıcı varsa direkt şifre ekranı
     const saved = localStorage.getItem('app_user');
     if (saved) {
       this.currentUser = saved;
       window.currentUser = saved;
       this.showLoginScreen();
+      return;
+    }
+
+    // İlk açılış: Firebase'den hangi kullanıcılar alınmış kontrol et
+    const db = getDatabase();
+    if (db) {
+      db.ref('claimed').once('value', (snap) => {
+        const data = snap.val() || {};
+        if (!data.efe) {
+          // Efe alınmamış → seçim ekranı
+          this.userSelectScreen.style.display = 'flex';
+        } else if (!data.ela) {
+          // Ela alınmamış → otomatik Ela ata
+          this.autoAssign('ela');
+        } else {
+          // İkisi de alınmış → seçim ekranı (manuel seçtir)
+          this.userSelectScreen.style.display = 'flex';
+        }
+      }, () => {
+        // Firebase hatası → seçim ekranı
+        this.userSelectScreen.style.display = 'flex';
+      });
     } else {
       this.userSelectScreen.style.display = 'flex';
     }
   },
 
-  setupListeners() {
-    document.getElementById('selectEfeBtn').addEventListener('click', () => {
-      this.currentUser = 'efe';
-      localStorage.setItem('app_user', 'efe');
-      this.userSelectScreen.style.display = 'none';
-      this.showLoginScreen();
-    });
+  autoAssign(user) {
+    this.currentUser = user;
+    window.currentUser = user;
+    localStorage.setItem('app_user', user);
+    // Firebase'e kaydet
+    const db = getDatabase();
+    if (db) {
+      db.ref(`claimed/${user}`).set(navigator.userAgent || 'device').catch(() => {});
+    }
+    this.showLoginScreen();
+  },
 
-    document.getElementById('selectElaBtn').addEventListener('click', () => {
-      this.currentUser = 'ela';
-      localStorage.setItem('app_user', 'ela');
+  setupListeners() {
+    const claimUser = (user) => {
+      this.currentUser = user;
+      window.currentUser = user;
+      localStorage.setItem('app_user', user);
+      const db = getDatabase();
+      if (db) {
+        db.ref(`claimed/${user}`).set(navigator.userAgent || 'device').catch(() => {});
+      }
       this.userSelectScreen.style.display = 'none';
       this.showLoginScreen();
-    });
+    };
+
+    document.getElementById('selectEfeBtn').addEventListener('click', () => claimUser('efe'));
+    document.getElementById('selectElaBtn').addEventListener('click', () => claimUser('ela'));
 
     this.loginBtn.addEventListener('click', () => this.checkPassword());
 
