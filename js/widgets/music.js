@@ -24,12 +24,15 @@ const MusicWidget = {
     this.lyricsCloseBtn = document.getElementById('lyricsCloseBtn');
     this.nowPlayingBadge = document.getElementById('nowPlayingBadge');
 
+    this.toggleBtn = document.getElementById('musicToggleBtn');
+
     this.setupListeners();
     this.loadFromConfig();
   },
 
   setupListeners() {
     this.playBtn.addEventListener('click', () => this.togglePlay());
+    this.toggleBtn.addEventListener('click', () => this.togglePlay());
     this.lyricsCloseBtn.addEventListener('click', () => this.hideLyrics());
 
     this.progressBar.addEventListener('click', (e) => {
@@ -51,6 +54,7 @@ const MusicWidget = {
   loadFromConfig() {
     this.playlist = APP_CONFIG.playlist ? APP_CONFIG.playlist.map(s => ({ ...s })) : [];
     this.renderPlaylist();
+    this.updatePlayButton();
   },
 
   renderPlaylist() {
@@ -126,9 +130,13 @@ const MusicWidget = {
   },
 
   updatePlayButton() {
+    const icon = this.isPlaying
+      ? '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>'
+      : '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>';
     this.playBtn.innerHTML = this.isPlaying
       ? '<svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>'
       : '<svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"/></svg>';
+    this.toggleBtn.innerHTML = icon;
   },
 
   updateProgress() {
