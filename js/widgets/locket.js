@@ -10,6 +10,15 @@ const LocketWidget = {
   isShowingQueue: false,
   _startingCamera: false,
 
+  _myName() {
+    const u = window.currentUser || 'efe';
+    return u === 'efe' ? 'Efe' : 'Ela';
+  },
+
+  _myUser() {
+    return window.currentUser || 'efe';
+  },
+
   init() {
     this.video = document.getElementById('cameraPreview');
     this.canvas = document.getElementById('cameraCanvas');
@@ -28,10 +37,6 @@ const LocketWidget = {
 
     this.galleryOverlay = document.getElementById('locketGalleryOverlay');
     this.galleryGrid = document.getElementById('galleryOverlayGrid');
-
-    this.user = window.currentUser || 'efe';
-    this.myName = this.user === 'efe' ? 'Efe' : 'Ela';
-    this.otherName = this.user === 'efe' ? 'Ela' : 'Efe';
 
     this.setupListeners();
     this.loadSeen();
@@ -145,11 +150,8 @@ const LocketWidget = {
 
   // ========== QUEUE / UNSEEN ==========
 
-  // Locket widget aktif olduğunda çağrılır
   onActivate() {
-    this.user = window.currentUser || 'efe';
-    this.myName = this.user === 'efe' ? 'Efe' : 'Ela';
-    this.otherName = this.user === 'efe' ? 'Ela' : 'Efe';
+    this.loadSeen();
     this.buildUnseenQueue();
     if (this.unseenPhotos.length > 0 && !this.isShowingQueue) {
       this.showFromQueue();
@@ -157,14 +159,14 @@ const LocketWidget = {
   },
 
   buildUnseenQueue() {
+    const myName = this._myName();
     this.unseenPhotos = [];
     for (const p of this.allPhotos) {
       const pid = p.id || p.timestamp;
-      if (p.from !== this.myName && !this.seenIds[pid]) {
+      if (p.from !== myName && !this.seenIds[pid]) {
         this.unseenPhotos.push(p);
       }
     }
-    // en yeniden eskiye sırala (zaten öyle)
   },
 
   showFromQueue() {
@@ -203,6 +205,7 @@ const LocketWidget = {
   },
 
   takePhoto() {
+    const myName = this._myName();
     this.flash.classList.add('fire');
     setTimeout(() => this.flash.classList.remove('fire'), 200);
 
@@ -242,7 +245,7 @@ const LocketWidget = {
 
       const photo = {
         url: compressed,
-        from: this.myName,
+        from: myName,
         timestamp: Date.now(),
         expiresAt: Date.now() + 24 * 60 * 60 * 1000,
         id: Date.now().toString(36) + Math.random().toString(36).substr(2, 5)
@@ -256,7 +259,6 @@ const LocketWidget = {
         db.ref(APP_CONFIG.firebasePaths.photos).push(photo).catch(() => {});
       }
 
-      // Kendi fotoğrafımı göster (izleme kuyruğuna ekleme)
       const pid = photo.id || photo.timestamp;
       this.seenIds[pid] = true;
       this.saveSeen();
@@ -293,6 +295,8 @@ const LocketWidget = {
 
   dismissPreview() {
     const isFromQueue = this.preview.dataset.queue === '1';
+    const pid = this.previewLikeBtn.dataset.photoId;
+    if (pid) { this.seenIds[pid] = true; this.saveSeen(); }
     this.preview.style.display = 'none';
 
     if (isFromQueue) {
@@ -303,7 +307,6 @@ const LocketWidget = {
         this.showCameraAfterDismiss();
       }
     } else {
-      // Kendi fotoğrafımı kapattım → kalan unseen varsa göster
       this.buildUnseenQueue();
       if (this.unseenPhotos.length > 0) {
         this.isShowingQueue = true;
@@ -354,11 +357,13 @@ const LocketWidget = {
   // ========== PERSISTENCE ==========
 
   loadSeen() {
-    try { this.seenIds = JSON.parse(localStorage.getItem('locket_seen_' + this.user) || '{}'); } catch (e) { this.seenIds = {}; }
+    const u = this._myUser();
+    try { this.seenIds = JSON.parse(localStorage.getItem('locket_seen_' + u) || '{}'); } catch (e) { this.seenIds = {}; }
   },
 
   saveSeen() {
-    try { localStorage.setItem('locket_seen_' + this.user, JSON.stringify(this.seenIds)); } catch (e) {}
+    const u = this._myUser();
+    try { localStorage.setItem('locket_seen_' + u, JSON.stringify(this.seenIds)); } catch (e) {}
   },
 
   loadLikes() {
@@ -394,7 +399,6 @@ const LocketWidget = {
       if (!data || !data.url) return;
       if (Date.now() >= (data.expiresAt || Infinity)) return;
 
-      // Benzersiz kontrol
       const exists = this.allPhotos.some(p => p.id === data.id || (p.timestamp === data.timestamp && p.from === data.from));
       if (exists) return;
 
@@ -402,19 +406,17 @@ const LocketWidget = {
       this.allPhotos.unshift(data);
       this.savePhotos();
 
-      // Başkasının fotoğrafı geldi
-      if (data.from !== this.myName) {
+      const myName = this._myName();
+      if (data.from !== myName) {
         const pid = data.id || data.timestamp;
         if (!this.seenIds[pid]) {
           this.unseenPhotos.push(data);
-          // Eğer widget aktif ve kamera görünüyorsa hemen göster
           const widget = document.getElementById('locketWidget');
           if (widget && widget.classList.contains('active') && this.stream && !this.isShowingQueue) {
             this.showFromQueue();
           }
         }
       } else {
-        // Kendi fotoğrafım Firebase'den de geldi
         const pid = data.id || data.timestamp;
         this.seenIds[pid] = true;
         this.saveSeen();
