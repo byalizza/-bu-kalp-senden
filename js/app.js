@@ -58,9 +58,15 @@ const App = {
         navItems.forEach(n => n.classList.remove('active'));
         item.classList.add('active');
 
-        document.querySelectorAll('.widget').forEach(w => w.classList.remove('active'));
+        document.querySelectorAll('.widget').forEach(w => {
+          w.classList.remove('active');
+          w.style.display = 'none';
+        });
         const target = document.getElementById(targetId);
-        if (target) target.classList.add('active');
+        if (target) {
+          target.classList.add('active');
+          target.style.display = '';
+        }
 
         if (targetId === 'petWidget' && typeof MessageWidget !== 'undefined') {
           MessageWidget.hideBadge();
