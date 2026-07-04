@@ -94,10 +94,10 @@ const App = {
         }
 
         if (typeof LocketWidget !== 'undefined' && targetId !== 'locketWidget') {
+          LocketWidget._hasActivated = false;
           LocketWidget.stopCamera();
         }
 
-        // Locket aktif olduğunda unseen queue kontrolü
         if (targetId === 'locketWidget' && typeof LocketWidget !== 'undefined') {
           setTimeout(() => LocketWidget.onActivate(), 100);
         }

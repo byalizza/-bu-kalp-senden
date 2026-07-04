@@ -9,6 +9,8 @@ const LocketWidget = {
   unseenPhotos: [],
   isShowingQueue: false,
   _startingCamera: false,
+  _hasActivated: false,
+  _firebaseReady: false,
 
   _myName() {
     const u = window.currentUser || 'efe';
@@ -39,7 +41,6 @@ const LocketWidget = {
     this.galleryGrid = document.getElementById('galleryOverlayGrid');
 
     this.setupListeners();
-    this.loadSeen();
     this.loadPhotos();
     this.loadLikes();
     this.watchFirebase();
@@ -113,6 +114,11 @@ const LocketWidget = {
         this.filtersEl.style.removeProperty('display');
         this.galleryBtn.style.display = 'flex';
         this._startingCamera = false;
+
+        // Kamera açıldı, sıradaki unseen varsa göster
+        if (this.unseenPhotos.length > 0) {
+          this.showFromQueue();
+        }
       }).catch(() => {
         this._startingCamera = false;
         this.placeholder.style.display = 'flex';
@@ -151,6 +157,9 @@ const LocketWidget = {
   // ========== QUEUE / UNSEEN ==========
 
   onActivate() {
+    this._hasActivated = true;
+    const myName = this._myName();
+    const myUser = this._myUser();
     this.loadSeen();
     this.buildUnseenQueue();
     if (this.unseenPhotos.length > 0 && !this.isShowingQueue) {
@@ -394,15 +403,40 @@ const LocketWidget = {
   watchFirebase() {
     const db = getDatabase();
     if (!db) return;
+
+    // Önce tüm mevcut verileri yükle
+    db.ref(APP_CONFIG.firebasePaths.photos).once('value', (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        Object.values(data).forEach(item => {
+          if (item && item.url && Date.now() < (item.expiresAt || Infinity)) {
+            if (!item.id) item.id = item.timestamp.toString(36);
+            const exists = this.allPhotos.some(p => p.id === item.id || (p.timestamp === item.timestamp && p.from === item.from));
+            if (!exists) this.allPhotos.unshift(item);
+          }
+        });
+        this.savePhotos();
+      }
+      this._firebaseReady = true;
+      // İlk yükleme bitti, eğer widget aktifse unseen queue'yu güncelle
+      if (this._hasActivated) {
+        this.buildUnseenQueue();
+        if (this.unseenPhotos.length > 0 && !this.isShowingQueue) {
+          this.showFromQueue();
+        }
+      }
+    });
+
+    // Yeni eklenenleri dinle
     db.ref(APP_CONFIG.firebasePaths.photos).on('child_added', (snapshot) => {
       const data = snapshot.val();
       if (!data || !data.url) return;
       if (Date.now() >= (data.expiresAt || Infinity)) return;
 
+      if (!data.id) data.id = data.timestamp.toString(36);
       const exists = this.allPhotos.some(p => p.id === data.id || (p.timestamp === data.timestamp && p.from === data.from));
       if (exists) return;
 
-      if (!data.id) data.id = data.timestamp.toString(36);
       this.allPhotos.unshift(data);
       this.savePhotos();
 
@@ -411,9 +445,11 @@ const LocketWidget = {
         const pid = data.id || data.timestamp;
         if (!this.seenIds[pid]) {
           this.unseenPhotos.push(data);
-          const widget = document.getElementById('locketWidget');
-          if (widget && widget.classList.contains('active') && this.stream && !this.isShowingQueue) {
-            this.showFromQueue();
+          if (this._hasActivated && !this.isShowingQueue) {
+            const widget = document.getElementById('locketWidget');
+            if (widget && widget.classList.contains('active')) {
+              this.showFromQueue();
+            }
           }
         }
       } else {
