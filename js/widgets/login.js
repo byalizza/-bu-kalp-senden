@@ -163,8 +163,10 @@ const LoginWidget = {
       ConfettiEffects.fire(3000);
     }
 
-    // Kullanıcı bilgisini global'e yaz
     window.currentUser = this.currentUser;
+
+    const badge = document.getElementById('headerUserBadge');
+    if (badge) badge.textContent = this.currentUser === 'efe' ? '💪' : '🌸';
 
     setTimeout(() => {
       this.welcomeOverlay.style.opacity = '0';
