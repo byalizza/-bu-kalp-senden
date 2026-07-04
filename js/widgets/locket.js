@@ -35,7 +35,11 @@ const LocketWidget = {
     });
   },
 
+  _startingCamera: false,
+
   startCamera() {
+    if (this._startingCamera) return;
+    this._startingCamera = true;
     this.placeholder.style.opacity = '0';
     setTimeout(() => { this.placeholder.style.display = 'none'; }, 500);
 
@@ -51,17 +55,21 @@ const LocketWidget = {
         this.shutter.style.display = '';
         this.switchBtn.classList.add('visible');
         this.switchBtn.style.display = '';
+        this._startingCamera = false;
       }).catch(() => {
+        this._startingCamera = false;
         this.placeholder.style.display = 'flex';
         this.placeholder.style.opacity = '1';
         this.placeholder.querySelector('p').textContent = 'Kamera açılamadı 🙁';
       });
     } else {
+      this._startingCamera = false;
       this.placeholder.querySelector('p').textContent = 'Kamera desteklenmiyor 🙁';
     }
   },
 
   stopCamera() {
+    this._startingCamera = false;
     if (this.stream) {
       this.stream.getTracks().forEach(track => track.stop());
       this.stream = null;
