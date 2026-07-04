@@ -29,6 +29,7 @@ const App = {
 
       this.initializeWidgets();
       this.setupNavigation();
+      this.setupBackButton();
     }, 2800);
   },
 
@@ -117,6 +118,12 @@ const App = {
         }
       });
     });
+  },
+
+  setupBackButton() {
+    const btn = document.getElementById('backBtn');
+    if (!btn) return;
+    btn.addEventListener('click', () => history.back());
   }
 };
 

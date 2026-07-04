@@ -165,9 +165,6 @@ const LoginWidget = {
 
     window.currentUser = this.currentUser;
 
-    const badge = document.getElementById('headerUserBadge');
-    if (badge) badge.textContent = this.currentUser === 'efe' ? '💪' : '🌸';
-
     setTimeout(() => {
       this.welcomeOverlay.style.opacity = '0';
       this.welcomeOverlay.style.transition = 'opacity 0.6s ease';

@@ -510,7 +510,29 @@ body {
 .header-left {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+  min-width: 0;
+}
+
+.header-back-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,0.04);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.header-back-btn:active {
+  background: rgba(255,71,87,0.15);
+  color: var(--primary);
+  transform: scale(0.85);
 }
 
 .header-heart {
@@ -530,6 +552,9 @@ body {
   -webkit-text-fill-color: transparent;
   background-clip: text;
   animation: gradientFlow 4s ease infinite;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 @keyframes gradientFlow {
@@ -542,19 +567,6 @@ body {
   display: flex;
   gap: 8px;
   align-items: center;
-}
-
-.user-badge {
-  font-size: 18px;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,71,87,0.08);
-  box-shadow: 0 0 12px rgba(255,71,87,0.1);
 }
 
 .icon-btn {
