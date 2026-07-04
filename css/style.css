@@ -1137,6 +1137,7 @@ body {
   padding: 0 !important;
   background: transparent !important;
   overflow: hidden !important;
+  position: relative;
 }
 
 .memories-slideshow {
