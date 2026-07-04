@@ -123,7 +123,7 @@ const MusicWidget = {
       this.isPlaying = false;
       this.updatePlayButton();
     } else {
-      if (!this.audio.src) this.play(this.currentIndex);
+      this.play(this.currentIndex);
       this.audio.play().then(() => {
         this.isPlaying = true;
         this.updatePlayButton();
