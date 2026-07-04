@@ -1,7 +1,3 @@
-// ============================================
-// MEMORIES WIDGET - Slideshow (2sn otomatik)
-// ============================================
-
 const MemoriesWidget = {
   memories: [],
   dbRef: null,
@@ -88,27 +84,28 @@ const MemoriesWidget = {
         this.slideIndex = (this.slideIndex + 1) % this.memories.length;
         this.showSlide(this.slideIndex);
       }
-    }, 2000);
+    }, 3000);
   },
 
   togglePause() {
     if (this.memories.length === 0) return;
     this.isPaused = !this.isPaused;
-    if (this.isPaused) {
-      this.slideshowEl.style.opacity = '0.6';
-    } else {
-      this.slideshowEl.style.opacity = '1';
-    }
+    this.slideshowEl.style.opacity = this.isPaused ? '0.6' : '1';
   },
 
   showSlide(index) {
     const mem = this.memories[index];
     if (!mem) return;
-    this.titleEl.textContent = mem.title || '';
-    this.dateEl.textContent = mem.date || '';
-    this.storyEl.textContent = mem.story || '';
-    this.imgEl.src = mem.image || '';
-    this.imgEl.alt = mem.title || '';
+
+    this.imgEl.style.opacity = '0';
+    setTimeout(() => {
+      this.titleEl.textContent = mem.title || '';
+      this.dateEl.textContent = mem.date || '';
+      this.storyEl.textContent = mem.story || '';
+      this.imgEl.src = mem.image || '';
+      this.imgEl.alt = mem.title || '';
+      this.imgEl.style.opacity = '1';
+    }, 150);
 
     document.querySelectorAll('.slide-dot').forEach((dot, i) => {
       dot.classList.toggle('active', i === index);
@@ -124,7 +121,6 @@ const MemoriesWidget = {
     });
   },
 
-  // ========== EDIT MODAL (long-press) ==========
   openEditModal(index) {
     this.editIndex = index;
     const isEdit = index >= 0 && index < this.memories.length;
