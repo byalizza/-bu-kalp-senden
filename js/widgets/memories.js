@@ -1,39 +1,28 @@
 // ============================================
-// MEMORIES WIDGET - Gizli Anılar (Firebase Sync)
+// MEMORIES WIDGET - Slideshow (2sn otomatik)
 // ============================================
 
 const MemoriesWidget = {
   memories: [],
   dbRef: null,
   editIndex: -1,
+  slideIndex: 0,
+  slideTimer: null,
+  isPaused: false,
 
   init() {
-    this.storiesContainer = document.getElementById('memoriesStories');
-    this.memoryModal = document.getElementById('memoryModal');
-    this.memoryModalTitle = document.getElementById('memoryModalTitle');
-    this.memoryModalStory = document.getElementById('memoryModalStory');
-    this.memoryModalDate = document.getElementById('memoryModalDate');
-    this.memoryModalImage = document.getElementById('memoryModalImage');
-    this.memoryModalClose = document.getElementById('memoryModalClose');
-    this.memoryCount = document.getElementById('memoryCount');
-    this.widgetHeader = document.querySelector('#memoriesWidget .widget-header');
+    this.slideshowEl = document.getElementById('memoriesSlideshow');
+    this.imgEl = document.getElementById('slideshowImg');
+    this.titleEl = document.getElementById('slideshowTitle');
+    this.dateEl = document.getElementById('slideshowDate');
+    this.storyEl = document.getElementById('slideshowStory');
+    this.dotsEl = document.getElementById('slideshowDots');
 
-    this.memories = [];
-
-    this.setupListeners();
     this.setupFirebase();
     this.loadLocal();
     this.addEditButton();
-  },
 
-  setupListeners() {
-    this.memoryModalClose.addEventListener('click', () => this.closeModal());
-    this.memoryModal.addEventListener('click', (e) => {
-      if (e.target === this.memoryModal) this.closeModal();
-    });
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') this.closeModal();
-    });
+    this.slideshowEl.addEventListener('click', () => this.togglePause());
   },
 
   addEditButton() {
@@ -41,18 +30,19 @@ const MemoriesWidget = {
     btn.className = 'widget-edit-btn';
     btn.id = 'memoriesEditBtn';
     btn.textContent = '✏️ Düzenle';
-    btn.addEventListener('click', () => this.openEditModal(-1));
-    this.widgetHeader.appendChild(btn);
+    btn.style.position = 'absolute';
+    btn.style.top = '12px';
+    btn.style.right = '12px';
+    btn.style.zIndex = '10';
+    btn.addEventListener('click', (e) => { e.stopPropagation(); this.openEditModal(-1); });
+    this.slideshowEl.appendChild(btn);
   },
 
   setupFirebase() {
     const db = getDatabase();
     if (!db) return;
-
     const path = APP_CONFIG.firebasePaths.memories;
     this.dbRef = db.ref(path);
-
-    // Tüm anıları yükle + canlı dinle
     this.dbRef.on('value', (snapshot) => {
       try {
         const data = snapshot.val();
@@ -64,77 +54,77 @@ const MemoriesWidget = {
           });
         }
         this.saveLocal();
-        this.render();
+        this.startSlideshow();
       } catch (e) { /* ignore */ }
-    }, (err) => { /* permission denied */ });
+    }, () => {});
   },
 
   loadLocal() {
     if (this.memories.length > 0) return;
     try {
       this.memories = JSON.parse(localStorage.getItem('memories_data') || '[]');
-      this.render();
-    } catch (e) { this.render(); }
+      if (this.memories.length === 0) {
+        this.memories = [
+          { title: 'İlk Günümüz', date: '19 Mart 2025', story: 'Her şeyin başladığı gün... Gözlerinin içinde kaybolduğum an.', image: 'https://picsum.photos/seed/mem1/400/600', emoji: '💫' },
+          { title: 'Birlikte Geçen Zaman', date: 'Nisan 2025', story: 'Her saniyen ayrı bir güzel. Seninle her an bir ömür.', image: 'https://picsum.photos/seed/mem2/400/600', emoji: '🌸' },
+          { title: 'Sonsuz Sevgi', date: 'Her Zaman', story: 'Bu kalp senden vazgeçmeyecek. Sonsuza kadar seninle.', image: 'https://picsum.photos/seed/mem3/400/600', emoji: '💖' }
+        ];
+      }
+      this.startSlideshow();
+    } catch (e) { this.startSlideshow(); }
   },
 
   saveLocal() {
     try { localStorage.setItem('memories_data', JSON.stringify(this.memories)); } catch (e) {}
   },
 
-  render() {
-    this.storiesContainer.innerHTML = '';
-    this.memoryCount.textContent = this.memories.length;
+  startSlideshow() {
+    if (this.slideTimer) clearInterval(this.slideTimer);
+    this.renderDots();
+    this.slideIndex = 0;
+    this.showSlide(0);
+    this.slideTimer = setInterval(() => {
+      if (!this.isPaused && this.memories.length > 0) {
+        this.slideIndex = (this.slideIndex + 1) % this.memories.length;
+        this.showSlide(this.slideIndex);
+      }
+    }, 2000);
+  },
 
-    if (this.memories.length === 0) {
-      this.storiesContainer.innerHTML = `
-        <div style="text-align:center;padding:20px;color:var(--text-muted);font-size:13px;">
-          Henüz anı eklenmedi. ✏️ Düzenle butonuna basarak ekleyebilirsiniz.
-        </div>
-      `;
-      return;
+  togglePause() {
+    if (this.memories.length === 0) return;
+    this.isPaused = !this.isPaused;
+    if (this.isPaused) {
+      this.slideshowEl.style.opacity = '0.6';
+    } else {
+      this.slideshowEl.style.opacity = '1';
     }
+  },
 
-    this.memories.forEach((memory, index) => {
-      const story = document.createElement('div');
-      story.className = 'story-circle';
-      story.innerHTML = `
-        <div class="story-ring">
-          <div class="story-ring-inner">
-            ${memory.emoji || '📸'}
-          </div>
-        </div>
-        <span class="story-label">${this.escapeHtml(memory.title || '')}</span>
-      `;
-      story.addEventListener('click', () => this.openModal(index));
-      // Uzun basma ile düzenle
-      let pressTimer;
-      story.addEventListener('touchstart', (e) => { pressTimer = setTimeout(() => { this.openEditModal(index); }, 600); });
-      story.addEventListener('touchend', () => clearTimeout(pressTimer));
-      story.addEventListener('contextmenu', (e) => { e.preventDefault(); this.openEditModal(index); });
-      this.storiesContainer.appendChild(story);
+  showSlide(index) {
+    const mem = this.memories[index];
+    if (!mem) return;
+    this.titleEl.textContent = mem.title || '';
+    this.dateEl.textContent = mem.date || '';
+    this.storyEl.textContent = mem.story || '';
+    this.imgEl.src = mem.image || '';
+    this.imgEl.alt = mem.title || '';
+
+    document.querySelectorAll('.slide-dot').forEach((dot, i) => {
+      dot.classList.toggle('active', i === index);
     });
   },
 
-  openModal(index) {
-    const memory = this.memories[index];
-    if (!memory) return;
-    this.memoryModalTitle.textContent = memory.title || '';
-    this.memoryModalStory.textContent = memory.story || '';
-    this.memoryModalDate.textContent = memory.date || '';
-    this.memoryModalImage.innerHTML = memory.image
-      ? `<img src="${memory.image}" alt="${memory.title || ''}">`
-      : `<div class="memory-modal-img-placeholder">${memory.emoji || '📸'}</div>`;
-    this.memoryModal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
+  renderDots() {
+    this.dotsEl.innerHTML = '';
+    this.memories.forEach((_, i) => {
+      const dot = document.createElement('span');
+      dot.className = 'slide-dot' + (i === this.slideIndex ? ' active' : '');
+      this.dotsEl.appendChild(dot);
+    });
   },
 
-  closeModal() {
-    this.memoryModal.style.display = 'none';
-    document.body.style.overflow = '';
-    this.memoryEditModalClose();
-  },
-
-  // ========== EDIT MODAL ==========
+  // ========== EDIT MODAL (long-press) ==========
   openEditModal(index) {
     this.editIndex = index;
     const isEdit = index >= 0 && index < this.memories.length;
@@ -151,7 +141,6 @@ const MemoriesWidget = {
 
     document.getElementById('memoryEditModal').style.display = 'flex';
 
-    // Clean up old listeners
     const saveBtn = document.getElementById('memEditSaveBtn');
     const delBtn = document.getElementById('memEditDeleteBtn');
     const closeBtn = document.getElementById('memoryEditClose');
@@ -164,7 +153,7 @@ const MemoriesWidget = {
 
     newSave.addEventListener('click', () => this.saveEdit());
     newDel.addEventListener('click', () => this.deleteEdit());
-    newClose.addEventListener('click', () => this.memoryEditModalClose());
+    newClose.addEventListener('click', () => this.editModalClose());
   },
 
   saveEdit() {
@@ -181,28 +170,21 @@ const MemoriesWidget = {
 
     const saveToFirebase = (imgUrl) => {
       if (imgUrl) memory.image = imgUrl;
-
-      // Önce yerel olarak ekle/güncelle (anında görünsün)
       if (this.editIndex >= 0 && this.editIndex < this.memories.length) {
         this.memories[this.editIndex] = { ...memory, _key: this.memories[this.editIndex]._key };
       } else {
         this.memories.push({ ...memory });
       }
-      this.render();
       this.saveLocal();
-      this.memoryEditModalClose();
+      this.startSlideshow();
+      this.editModalClose();
 
-      // Sonra Firebase'e kaydet (arka planda)
       const db = getDatabase();
       if (!db || !this.dbRef) return;
-
       if (this.editIndex >= 0 && this.editIndex < this.memories.length) {
         const existing = this.memories[this.editIndex];
-        if (existing._key) {
-          db.ref(`${APP_CONFIG.firebasePaths.memories}/${existing._key}`).update(memory).catch(() => {});
-        } else {
-          this.dbRef.push(memory).catch(() => {});
-        }
+        if (existing._key) db.ref(`${APP_CONFIG.firebasePaths.memories}/${existing._key}`).update(memory).catch(() => {});
+        else this.dbRef.push(memory).catch(() => {});
       } else {
         this.dbRef.push(memory).catch(() => {});
       }
@@ -219,18 +201,17 @@ const MemoriesWidget = {
     if (this.editIndex < 0 || this.editIndex >= this.memories.length) return;
     const mem = this.memories[this.editIndex];
     const db = getDatabase();
-
     if (mem._key && db) {
       db.ref(`${APP_CONFIG.firebasePaths.memories}/${mem._key}`).remove();
     } else {
       this.memories.splice(this.editIndex, 1);
       this.saveLocal();
-      this.render();
+      this.startSlideshow();
     }
-    this.memoryEditModalClose();
+    this.editModalClose();
   },
 
-  memoryEditModalClose() {
+  editModalClose() {
     document.getElementById('memoryEditModal').style.display = 'none';
   },
 
@@ -254,11 +235,5 @@ const MemoriesWidget = {
       img.src = e.target.result;
     };
     reader.readAsDataURL(file);
-  },
-
-  escapeHtml(text) {
-    const d = document.createElement('div');
-    d.textContent = text;
-    return d.innerHTML;
   }
 };
