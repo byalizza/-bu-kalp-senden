@@ -44,7 +44,7 @@ const APP_CONFIG = {
   // Şarkı listesi (assets/sounds/ klasöründen çalar)
   // Kullanım: MP3'ü assets/sounds/ klasörüne yükle, buraya adını ekle
   playlist: [
-    // { title: 'Şarkı Adı', artist: 'Sanatçı', fileName: 'dosya.mp3', lyrics: 'sözler...' }
+    { title: 'Bana Ondan Bahsetmeyin', artist: 'Alihan', fileName: 'Alihan - Bana Ondan Bahsetmeyin [HQ] [_6wmWTsfLJ4].mp3', lyrics: '' }
   ],
 
   // Sanal evcil hayvan mesajları
