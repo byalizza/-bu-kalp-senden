@@ -121,12 +121,17 @@ const MusicWidget = {
     if (this.isPlaying) {
       this.audio.pause();
       this.isPlaying = false;
+      this.updatePlayButton();
     } else {
       if (!this.audio.src) this.play(this.currentIndex);
-      this.audio.play().catch(() => { this.isPlaying = false; this.updatePlayButton(); return; });
-      this.isPlaying = true;
+      this.audio.play().then(() => {
+        this.isPlaying = true;
+        this.updatePlayButton();
+      }).catch(() => {
+        this.isPlaying = false;
+        this.updatePlayButton();
+      });
     }
-    this.updatePlayButton();
   },
 
   updatePlayButton() {
