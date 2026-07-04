@@ -149,10 +149,6 @@ const MusicWidget = {
       return `assets/sounds/${song.fileName.replace(/^\/+/, '')}`;
     }
     if (song.audioUrl) return song.audioUrl;
-    if (song.url) {
-      // YouTube URL'si değilse direkt kullan
-      if (!song.url.includes('youtube') && !song.url.includes('youtu.be')) return song.url;
-    }
     return '';
   },
 
