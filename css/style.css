@@ -11,24 +11,28 @@
 }
 
 :root {
-  --primary: #ff6b6b;
-  --primary-dark: #ee5a24;
-  --primary-light: #ff9f9f;
+  --primary: #ff4757;
+  --primary-dark: #e63946;
+  --primary-light: #ff6b81;
   --secondary: #fd79a8;
-  --accent: #e17055;
-  --bg-dark: #0d0d0d;
-  --bg-card: #1a1a2e;
-  --bg-card-alt: #16213e;
+  --accent: #ffa502;
+  --accent-light: #ffd93d;
+  --purple: #7c5cbf;
+  --purple-light: #a29bfe;
+  --bg-dark: #07070d;
+  --bg-card: #12121e;
+  --bg-card-alt: #1a1a2e;
   --text-primary: #ffffff;
-  --text-secondary: #b0b0b0;
-  --text-muted: #6c6c8a;
-  --border-glow: rgba(255, 107, 107, 0.15);
-  --shadow-soft: 0 8px 32px rgba(0,0,0,0.4);
-  --shadow-glow: 0 0 30px rgba(255, 107, 107, 0.3);
-  --radius-sm: 12px;
-  --radius-md: 20px;
-  --radius-lg: 28px;
-  --radius-xl: 36px;
+  --text-secondary: rgba(255,255,255,0.7);
+  --text-muted: rgba(255,255,255,0.35);
+  --border-subtle: rgba(255,255,255,0.04);
+  --border-glow: rgba(255, 71, 87, 0.2);
+  --shadow-soft: 0 8px 40px rgba(0,0,0,0.5);
+  --shadow-glow: 0 0 40px rgba(255, 71, 87, 0.25);
+  --radius-sm: 14px;
+  --radius-md: 22px;
+  --radius-lg: 30px;
+  --radius-xl: 40px;
   --font-display: 'Playfair Display', serif;
   --font-body: 'Inter', -apple-system, sans-serif;
   --font-script: 'Dancing Script', cursive;
@@ -454,7 +458,7 @@ body {
 .main-app {
   display: flex;
   flex-direction: column;
-  background: linear-gradient(180deg, #0d0d0d 0%, #120808 30%, #0d0d0d 100%);
+  background: linear-gradient(180deg, #07070d 0%, #0d0808 30%, #07070d 100%);
 }
 
 /* ---------- APP HEADER ---------- */
@@ -462,12 +466,12 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 20px;
-  padding-top: max(12px, env(safe-area-inset-top));
-  background: rgba(13, 13, 13, 0.8);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255,255,255,0.04);
+  padding: 14px 20px;
+  padding-top: max(14px, env(safe-area-inset-top));
+  background: rgba(7, 7, 13, 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid rgba(255,71,87,0.08);
   z-index: 10;
   flex-shrink: 0;
 }
@@ -479,15 +483,20 @@ body {
 }
 
 .header-heart {
-  font-size: 18px;
+  font-size: 20px;
   animation: heartPulse 2s ease-in-out infinite;
+  filter: drop-shadow(0 0 8px rgba(255,71,87,0.4));
 }
 
 .header-title {
   font-family: var(--font-display);
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
+  background: linear-gradient(135deg, #ff4757, #ff6b81, #fd79a8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .header-right {
@@ -499,20 +508,21 @@ body {
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  border: none;
-  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.04);
   color: var(--text-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .icon-btn:active {
-  background: rgba(255, 107, 107, 0.2);
+  background: rgba(255, 71, 87, 0.15);
   color: var(--primary);
-  transform: scale(0.9);
+  border-color: rgba(255, 71, 87, 0.3);
+  transform: scale(0.85);
 }
 
 /* ---------- BOTTOM NAV ---------- */
@@ -520,12 +530,12 @@ body {
   display: flex;
   justify-content: space-around;
   align-items: center;
-  padding: 8px 8px;
-  padding-bottom: calc(8px + var(--safe-bottom));
-  background: rgba(13, 13, 13, 0.9);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-top: 1px solid rgba(255,255,255,0.04);
+  padding: 6px 6px;
+  padding-bottom: calc(6px + var(--safe-bottom));
+  background: rgba(7, 7, 13, 0.92);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-top: 1px solid rgba(255,71,87,0.06);
   flex-shrink: 0;
   z-index: 10;
 }
@@ -534,25 +544,34 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  padding: 6px 12px;
+  gap: 1px;
+  padding: 4px 8px;
   border: none;
   background: transparent;
   color: var(--text-muted);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   position: relative;
   min-width: 0;
 }
 
-.nav-item span {
-  font-size: 10px;
-  font-weight: 500;
+.nav-item svg {
   transition: all 0.3s ease;
+}
+
+.nav-item span {
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  transition: color 0.3s ease;
 }
 
 .nav-item.active {
   color: var(--primary);
+}
+
+.nav-item.active svg {
+  filter: drop-shadow(0 0 6px rgba(255,71,87,0.3));
 }
 
 .nav-item.active span {
@@ -568,8 +587,9 @@ body {
   width: 24px;
   height: 3px;
   background: var(--primary);
-  border-radius: 0 0 3px 3px;
-  transition: transform 0.3s ease;
+  border-radius: 0 0 4px 4px;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 0 10px rgba(255,71,87,0.4);
 }
 
 .nav-item.active::after {
@@ -578,13 +598,14 @@ body {
 
 .nav-badge {
   position: absolute;
-  top: 4px;
-  right: calc(50% - 24px);
+  top: 2px;
+  right: calc(50% - 20px);
   width: 8px;
   height: 8px;
   background: #ff3b30;
   border-radius: 50%;
-  border: 2px solid rgba(13,13,13,0.9);
+  border: 2px solid rgba(7,7,13,0.95);
+  box-shadow: 0 0 6px rgba(255,59,48,0.5);
 }
 
 .nav-item {
@@ -622,12 +643,12 @@ body {
 }
 
 .widget::-webkit-scrollbar-thumb {
-  background: rgba(255, 107, 107, 0.2);
+  background: rgba(255, 71, 87, 0.15);
   border-radius: 3px;
 }
 
 @keyframes widgetFadeIn {
-  0% { opacity: 0; transform: translateY(10px); }
+  0% { opacity: 0; transform: translateY(12px); }
   100% { opacity: 1; transform: translateY(0); }
 }
 
@@ -637,6 +658,8 @@ body {
   gap: 10px;
   margin-bottom: 16px;
   flex-shrink: 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255,71,87,0.06);
 }
 
 .widget-icon {
@@ -1933,25 +1956,30 @@ body {
 
 /* Edit butonları */
 .widget-edit-btn {
-  padding: 6px 14px;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 16px;
-  color: var(--text-muted);
+  padding: 7px 16px;
+  background: linear-gradient(135deg, rgba(255,71,87,0.12), rgba(255,107,129,0.08));
+  border: 1px solid rgba(255,71,87,0.2);
+  border-radius: 20px;
+  color: var(--primary-light);
   font-size: 11px;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   font-family: var(--font-body);
   flex-shrink: 0;
+  letter-spacing: 0.3px;
+  backdrop-filter: blur(8px);
 }
 
 .widget-edit-btn:active {
-  background: rgba(255, 107, 107, 0.12);
-  color: var(--primary-light);
+  background: linear-gradient(135deg, rgba(255,71,87,0.25), rgba(255,107,129,0.15));
+  border-color: rgba(255,71,87,0.4);
+  transform: scale(0.92);
+  color: #fff;
 }
 
 .widget-edit-btn.active {
-  background: rgba(255, 107, 107, 0.15);
-  color: var(--primary-light);
-  border-color: rgba(255, 107, 107, 0.2);
+  background: linear-gradient(135deg, rgba(255,71,87,0.2), rgba(255,107,129,0.12));
+  border-color: rgba(255,71,87,0.3);
+  color: #fff;
 }
