@@ -1723,3 +1723,151 @@ body {
   background: rgba(255, 107, 107, 0.2);
   border-radius: 3px;
 }
+
+/* ================================
+   FORM MODAL
+   ================================ */
+.form-modal {
+  padding: 0;
+  max-height: 90vh;
+}
+
+.form-title {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  padding: 20px 24px 0;
+  margin-bottom: 16px;
+}
+
+.form-body {
+  padding: 0 24px 24px;
+}
+
+.form-group {
+  margin-bottom: 14px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 5px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-input, .form-textarea {
+  width: 100%;
+  padding: 11px 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 14px;
+  outline: none;
+  font-family: var(--font-body);
+  transition: border-color 0.3s ease;
+}
+
+.form-input:focus, .form-textarea:focus {
+  border-color: rgba(255, 107, 107, 0.3);
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 80px;
+  line-height: 1.5;
+}
+
+.form-file {
+  width: 100%;
+  padding: 10px 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.form-file::-webkit-file-upload-button {
+  padding: 8px 16px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 12px;
+  cursor: pointer;
+  margin-right: 10px;
+  font-family: var(--font-body);
+}
+
+.form-hint {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  justify-content: flex-end;
+}
+
+.form-btn {
+  padding: 11px 24px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: var(--font-body);
+}
+
+.form-btn:active {
+  transform: scale(0.96);
+}
+
+.form-btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+}
+
+.form-btn-danger {
+  background: rgba(255, 71, 87, 0.15);
+  color: #ff4757;
+  border: 1px solid rgba(255, 71, 87, 0.2);
+}
+
+.form-error {
+  font-size: 12px;
+  color: var(--primary);
+  margin-top: 10px;
+  min-height: 18px;
+}
+
+/* Edit butonları */
+.widget-edit-btn {
+  padding: 6px 14px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  color: var(--text-muted);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: var(--font-body);
+  flex-shrink: 0;
+}
+
+.widget-edit-btn:active {
+  background: rgba(255, 107, 107, 0.12);
+  color: var(--primary-light);
+}
+
+.widget-edit-btn.active {
+  background: rgba(255, 107, 107, 0.15);
+  color: var(--primary-light);
+  border-color: rgba(255, 107, 107, 0.2);
+}

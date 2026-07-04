@@ -35,7 +35,10 @@ const APP_CONFIG = {
   // Firebase yolu
   firebasePaths: {
     photos: 'locket/photos',
-    messages: 'chat/messages'
+    messages: 'chat/messages',
+    memories: 'data/memories',
+    playlist: 'data/playlist',
+    songs: 'songs'
   },
 
   // Şarkı listesi (yerel - YouTube üzerinden çalar)

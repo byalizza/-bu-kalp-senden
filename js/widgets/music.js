@@ -1,13 +1,14 @@
 // ============================================
-// MUSIC WIDGET - Romantik Şarkı Listesi
+// MUSIC WIDGET - Çalma Listesi (Firebase Sync)
 // ============================================
 
 const MusicWidget = {
   currentIndex: 0,
   isPlaying: false,
   audio: null,
-  progressInterval: null,
   lyricsVisible: false,
+  playlist: [],
+  dbRef: null,
 
   init() {
     this.audio = document.getElementById('bgMusic');
@@ -23,10 +24,11 @@ const MusicWidget = {
     this.lyricsContent = document.getElementById('lyricsContent');
     this.lyricsCloseBtn = document.getElementById('lyricsCloseBtn');
     this.nowPlayingBadge = document.getElementById('nowPlayingBadge');
-    this.musicToggleBtn = document.getElementById('musicToggleBtn');
+    this.widgetHeader = document.querySelector('#musicWidget .widget-header');
 
     this.setupListeners();
-    this.renderPlaylist();
+    this.setupFirebase();
+    this.addEditButton();
   },
 
   setupListeners() {
@@ -47,23 +49,81 @@ const MusicWidget = {
     this.audio.addEventListener('error', () => {
       this.nowPlayingBadge.textContent = 'Yükleme hatası';
     });
+  },
 
-    this.musicToggleBtn.addEventListener('click', () => {
-      const widget = document.getElementById('musicWidget');
-      widget.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  addEditButton() {
+    const btn = document.createElement('button');
+    btn.className = 'widget-edit-btn';
+    btn.id = 'playlistEditBtn';
+    btn.textContent = '➕ Şarkı Ekle';
+    btn.addEventListener('click', () => this.openSongModal(-1));
+    this.widgetHeader.appendChild(btn);
+  },
+
+  setupFirebase() {
+    const db = getDatabase();
+    if (!db) { this.loadLocal(); return; }
+
+    const path = APP_CONFIG.firebasePaths.playlist;
+    this.dbRef = db.ref(path);
+
+    this.dbRef.on('value', (snapshot) => {
+      try {
+        const data = snapshot.val();
+        this.playlist = [];
+        if (data) {
+          Object.keys(data).forEach(key => {
+            const s = data[key];
+            if (s) { s._key = key; this.playlist.push(s); }
+          });
+        }
+        this.saveLocal();
+        if (this.playlist.length === 0 && APP_CONFIG.playlist) {
+          this.playlist = APP_CONFIG.playlist.map(s => ({ ...s }));
+          this.syncToFirebase();
+        }
+        this.renderPlaylist();
+      } catch (e) { /* ignore */ }
+    }, (err) => { this.loadLocal(); });
+  },
+
+  loadLocal() {
+    try {
+      const saved = JSON.parse(localStorage.getItem('playlist_data') || '[]');
+      if (saved.length > 0) {
+        this.playlist = saved;
+      } else if (APP_CONFIG.playlist) {
+        this.playlist = APP_CONFIG.playlist.map(s => ({ ...s }));
+      }
+      this.renderPlaylist();
+    } catch (e) {
+      this.playlist = APP_CONFIG.playlist ? APP_CONFIG.playlist.map(s => ({ ...s })) : [];
+      this.renderPlaylist();
+    }
+  },
+
+  saveLocal() {
+    try { localStorage.setItem('playlist_data', JSON.stringify(this.playlist)); } catch (e) {}
+  },
+
+  syncToFirebase() {
+    if (!this.dbRef) return;
+    this.playlist.forEach(s => {
+      const { _key, ...data } = s;
+      this.dbRef.push(data);
     });
   },
 
   renderPlaylist() {
     this.playlistEl.innerHTML = '';
-    APP_CONFIG.playlist.forEach((song, index) => {
+    this.playlist.forEach((song, index) => {
       const item = document.createElement('button');
       item.className = 'playlist-item' + (index === this.currentIndex ? ' active' : '');
       item.innerHTML = `
         <span class="pl-index">${index + 1}</span>
         <div class="pl-info">
-          <div class="pl-name">${song.title}</div>
-          <div class="pl-artist">${song.artist}</div>
+          <div class="pl-name">${this.esc(song.title || '')}</div>
+          <div class="pl-artist">${this.esc(song.artist || '')}</div>
         </div>
         <button class="pl-lyric-btn" data-index="${index}">Söz</button>
       `;
@@ -74,36 +134,40 @@ const MusicWidget = {
         }
         this.play(index);
       });
+      // Uzun basma ile düzenle
+      let pressTimer;
+      item.addEventListener('touchstart', () => { pressTimer = setTimeout(() => this.openSongModal(index), 600); });
+      item.addEventListener('touchend', () => clearTimeout(pressTimer));
+      item.addEventListener('contextmenu', (e) => { e.preventDefault(); this.openSongModal(index); });
       this.playlistEl.appendChild(item);
     });
   },
 
   play(index) {
+    if (index < 0 || index >= this.playlist.length) return;
     this.currentIndex = index;
-    const song = APP_CONFIG.playlist[index];
+    const song = this.playlist[index];
 
-    this.currentSongName.textContent = song.title;
-    this.currentArtist.textContent = song.artist;
+    this.currentSongName.textContent = song.title || 'Bilinmeyen';
+    this.currentArtist.textContent = song.artist || '';
 
-    // YouTube URL'sini ayarla
-    // Not: Gerçek kullanımda her şarkı için farklı YouTube ID kullanın
-    const youtubeUrl = `https://www.youtube.com/watch?v=${song.youtubeId}`;
-    this.audio.src = `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${(index % 16) + 1}.mp3`;
+    if (song.audioUrl) {
+      this.audio.src = song.audioUrl;
+    } else {
+      // Fallback demo
+      this.audio.src = `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${(index % 16) + 1}.mp3`;
+    }
     this.audio.load();
 
-    // Playlist görünümünü güncelle
     document.querySelectorAll('.playlist-item').forEach((el, i) => {
       el.classList.toggle('active', i === index);
     });
 
     if (this.isPlaying) {
-      this.audio.play().catch(() => {
-        this.isPlaying = false;
-        this.updatePlayButton();
-      });
+      this.audio.play().catch(() => { this.isPlaying = false; this.updatePlayButton(); });
     }
 
-    this.nowPlayingBadge.textContent = song.title.substring(0, 15) + (song.title.length > 15 ? '...' : '');
+    this.nowPlayingBadge.textContent = (song.title || 'Şarkı').substring(0, 15) + ((song.title || '').length > 15 ? '...' : '');
     this.hideLyrics();
   },
 
@@ -115,11 +179,7 @@ const MusicWidget = {
       if (!this.audio.src) {
         this.play(this.currentIndex);
       }
-      this.audio.play().catch(() => {
-        this.isPlaying = false;
-        this.updatePlayButton();
-        return;
-      });
+      this.audio.play().catch(() => { this.isPlaying = false; this.updatePlayButton(); return; });
       this.isPlaying = true;
     }
     this.updatePlayButton();
@@ -133,8 +193,7 @@ const MusicWidget = {
 
   updateProgress() {
     if (!this.audio.duration) return;
-    const percent = (this.audio.currentTime / this.audio.duration) * 100;
-    this.progressFill.style.width = percent + '%';
+    this.progressFill.style.width = ((this.audio.currentTime / this.audio.duration) * 100) + '%';
     this.currentTimeEl.textContent = this.formatTime(this.audio.currentTime);
   },
 
@@ -149,22 +208,17 @@ const MusicWidget = {
     return `${m}:${s.toString().padStart(2, '0')}`;
   },
 
-  next() {
-    this.play((this.currentIndex + 1) % APP_CONFIG.playlist.length);
-  },
-
-  prev() {
-    this.play((this.currentIndex - 1 + APP_CONFIG.playlist.length) % APP_CONFIG.playlist.length);
-  },
+  next() { this.play((this.currentIndex + 1) % this.playlist.length); },
 
   toggleLyrics(index) {
-    const song = APP_CONFIG.playlist[index];
-    if (this.lyricsVisible && this.lyricsPanel.dataset.song === song.id) {
+    const song = this.playlist[index];
+    if (!song || !song.lyrics) { this.lyricsContent.textContent = 'Söz bulunamadı'; this.lyricsPanel.style.display = 'block'; return; }
+    if (this.lyricsVisible && this.lyricsPanel.dataset.song === (song._key || song.id)) {
       this.hideLyrics();
       return;
     }
     this.lyricsContent.textContent = song.lyrics;
-    this.lyricsPanel.dataset.song = song.id;
+    this.lyricsPanel.dataset.song = song._key || song.id || index;
     this.lyricsPanel.style.display = 'block';
     this.lyricsVisible = true;
   },
@@ -175,11 +229,102 @@ const MusicWidget = {
   },
 
   autoPlay() {
+    if (this.playlist.length === 0) return;
     setTimeout(() => {
       this.play(0);
-      setTimeout(() => {
-        this.togglePlay();
-      }, 500);
+      setTimeout(() => this.togglePlay(), 500);
     }, 1000);
-  }
+  },
+
+  // ========== SONG EDIT MODAL ==========
+  openSongModal(index) {
+    this.editSongIndex = index;
+    const isEdit = index >= 0 && index < this.playlist.length;
+    const song = isEdit ? this.playlist[index] : {};
+
+    document.getElementById('songEditTitle').textContent = isEdit ? 'Şarkı Düzenle' : 'Yeni Şarkı Ekle';
+    document.getElementById('songEditTitleInput').value = song.title || '';
+    document.getElementById('songEditArtist').value = song.artist || '';
+    document.getElementById('songEditLyrics').value = song.lyrics || '';
+    document.getElementById('songEditFile').value = '';
+    document.getElementById('songEditError').textContent = '';
+    document.getElementById('songEditDeleteBtn').style.display = isEdit ? 'inline-block' : 'none';
+    document.getElementById('songEditModal').style.display = 'flex';
+
+    // Clean listeners
+    ['songEditSaveBtn', 'songEditDeleteBtn', 'songEditClose'].forEach(id => {
+      const el = document.getElementById(id);
+      const clone = el.cloneNode(true);
+      el.parentNode.replaceChild(clone, el);
+    });
+
+    document.getElementById('songEditSaveBtn').addEventListener('click', () => this.saveSong());
+    document.getElementById('songEditDeleteBtn').addEventListener('click', () => this.deleteSong());
+    document.getElementById('songEditClose').addEventListener('click', () => this.songModalClose());
+  },
+
+  saveSong() {
+    const title = document.getElementById('songEditTitleInput').value.trim();
+    const artist = document.getElementById('songEditArtist').value.trim();
+    const lyrics = document.getElementById('songEditLyrics').value.trim();
+    const file = document.getElementById('songEditFile').files[0];
+
+    if (!title) { document.getElementById('songEditError').textContent = 'Şarkı adı gerekli'; return; }
+
+    const songData = { title, artist: artist || 'Bilinmeyen', lyrics, audioUrl: '' };
+
+    const done = (audioUrl) => {
+      if (audioUrl) songData.audioUrl = audioUrl;
+
+      const db = getDatabase();
+      if (this.editSongIndex >= 0 && this.editSongIndex < this.playlist.length) {
+        const existing = this.playlist[this.editSongIndex];
+        if (existing._key && db) {
+          db.ref(`${APP_CONFIG.firebasePaths.playlist}/${existing._key}`).update(songData);
+        } else {
+          this.playlist[this.editSongIndex] = { ...songData };
+          if (db) this.dbRef.push(songData);
+        }
+      } else {
+        if (db) { this.dbRef.push(songData); }
+        else { this.playlist.push(songData); this.saveLocal(); this.renderPlaylist(); }
+      }
+      if (!db) { this.saveLocal(); this.renderPlaylist(); }
+      this.songModalClose();
+    };
+
+    if (file) {
+      const storage = getStorage();
+      if (storage) {
+        const path = `${APP_CONFIG.firebasePaths.songs}/${Date.now()}_${file.name}`;
+        storage.ref(path).put(file).then(s => s.ref.getDownloadURL()).then(url => done(url)).catch(() => done(''));
+      } else {
+        const reader = new FileReader();
+        reader.onload = (e) => done(e.target.result);
+        reader.readAsDataURL(file);
+      }
+    } else {
+      done('');
+    }
+  },
+
+  deleteSong() {
+    if (this.editSongIndex < 0 || this.editSongIndex >= this.playlist.length) return;
+    const song = this.playlist[this.editSongIndex];
+    const db = getDatabase();
+    if (song._key && db) {
+      db.ref(`${APP_CONFIG.firebasePaths.playlist}/${song._key}`).remove();
+    } else {
+      this.playlist.splice(this.editSongIndex, 1);
+      this.saveLocal();
+      this.renderPlaylist();
+    }
+    this.songModalClose();
+  },
+
+  songModalClose() {
+    document.getElementById('songEditModal').style.display = 'none';
+  },
+
+  esc(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
 };
