@@ -1,12 +1,8 @@
-// ============================================
-// MESSAGE WIDGET - Pofuduk + Kalıcı Mesajlaşma
-// Firebase ile senkron, mesajlar hiç silinmez
-// ============================================
-
 const MessageWidget = {
   dbRef: null,
   messages: [],
   initialized: false,
+  _pendingImages: {},
   petMessages: [
     'Seni çok seviyorum! 💕',
     'Seni çok özledim! 😊',
@@ -27,6 +23,7 @@ const MessageWidget = {
     this.msgList = document.getElementById('msgList');
     this.msgInput = document.getElementById('msgInput');
     this.msgSendBtn = document.getElementById('msgSendBtn');
+    this.msgPhotoBtn = document.getElementById('msgPhotoBtn');
     this.petEl = document.getElementById('msgPet');
     this.petBubble = document.getElementById('msgPetBubble');
     this.petText = document.getElementById('msgPetText');
@@ -49,8 +46,63 @@ const MessageWidget = {
     });
     this.msgInput.addEventListener('focus', () => setTimeout(() => this.scrollToBottom(), 300));
 
-    // Pofuduk'a tıklama / sevme
+    this.msgPhotoBtn.addEventListener('click', () => this.pickPhoto());
+
     this.petEl.addEventListener('click', () => this.petInteraction());
+  },
+
+  pickPhoto() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.capture = 'environment';
+    input.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      this.compressAndSendPhoto(file);
+    });
+    input.click();
+  },
+
+  compressAndSendPhoto(file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let w = img.width, h = img.height;
+        const maxDim = 800;
+        if (w > maxDim || h > maxDim) {
+          const ratio = Math.min(maxDim / w, maxDim / h);
+          w *= ratio; h *= ratio;
+        }
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.65);
+
+        const msg = {
+          id: Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
+          from: this.user,
+          text: '',
+          image: dataUrl,
+          timestamp: Date.now()
+        };
+
+        this.msgInput.value = '';
+        this.messages.push(msg);
+        this.renderMessage(msg);
+        this.saveToLocal(msg);
+        this.scrollToBottom();
+
+        const db = getDatabase();
+        if (db && this.dbRef) {
+          this.dbRef.push(msg).catch(() => {});
+        }
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
   },
 
   petInteraction() {
@@ -59,8 +111,8 @@ const MessageWidget = {
 
     const msg = this.petMessages[Math.floor(Math.random() * this.petMessages.length)];
     this.petText.textContent = msg;
-    this.petBubble.style.background = 'rgba(255,107,107,0.15)';
-    setTimeout(() => { this.petBubble.style.background = 'rgba(255,107,107,0.08)'; }, 500);
+    this.petBubble.style.background = 'rgba(255,71,87,0.15)';
+    setTimeout(() => { this.petBubble.style.background = 'rgba(255,71,87,0.06)'; }, 500);
   },
 
   startPetAnimations() {
@@ -78,7 +130,6 @@ const MessageWidget = {
     const path = APP_CONFIG.firebasePaths.messages;
     this.dbRef = db.ref(path);
 
-    // Firebase bağlantı hatasını sessizce yönet
     this.dbRef.limitToLast(1).on('child_added', (snapshot) => {
       try {
         const msg = snapshot.val();
@@ -167,13 +218,24 @@ const MessageWidget = {
 
     const div = document.createElement('div');
     div.className = `msg-bubble ${bubbleClass}`;
-    div.innerHTML = `
-      ${!isMe ? `<span class="msg-sender">${sender}</span>` : ''}
-      <span class="msg-text">${this.escapeHtml(msg.text)}</span>
-      <span class="msg-time">${this.formatTime(msg.timestamp)}</span>
-    `;
+    let inner = '';
+    if (!isMe) inner += `<span class="msg-sender">${sender}</span>`;
+    if (msg.image) {
+      inner += `<div class="msg-image-wrapper"><img src="${msg.image}" class="msg-image" loading="lazy" onclick="MessageWidget.viewImage(this)"></div>`;
+    }
+    if (msg.text) inner += `<span class="msg-text">${this.escapeHtml(msg.text)}</span>`;
+    inner += `<span class="msg-time">${this.formatTime(msg.timestamp)}</span>`;
+    div.innerHTML = inner;
     div.dataset.msgId = msg.id;
     this.msgList.appendChild(div);
+  },
+
+  viewImage(img) {
+    const overlay = document.createElement('div');
+    overlay.className = 'msg-image-overlay';
+    overlay.innerHTML = `<div class="msg-image-viewer"><img src="${img.src}"><button class="msg-image-close" onclick="this.parentElement.parentElement.remove()">✕</button></div>`;
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+    document.body.appendChild(overlay);
   },
 
   saveToLocal(msg) {
