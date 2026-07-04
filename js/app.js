@@ -189,6 +189,22 @@ const ConfettiEffects = {
 
 document.addEventListener('DOMContentLoaded', () => {
   App.init();
+
+  // Service Worker kaydı (PWA)
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+
+  // Install prompt
+  let deferredPrompt;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    setTimeout(() => {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.catch(() => {});
+    }, 5000);
+  });
 });
 
 window.addEventListener('resize', () => {
