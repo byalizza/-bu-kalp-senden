@@ -929,7 +929,6 @@ body {
    WIDGET: POFUDUK + MESAJLAŞMA
    ================================ */
 .widget-messages {
-  display: flex;
   flex-direction: column;
   padding: 0 !important;
   background: var(--bg-dark) !important;
