@@ -6,16 +6,13 @@ const App = {
   isReady: false,
 
   async init() {
-    // Firebase başlat
     initFirebase();
 
-    // Splash ekranını bekle
     setTimeout(() => {
       document.getElementById('splashScreen').style.display = 'none';
       document.getElementById('loginScreen').style.display = 'flex';
       document.getElementById('loginScreen').style.animation = 'fadeIn 0.6s ease';
 
-      // Widget'ları başlat
       this.initializeWidgets();
       this.setupNavigation();
     }, 2800);
@@ -35,53 +32,19 @@ const App = {
 
   setupNavigation() {
     const navItems = document.querySelectorAll('.nav-item');
-    const widgets = document.querySelectorAll('.widget');
 
     navItems.forEach(item => {
       item.addEventListener('click', () => {
         const targetId = item.dataset.target;
-        const targetWidget = document.getElementById(targetId);
 
-        if (targetWidget) {
-          // Aktif nav'ı güncelle
-          navItems.forEach(n => n.classList.remove('active'));
-          item.classList.add('active');
+        navItems.forEach(n => n.classList.remove('active'));
+        item.classList.add('active');
 
-          // Widget'a kaydır
-          targetWidget.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
+        document.querySelectorAll('.widget').forEach(w => w.classList.remove('active'));
+        const target = document.getElementById(targetId);
+        if (target) target.classList.add('active');
       });
     });
-
-    // Scroll ile aktif nav'ı güncelle
-    const container = document.getElementById('widgetContainer');
-    container.addEventListener('scroll', () => {
-      this.updateActiveNav();
-    });
-  },
-
-  updateActiveNav() {
-    const container = document.getElementById('widgetContainer');
-    const widgets = document.querySelectorAll('.widget');
-    const navItems = document.querySelectorAll('.nav-item');
-
-    let closestWidget = null;
-    let closestDist = Infinity;
-
-    widgets.forEach(widget => {
-      const rect = widget.getBoundingClientRect();
-      const dist = Math.abs(rect.top - 100);
-      if (dist < closestDist) {
-        closestDist = dist;
-        closestWidget = widget;
-      }
-    });
-
-    if (closestWidget) {
-      navItems.forEach(item => {
-        item.classList.toggle('active', item.dataset.target === closestWidget.id);
-      });
-    }
   }
 };
 
@@ -146,7 +109,6 @@ const ConfettiEffects = {
 
     animate();
 
-    // Canvas'ı temizle
     setTimeout(() => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
     }, duration + 500);
@@ -161,15 +123,9 @@ document.addEventListener('DOMContentLoaded', () => {
   App.init();
 });
 
-// ============================================
-// GLOBAL NAVIGATION
-// ============================================
-
-// Sayfa yeniden boyutlandığında düzgün görüntüleme
 window.addEventListener('resize', () => {
   const vh = window.innerHeight * 0.01;
   document.documentElement.style.setProperty('--vh', `${vh}px`);
 });
 
-// İlk yüklemede de çalıştır
 document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
