@@ -427,7 +427,11 @@ const LocketWidget = {
   openGallery() {
     this.galleryGrid.innerHTML = '';
     if (this.allPhotos.length === 0) {
-      this.galleryGrid.innerHTML = '<div class="gallery-empty">Henüz fotoğraf yok</div>';
+      const emptyDiv = document.createElement('div');
+      emptyDiv.className = 'gallery-empty';
+      emptyDiv.innerHTML = '<div class="gallery-empty-icon">📸</div><div class="gallery-empty-text">Henüz fotoğraf yok</div><button class="gallery-add-first-btn">İlk Anlık Ekle</button>';
+      emptyDiv.querySelector('.gallery-add-first-btn').addEventListener('click', () => { this.closeGallery(); this.capture(); });
+      this.galleryGrid.appendChild(emptyDiv);
     } else {
       this.allPhotos.forEach(p => {
         const div = document.createElement('div');
