@@ -10,15 +10,16 @@
   "theme_color": "#ff4757",
   "icons": [
     {
-      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAADICAYAAACtWK6eAAAAAXNSR0IArs4c6QAAAARzQklUCAgICHwIZIgAAAAhSURBVHic7cEBDQAAAMKg909tDwcUAAAAAAAAAAB8GxQAAAHpQmZNAAAASUVORK5CYII=",
+      "src": "icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAADICAYAAACtWK6eAAAAAXNSR0IArs4c6QAAAARzQklUCAgICHwIZIgAAAAhSURBVHic7cEBDQAAAMKg909tDwcUAAAAAAAAAAB8GxQAAAHpQmZNAAAASUVORK5CYII=",
+      "src": "icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
-  ],
-  "splash_pages": null
+  ]
 }
