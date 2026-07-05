@@ -216,6 +216,21 @@ const ConfettiEffects = {
 let _notificationTimer = null;
 
 function showNotification(icon, title, message) {
+  // Sistem bildirimi (izin varsa)
+  if (typeof Notification !== 'undefined' && Notification.permission === 'granted' && navigator.serviceWorker?.controller) {
+    navigator.serviceWorker.ready.then(reg => {
+      reg.showNotification(title, {
+        body: message,
+        icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>' + encodeURIComponent(icon) + '</text></svg>',
+        badge: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💖</text></svg>',
+        tag: 'bukalpsenden-' + Date.now(),
+        data: { url: '/-bu-kalp-senden/' },
+        vibrate: [200, 100, 200]
+      });
+    });
+  }
+
+  // Toast bildirimi (ui icinde)
   const toast = document.getElementById('notificationToast');
   const toastIcon = document.getElementById('toastIcon');
   const toastTitle = document.getElementById('toastTitle');
@@ -245,6 +260,13 @@ function showNotification(icon, title, message) {
       _notificationTimer = null;
     }, 400);
   }, 3500);
+}
+
+function requestNotificationPermission() {
+  if (typeof Notification === 'undefined') return;
+  if (Notification.permission === 'default') {
+    Notification.requestPermission().catch(() => {});
+  }
 }
 
 // ============================================

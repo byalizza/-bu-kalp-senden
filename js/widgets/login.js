@@ -175,6 +175,7 @@ const LoginWidget = {
         if (typeof MusicWidget !== 'undefined') MusicWidget.autoPlay();
         if (typeof CounterWidget !== 'undefined') CounterWidget.start();
         if (typeof MessageWidget !== 'undefined') MessageWidget.init();
+        requestNotificationPermission();
       }, 600);
     }, 3000);
   }
