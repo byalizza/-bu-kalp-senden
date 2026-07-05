@@ -138,14 +138,16 @@ const AnilarWidget = {
   },
 
   saveEdit() {
+    if (this._saving) return;
+    this._saving = true;
     const title = document.getElementById('memEditTitle').value.trim();
     const date = document.getElementById('memEditDate').value.trim();
     const emoji = document.getElementById('memEditEmoji').value.trim() || '📸';
     const story = document.getElementById('memEditStory').value.trim();
     const photoFile = document.getElementById('memEditPhoto').files[0];
 
-    if (!title) { document.getElementById('memEditError').textContent = 'Başlık gerekli'; return; }
-    if (!story) { document.getElementById('memEditError').textContent = 'Hikaye gerekli'; return; }
+    if (!title) { document.getElementById('memEditError').textContent = 'Başlık gerekli'; this._saving = false; return; }
+    if (!story) { document.getElementById('memEditError').textContent = 'Hikaye gerekli'; this._saving = false; return; }
 
     const memory = { title, date, emoji, story, image: '' };
 
@@ -169,6 +171,7 @@ const AnilarWidget = {
       this.saveLocal();
       this.renderGrid();
       this.closeEditModal();
+      this._saving = false;
     };
 
     if (photoFile) {
@@ -203,7 +206,7 @@ const AnilarWidget = {
       img.onload = () => {
         const canvas = document.createElement('canvas');
         let w = img.width, h = img.height;
-        const max = 800;
+        const max = 1200;
         if (w > max || h > max) {
           if (w > h) { h = h * max / w; w = max; }
           else { w = w * max / h; h = max; }
@@ -211,7 +214,7 @@ const AnilarWidget = {
         canvas.width = w; canvas.height = h;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, w, h);
-        callback(canvas.toDataURL('image/jpeg', 0.6));
+        callback(canvas.toDataURL('image/jpeg', 0.8));
       };
       img.src = e.target.result;
     };
