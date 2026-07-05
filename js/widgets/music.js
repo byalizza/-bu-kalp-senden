@@ -8,23 +8,22 @@ const MusicWidget = {
 
   init() {
     this.audio = document.getElementById('bgMusic');
-    this.playBtn = document.getElementById('playPauseBtn');
-    this.prevBtn = document.getElementById('prevBtn');
-    this.nextBtn = document.getElementById('nextBtn');
-    this.progressFill = document.getElementById('progressFill');
-    this.progressBar = document.getElementById('progressBar');
-    this.currentTimeEl = document.getElementById('currentTime');
-    this.totalTimeEl = document.getElementById('totalTime');
-    this.currentSongName = document.getElementById('currentSongName');
-    this.currentArtist = document.getElementById('currentArtist');
-    this.playlistEl = document.getElementById('playlist');
-    this.lyricsPanel = document.getElementById('lyricsPanel');
-    this.lyricsContent = document.getElementById('lyricsContent');
-    this.lyricsCloseBtn = document.getElementById('lyricsCloseBtn');
-    this.nowPlayingBadge = document.getElementById('nowPlayingBadge');
-    this.volumeSlider = document.getElementById('volumeSlider');
-
-    this.toggleBtn = document.getElementById('musicToggleBtn');
+    this.playBtn = document.getElementById('hmPlayBtn');
+    this.prevBtn = document.getElementById('hmPrevBtn');
+    this.nextBtn = document.getElementById('hmNextBtn');
+    this.progressFill = document.getElementById('hmProgress');
+    this.progressBar = document.getElementById('hmProgressBar');
+    this.currentTimeEl = null;
+    this.totalTimeEl = null;
+    this.currentSongName = document.getElementById('hmSongName');
+    this.currentArtist = document.getElementById('hmArtist');
+    this.playlistEl = document.getElementById('hmPlaylist');
+    this.lyricsPanel = null;
+    this.lyricsContent = null;
+    this.lyricsCloseBtn = null;
+    this.nowPlayingBadge = null;
+    this.volumeSlider = null;
+    this.toggleBtn = this.playBtn;
 
     this.setupListeners();
     this.loadFromConfig();
@@ -35,7 +34,7 @@ const MusicWidget = {
     this.toggleBtn.addEventListener('click', () => this.togglePlay());
     this.prevBtn.addEventListener('click', () => this.prev());
     this.nextBtn.addEventListener('click', () => this.next());
-    this.lyricsCloseBtn.addEventListener('click', () => this.hideLyrics());
+    if (this.lyricsCloseBtn) this.lyricsCloseBtn.addEventListener('click', () => this.hideLyrics());
 
     this.progressBar.addEventListener('click', (e) => {
       const rect = this.progressBar.getBoundingClientRect();
@@ -45,17 +44,19 @@ const MusicWidget = {
       }
     });
 
-    this.volumeSlider.addEventListener('input', () => {
-      if (this.audio) {
-        this.audio.volume = parseFloat(this.volumeSlider.value);
-      }
-    });
+    if (this.volumeSlider) {
+      this.volumeSlider.addEventListener('input', () => {
+        if (this.audio) {
+          this.audio.volume = parseFloat(this.volumeSlider.value);
+        }
+      });
+    }
 
     this.audio.addEventListener('timeupdate', () => this.updateProgress());
     this.audio.addEventListener('loadedmetadata', () => this.updateTotalTime());
     this.audio.addEventListener('ended', () => this.next());
     this.audio.addEventListener('error', () => {
-      this.nowPlayingBadge.textContent = 'Yükleme hatası';
+      if (this.nowPlayingBadge) this.nowPlayingBadge.textContent = 'Yükleme hatası';
     });
   },
 
@@ -77,15 +78,8 @@ const MusicWidget = {
           <div class="pl-name">${this.esc(song.title || '')}</div>
           <div class="pl-artist">${this.esc(song.artist || '')}</div>
         </div>
-        <button class="pl-lyric-btn" data-index="${index}">Söz</button>
       `;
-      item.addEventListener('click', (e) => {
-        if (e.target.classList.contains('pl-lyric-btn')) {
-          this.toggleLyrics(index);
-          return;
-        }
-        this.play(index);
-      });
+      item.addEventListener('click', () => this.play(index));
       this.playlistEl.appendChild(item);
     });
   },
@@ -110,10 +104,10 @@ const MusicWidget = {
     if (src) {
       this.audio.src = src;
       this.audio.load();
-      this.nowPlayingBadge.textContent = (song.title || '').substring(0, 15);
+      if (this.nowPlayingBadge) this.nowPlayingBadge.textContent = (song.title || '').substring(0, 15);
     } else {
       this.audio.src = '';
-      this.nowPlayingBadge.textContent = 'Dosya bulunamadı';
+      if (this.nowPlayingBadge) this.nowPlayingBadge.textContent = 'Dosya bulunamadı';
     }
 
     document.querySelectorAll('.playlist-item').forEach((el, i) => {
@@ -168,11 +162,11 @@ const MusicWidget = {
   updateProgress() {
     if (!this.audio.duration) return;
     this.progressFill.style.width = ((this.audio.currentTime / this.audio.duration) * 100) + '%';
-    this.currentTimeEl.textContent = this.formatTime(this.audio.currentTime);
+    if (this.currentTimeEl) this.currentTimeEl.textContent = this.formatTime(this.audio.currentTime);
   },
 
   updateTotalTime() {
-    this.totalTimeEl.textContent = this.formatTime(this.audio.duration || 0);
+    if (this.totalTimeEl) this.totalTimeEl.textContent = this.formatTime(this.audio.duration || 0);
   },
 
   formatTime(seconds) {
@@ -183,6 +177,7 @@ const MusicWidget = {
   },
 
   toggleLyrics(index) {
+    if (!this.lyricsPanel || !this.lyricsContent) return;
     const song = this.playlist[index];
     if (!song || !song.lyrics) { this.lyricsContent.textContent = 'Söz bulunamadı'; this.lyricsPanel.style.display = 'block'; return; }
     if (this.lyricsVisible && this.lyricsPanel.dataset.song === (song._key || song.id)) { this.hideLyrics(); return; }
@@ -193,6 +188,7 @@ const MusicWidget = {
   },
 
   hideLyrics() {
+    if (!this.lyricsPanel) return;
     this.lyricsPanel.style.display = 'none';
     this.lyricsVisible = false;
   },
