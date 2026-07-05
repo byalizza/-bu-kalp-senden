@@ -172,8 +172,7 @@ const LoginWidget = {
         this.welcomeOverlay.style.display = 'none';
         this.mainApp.style.display = 'flex';
 
-        if (typeof MusicWidget !== 'undefined') MusicWidget.autoPlay();
-        if (typeof CounterWidget !== 'undefined') CounterWidget.start();
+        if (typeof KalbimWidget !== 'undefined') KalbimWidget.autoPlay();
         if (typeof MessageWidget !== 'undefined') MessageWidget.init();
         requestNotificationPermission();
       }, 600);

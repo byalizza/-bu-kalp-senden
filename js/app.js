@@ -35,14 +35,12 @@ const App = {
   },
 
   initializeWidgets() {
-    try { LoginWidget.init(); } catch (e) { console.warn('Login hatası:', e); }
-    try { CounterWidget.init(); } catch (e) { console.warn('Sayaç hatası:', e); }
-    try { MusicWidget.init(); } catch (e) { console.warn('Müzik hatası:', e); }
-    try { MemoriesWidget.init(); } catch (e) { console.warn('Anılar hatası:', e); }
-    try { LocketWidget.init(); } catch (e) { console.warn('Şipşak hatası:', e); }
-    try { initTheme(); } catch (e) { console.warn('Tema hatası:', e); }
+    try { LoginWidget.init(); } catch (e) { console.warn('Login hatasi:', e); }
+    try { KalbimWidget.init(); } catch (e) { console.warn('Kalbim hatasi:', e); }
+    try { LocketWidget.init(); } catch (e) { console.warn('Sipsak hatasi:', e); }
+    try { initTheme(); } catch (e) { console.warn('Tema hatasi:', e); }
 
-    // MessageWidget sadece welcome sonrası init edilir (login.js içinde)
+    // MessageWidget welcome sonrasi init edilir (login.js icinde)
     this.setupFullscreen();
     this.setupInitialWidgetState();
     this.setupKeyboardHandler();
