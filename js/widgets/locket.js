@@ -439,16 +439,17 @@ const LocketWidget = {
         const badge = p.from;
         const time = new Date(p.timestamp).toLocaleString('tr-TR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
         div.innerHTML = `<img src="${p.url}" alt=""><span class="gallery-grid-badge">${badge}</span><span class="gallery-grid-time">${time}</span>`;
+        let timer = null;
+        let holdClick = false;
+        const start = () => { timer = setTimeout(() => { timer = null; holdClick = true; showContextMenu('Fotoğraf', [{ icon: '🗑️', label: 'Sil', danger: true, onClick: () => this.deletePhoto(p) }]); }, 500); };
+        const stop = () => { if (timer) { clearTimeout(timer); timer = null; } };
         div.addEventListener('click', () => {
+          if (holdClick) { holdClick = false; return; }
           this.closeGallery();
           this.showPreview(p, false);
         });
-        // Long-press → sil
-        let timer = null;
-        const start = () => { timer = setTimeout(() => { timer = null; showContextMenu('Fotoğraf', [{ icon: '🗑️', label: 'Sil', danger: true, onClick: () => this.deletePhoto(p) }]); }, 500); };
-        const stop = () => { if (timer) { clearTimeout(timer); timer = null; } };
         div.addEventListener('mousedown', start); div.addEventListener('mouseup', stop); div.addEventListener('mouseleave', stop);
-        div.addEventListener('touchstart', start, { passive: true }); div.addEventListener('touchend', stop); div.addEventListener('touchmove', stop);
+        div.addEventListener('touchstart', start, { passive: true }); div.addEventListener('touchend', () => { stop(); holdClick = false; }); div.addEventListener('touchmove', stop);
         this.galleryGrid.appendChild(div);
       });
     }

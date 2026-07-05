@@ -79,9 +79,10 @@ const AnilarWidget = {
 
       // Long press: edit/delete
       let timer = null;
+      let holdClick = false;
       const start = () => {
         timer = setTimeout(() => {
-          timer = null;
+          timer = null; holdClick = true;
           const m = this.memories[i];
           if (!m) return;
           showContextMenu(m.title || 'Anı', [
@@ -95,10 +96,13 @@ const AnilarWidget = {
       btn.addEventListener('mouseup', stop);
       btn.addEventListener('mouseleave', stop);
       btn.addEventListener('touchstart', start, { passive: true });
-      btn.addEventListener('touchend', stop);
+      btn.addEventListener('touchend', () => { stop(); holdClick = false; });
       btn.addEventListener('touchmove', stop);
 
-      btn.addEventListener('click', () => this.openViewer(i));
+      btn.addEventListener('click', () => {
+        if (holdClick) { holdClick = false; return; }
+        this.openViewer(i);
+      });
       this.gridEl.appendChild(btn);
     });
   },
