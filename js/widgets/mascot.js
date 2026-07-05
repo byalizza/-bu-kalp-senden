@@ -97,7 +97,10 @@ const MessageWidget = {
 
         const db = getDatabase();
         if (db && this.dbRef) {
-          this.dbRef.push(msg).catch(() => {});
+          const newRef = this.dbRef.push(msg);
+          msg._key = newRef.key;
+          const div = this.msgList.querySelector(`[data-msg-id="${msg.id}"]`);
+          if (div) div.dataset.msgKey = msg._key;
         }
       };
       img.src = e.target.result;
@@ -132,13 +135,25 @@ const MessageWidget = {
 
     this.dbRef.limitToLast(1).on('child_added', (snapshot) => {
       try {
+        const key = snapshot.key;
         const msg = snapshot.val();
         if (msg && msg.id) {
+          msg._key = key;
           const exists = this.messages.some(m => m.id === msg.id);
           if (!exists) {
             this.messages.push(msg);
             this.renderMessage(msg);
             this.saveToLocal(msg);
+          } else {
+            // update _key on existing message
+            const existing = this.messages.find(m => m.id === msg.id);
+            if (existing && !existing._key) {
+              existing._key = key;
+              const div = this.msgList.querySelector(`[data-msg-id="${msg.id}"]`);
+              if (div) div.dataset.msgKey = key;
+            }
+            return;
+          }
             const isActive = document.getElementById('petWidget').classList.contains('active');
             if (isActive) {
               this.scrollToBottom();
@@ -156,12 +171,12 @@ const MessageWidget = {
 
     this.dbRef.once('value', (snapshot) => {
       try {
-        const data = snapshot.val();
-        if (!data) return;
-
+        if (!snapshot.val()) return;
         const loaded = [];
-        Object.values(data).forEach(msg => {
+        snapshot.forEach(child => {
+          const msg = child.val();
           if (msg && msg.id) {
+            msg._key = child.key;
             const exists = this.messages.some(m => m.id === msg.id);
             if (!exists) loaded.push(msg);
           }
@@ -172,7 +187,8 @@ const MessageWidget = {
           this.messages = [...this.messages, ...loaded];
           this.msgList.innerHTML = '';
           this.messages.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-          this.messages.forEach(msg => { this.renderMessage(msg); this.saveToLocal(msg); });
+          this.messages.forEach(msg => { this.renderMessage(msg); });
+          this.saveToLocal(null, true);
           this.scrollToBottom();
         }
       } catch (e) { /* ignore */ }
@@ -212,7 +228,10 @@ const MessageWidget = {
 
     const db = getDatabase();
     if (db && this.dbRef) {
-      this.dbRef.push(msg).catch(() => {});
+      const newRef = this.dbRef.push(msg);
+      msg._key = newRef.key;
+      const div = this.msgList.querySelector(`[data-msg-id="${msg.id}"]`);
+      if (div) div.dataset.msgKey = msg._key;
     }
   },
 
@@ -232,7 +251,69 @@ const MessageWidget = {
     inner += `<span class="msg-time">${this.formatTime(msg.timestamp)}</span>`;
     div.innerHTML = inner;
     div.dataset.msgId = msg.id;
+    div.dataset.msgKey = msg._key || '';
+
+    // Long-press for context menu
+    let timer = null;
+    const start = (e) => {
+      timer = setTimeout(() => {
+        timer = null;
+        const id = div.dataset.msgId;
+        const key = div.dataset.msgKey;
+        const m = this.messages.find(x => x.id === id);
+        const title = m?.text ? m.text.substring(0, 30) : (m?.image ? '📷 Fotoğraf' : 'Mesaj');
+        const items = [
+          { icon: '✏️', label: 'Düzenle', onClick: () => this.editMessage(id) }
+        ];
+        if (key) {
+          items.push({ icon: '🗑️', label: 'Sil', danger: true, onClick: () => this.deleteMessage(id) });
+        } else {
+          items.push({ icon: '🗑️', label: 'Sil', danger: true, onClick: () => this.deleteMessage(id) });
+        }
+        showContextMenu(title, items);
+      }, 500);
+    };
+    const stop = () => {
+      if (timer) { clearTimeout(timer); timer = null; }
+    };
+    div.addEventListener('mousedown', start);
+    div.addEventListener('mouseup', stop);
+    div.addEventListener('mouseleave', stop);
+    div.addEventListener('touchstart', start, { passive: true });
+    div.addEventListener('touchend', stop);
+    div.addEventListener('touchmove', stop);
+
     this.msgList.appendChild(div);
+  },
+
+  deleteMessage(msgId) {
+    const idx = this.messages.findIndex(m => m.id === msgId);
+    if (idx < 0) return;
+    const msg = this.messages[idx];
+    const db = getDatabase();
+    if (db && msg._key && this.dbRef) {
+      this.dbRef.child(msg._key).remove().catch(() => {});
+    }
+    this.messages.splice(idx, 1);
+    this.saveToLocal(null, true);
+    this.msgList.innerHTML = '';
+    this.messages.forEach(m => this.renderMessage(m));
+  },
+
+  editMessage(msgId) {
+    const msg = this.messages.find(m => m.id === msgId);
+    if (!msg) return;
+    const newText = prompt('Mesajı düzenle:', msg.text || '');
+    if (newText === null) return;
+    msg.text = newText.trim();
+    const db = getDatabase();
+    if (db && msg._key && this.dbRef) {
+      this.dbRef.child(msg._key).update({ text: msg.text }).catch(() => {});
+    }
+    this.saveToLocal(null, true);
+    this.msgList.innerHTML = '';
+    this.messages.forEach(m => this.renderMessage(m));
+    this.scrollToBottom();
   },
 
   viewImage(img) {
@@ -243,8 +324,12 @@ const MessageWidget = {
     document.body.appendChild(overlay);
   },
 
-  saveToLocal(msg) {
+  saveToLocal(msg, replaceAll) {
     try {
+      if (replaceAll) {
+        localStorage.setItem('chat_messages', JSON.stringify(this.messages));
+        return;
+      }
       const saved = JSON.parse(localStorage.getItem('chat_messages') || '[]');
       if (!saved.some(m => m.id === msg.id)) {
         saved.push(msg);
