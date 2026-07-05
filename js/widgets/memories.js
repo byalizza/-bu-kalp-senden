@@ -34,6 +34,8 @@ const MemoriesWidget = {
     this.slideshowEl.appendChild(btn);
   },
 
+  _memNotifReady: false,
+
   setupFirebase() {
     const db = getDatabase();
     if (!db) return;
@@ -51,8 +53,17 @@ const MemoriesWidget = {
         }
         this.saveLocal();
         this.startSlideshow();
+        this._memNotifReady = true;
       } catch (e) { /* ignore */ }
     }, () => {});
+
+    this.dbRef.on('child_added', (snapshot) => {
+      if (!this._memNotifReady) return;
+      const mem = snapshot.val();
+      if (mem && mem.title) {
+        showNotification('📖', 'Yeni bir anı eklendi', mem.title + ' - ' + (mem.date || ''));
+      }
+    });
   },
 
   loadLocal() {

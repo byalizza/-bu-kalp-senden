@@ -368,6 +368,8 @@ const LocketWidget = {
 
   // ========== FIREBASE ==========
 
+  _notifReady: false,
+
   watchFirebase() {
     const db = getDatabase();
     if (!db) return;
@@ -387,12 +389,25 @@ const LocketWidget = {
 
       this.allPhotos.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
       this.savePhotos();
+      this._notifReady = true;
 
       if (this._hasActivated) {
         this.buildUnseenQueue();
         if (this.unseenPhotos.length > 0 && !this.isShowingQueue) {
           this.showFromQueue();
         }
+      }
+    });
+
+    // Bildirimler için child_added
+    const myName = this._myName();
+    db.ref(APP_CONFIG.firebasePaths.photos).on('child_added', (snapshot) => {
+      if (!this._notifReady) return;
+      const photo = snapshot.val();
+      if (!photo || !photo.from) return;
+      if (photo.from !== myName) {
+        const sender = photo.from === 'Efe' ? 'Efe' : 'Ela';
+        showNotification('📸', sender + ' yeni bir anlık paylaştı', 'Görmek için Anlık sekmesine git');
       }
     });
   },

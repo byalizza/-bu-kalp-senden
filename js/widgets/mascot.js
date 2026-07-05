@@ -145,6 +145,10 @@ const MessageWidget = {
             } else {
               this.showBadge();
             }
+            if (this._msgNotifReady && msg.from !== window.currentUser) {
+              const sender = msg.from === 'efe' ? 'Efe' : 'Ela';
+              showNotification('💬', sender + ' sana mesaj gönderdi', msg.text || 'Fotoğraf');
+            }
           }
         }
       } catch (e) { /* ignore */ }
@@ -172,6 +176,7 @@ const MessageWidget = {
           this.scrollToBottom();
         }
       } catch (e) { /* ignore */ }
+      this._msgNotifReady = true;
     }, (err) => { /* permission denied - ignore */ });
   },
 

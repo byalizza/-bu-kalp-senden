@@ -210,6 +210,44 @@ const ConfettiEffects = {
 };
 
 // ============================================
+// TOAST BILDIRIM SISTEMI
+// ============================================
+
+let _notificationTimer = null;
+
+function showNotification(icon, title, message) {
+  const toast = document.getElementById('notificationToast');
+  const toastIcon = document.getElementById('toastIcon');
+  const toastTitle = document.getElementById('toastTitle');
+  const toastMessage = document.getElementById('toastMessage');
+  if (!toast) return;
+
+  if (_notificationTimer) clearTimeout(_notificationTimer);
+
+  toastIcon.textContent = icon;
+  toastTitle.textContent = title;
+  toastMessage.textContent = message;
+
+  toast.style.display = 'flex';
+  toast.style.animation = 'none';
+  void toast.offsetHeight;
+  toast.style.animation = 'toastSlideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+
+  _notificationTimer = setTimeout(() => {
+    toast.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(-50%) translateY(-10px)';
+    setTimeout(() => {
+      toast.style.display = 'none';
+      toast.style.opacity = '1';
+      toast.style.transform = 'translateX(-50%) translateY(0)';
+      toast.style.transition = '';
+      _notificationTimer = null;
+    }, 400);
+  }, 3500);
+}
+
+// ============================================
 // BAŞLANGIÇ
 // ============================================
 
