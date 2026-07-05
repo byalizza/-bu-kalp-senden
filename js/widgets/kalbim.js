@@ -1,113 +1,105 @@
 const KalbimWidget = {
-  stories: [],
-  storyIndex: 0,
-  dbRef: null,
-  intervalId: null,
-  startDate: null,
-  isPlaying: false,
+  memories: [],
+  slideIdx: 0,
+  slideTimer: null,
   audio: null,
+  isPlaying: false,
   currentSong: 0,
+  playlist: [],
 
   init() {
     this.audio = document.getElementById('bgMusic');
 
-    this.setupStories();
-    this.setupCounter();
+    // Carousel
+    this.carouselImg = document.getElementById('carouselImg');
+    this.carouselTitle = document.getElementById('carouselTitle');
+    this.carouselDots = document.getElementById('carouselDots');
+
+    // Counter
+    this.daysEl = document.getElementById('hmDays');
+    this.hoursEl = document.getElementById('hmHours');
+    this.minsEl = document.getElementById('hmMinutes');
+    this.secsEl = document.getElementById('hmSeconds');
+
+    // Music
+    this.playBtn = document.getElementById('hmPlayBtn');
+    this.prevBtn = document.getElementById('hmPrevBtn');
+    this.nextBtn = document.getElementById('hmNextBtn');
+    this.songName = document.getElementById('hmSongName');
+    this.artistName = document.getElementById('hmArtist');
+    this.progressFill = document.getElementById('hmProgress');
+    this.progressBar = document.getElementById('hmProgressBar');
+    this.playlistEl = document.getElementById('hmPlaylist');
+
+    this.setupFirebase();
+    this.loadLocal();
+    this.startCounter();
     this.setupMusic();
-
-    const stBtn = document.getElementById('storyViewerClose');
-    if (stBtn) stBtn.addEventListener('click', () => this.closeViewer());
   },
 
-  /* ----- STORIES ----- */
-  setupStories() {
-    this.storiesContainer = document.getElementById('storyCircles');
-    this.viewerEl = document.getElementById('storyViewer');
-    this.viewerImg = document.getElementById('storyViewerImg');
-    this.viewerTitle = document.getElementById('storyViewerTitle');
-    this.viewerDate = document.getElementById('storyViewerDate');
-    this.viewerStory = document.getElementById('storyViewerStory');
-    this.viewerProgress = document.getElementById('storyViewerProgress');
-
+  /* --- CAROUSEL --- */
+  setupFirebase() {
     const db = getDatabase();
-    if (db) {
-      const path = APP_CONFIG.firebasePaths.memories;
-      this.dbRef = db.ref(path);
-      this.dbRef.on('value', (snap) => {
-        const data = snap.val();
-        this.stories = [];
-        if (data) {
-          Object.keys(data).forEach(k => {
-            const m = data[k];
-            if (m) { m._key = k; this.stories.push(m); }
-          });
-        }
-        this.renderCircles();
-      }, () => {});
-    }
-    this.loadLocalStories();
+    if (!db) return;
+    const path = APP_CONFIG.firebasePaths.memories;
+    db.ref(path).on('value', (snap) => {
+      const data = snap.val();
+      this.memories = [];
+      if (data) Object.keys(data).forEach(k => { const m = data[k]; if (m) { m._key = k; this.memories.push(m); } });
+      this.startCarousel();
+    }, () => {});
   },
 
-  loadLocalStories() {
-    if (this.stories.length > 0) return;
+  loadLocal() {
+    if (this.memories.length > 0) return;
     try {
-      const saved = JSON.parse(localStorage.getItem('memories_data') || '[]');
-      if (saved.length > 0) { this.stories = saved; this.renderCircles(); }
+      const s = JSON.parse(localStorage.getItem('memories_data') || '[]');
+      if (s.length > 0) { this.memories = s; this.startCarousel(); }
     } catch (e) {}
   },
 
-  renderCircles() {
-    this.storiesContainer.innerHTML = '';
-    this.stories.forEach((mem, i) => {
-      const c = document.createElement('button');
-      c.className = 'story-circle';
-      c.innerHTML = `<div class="story-ring"><div class="story-avatar">${mem.image ? '<img src="' + mem.image + '" loading="lazy">' : '<span>' + (mem.emoji || '💖') + '</span>'}</div></div><span class="story-label">${mem.title || ''}</span>`;
-      c.addEventListener('click', () => this.openStory(i));
-      this.storiesContainer.appendChild(c);
-    });
+  startCarousel() {
+    if (this.slideTimer) clearInterval(this.slideTimer);
+    this.renderDots();
+    this.slideIdx = 0;
+    this.showSlide(0);
+    this.slideTimer = setInterval(() => {
+      if (this.memories.length === 0) return;
+      this.slideIdx = (this.slideIdx + 1) % this.memories.length;
+      this.showSlide(this.slideIdx);
+    }, 2500);
   },
 
-  openStory(idx) {
-    if (idx < 0 || idx >= this.stories.length) return;
-    this.storyIndex = idx;
-    const mem = this.stories[idx];
-    this.viewerImg.src = mem.image || '';
-    this.viewerImg.alt = mem.title || '';
-    this.viewerTitle.textContent = mem.title || '';
-    this.viewerDate.textContent = mem.date || '';
-    this.viewerStory.textContent = mem.story || '';
-    this.viewerEl.style.display = 'flex';
-    this.viewerEl.style.animation = 'fadeIn 0.3s ease';
-    this.updateProgress();
+  showSlide(idx) {
+    const mem = this.memories[idx];
+    if (!mem) return;
+    this.carouselImg.style.opacity = '0';
+    setTimeout(() => {
+      this.carouselImg.src = mem.image || '';
+      this.carouselImg.alt = mem.title || '';
+      this.carouselTitle.textContent = mem.title || '';
+      this.carouselImg.style.opacity = '1';
+    }, 200);
+
+    const dots = this.carouselDots.querySelectorAll('.cr-dot');
+    dots.forEach((d, i) => d.classList.toggle('active', i === idx));
   },
 
-  closeViewer() {
-    this.viewerEl.style.display = 'none';
-  },
-
-  updateProgress() {
-    this.viewerProgress.innerHTML = '';
-    this.stories.forEach((_, i) => {
+  renderDots() {
+    this.carouselDots.innerHTML = '';
+    this.memories.forEach((_, i) => {
       const d = document.createElement('span');
-      d.className = 'st-progress-dot' + (i === this.storyIndex ? ' active' : '');
-      this.viewerProgress.appendChild(d);
+      d.className = 'cr-dot' + (i === 0 ? ' active' : '');
+      this.carouselDots.appendChild(d);
     });
   },
 
-  /* ----- COUNTER ----- */
-  setupCounter() {
-    this.daysEl = document.getElementById('kalbimDays');
-    this.hoursEl = document.getElementById('kalbimHours');
-    this.minsEl = document.getElementById('kalbimMinutes');
-    this.secsEl = document.getElementById('kalbimSeconds');
-    this.startDate = this.getStartDate();
-    this.updateCounter();
-    this.intervalId = setInterval(() => this.updateCounter(), 1000);
-  },
-
-  getStartDate() {
+  /* --- COUNTER --- */
+  startCounter() {
     const s = APP_CONFIG.relationshipStart;
-    return new Date(s.year, s.month - 1, s.day, s.hour || 0, s.minute || 0);
+    this.startDate = new Date(s.year, s.month - 1, s.day, s.hour || 0, s.minute || 0);
+    this.updateCounter();
+    setInterval(() => this.updateCounter(), 1000);
   },
 
   updateCounter() {
@@ -129,23 +121,11 @@ const KalbimWidget = {
     }
   },
 
-  /* ----- MUSIC ----- */
+  /* --- MUSIC --- */
   setupMusic() {
-    this.playBtn = document.getElementById('kalbimPlayBtn');
-    this.prevBtn = document.getElementById('kalbimPrevBtn');
-    this.nextBtn = document.getElementById('kalbimNextBtn');
-    this.songName = document.getElementById('kalbimSongName');
-    this.artistName = document.getElementById('kalbimArtist');
-    this.progressFill = document.getElementById('kalbimProgress');
-    this.progressBar = document.getElementById('kalbimProgressBar');
-
     this.playlist = APP_CONFIG.playlist ? [...APP_CONFIG.playlist] : [];
-    if (this.playlist.length > 0) {
-      const s = this.playlist[0];
-      this.songName.textContent = s.title || '';
-      this.artistName.textContent = s.artist || '';
-      this.audio.src = 'assets/sounds/' + (s.fileName || '').replace(/^\//, '');
-    }
+    this.renderPlaylist();
+    if (this.playlist.length > 0) this.loadSong(0);
     if (this.audio) this.audio.volume = 0.7;
 
     this.playBtn.addEventListener('click', () => this.togglePlay());
@@ -156,8 +136,44 @@ const KalbimWidget = {
       const p = (e.clientX - r.left) / r.width;
       if (this.audio && this.audio.duration) this.audio.currentTime = p * this.audio.duration;
     });
-    this.audio.addEventListener('timeupdate', () => this.updateMusicProgress());
+    this.audio.addEventListener('timeupdate', () => {
+      if (!this.audio.duration) return;
+      this.progressFill.style.width = (this.audio.currentTime / this.audio.duration * 100) + '%';
+    });
     this.audio.addEventListener('ended', () => this.next());
+  },
+
+  renderPlaylist() {
+    if (!this.playlistEl) return;
+    this.playlistEl.innerHTML = '';
+    this.playlist.forEach((s, i) => {
+      const item = document.createElement('button');
+      item.className = 'hm-pl-item' + (i === this.currentSong ? ' active' : '');
+      item.innerHTML = `
+        <span class="hm-pl-idx">${i + 1}</span>
+        <span class="hm-pl-title">${this.esc(s.title || '')}</span>
+        <span class="hm-pl-artist">${this.esc(s.artist || '')}</span>
+        <span class="hm-pl-play">${i === this.currentSong && this.isPlaying ? '🔊' : '🎵'}</span>
+      `;
+      item.addEventListener('click', () => this.play(i));
+      this.playlistEl.appendChild(item);
+    });
+  },
+
+  loadSong(idx) {
+    const s = this.playlist[idx];
+    if (!s) return;
+    this.currentSong = idx;
+    this.songName.textContent = s.title || '';
+    this.artistName.textContent = s.artist || '';
+    this.audio.src = 'assets/sounds/' + (s.fileName || '').replace(/^\//, '');
+    this.audio.load();
+    document.querySelectorAll('.hm-pl-item').forEach((el, i) => el.classList.toggle('active', i === idx));
+  },
+
+  play(idx) {
+    this.loadSong(idx);
+    if (!this.isPlaying) this.togglePlay();
   },
 
   togglePlay() {
@@ -166,39 +182,22 @@ const KalbimWidget = {
       this.audio.pause();
       this.isPlaying = false;
     } else {
-      this.audio.play().then(() => { this.isPlaying = true; }).catch(() => {});
+      this.audio.play().then(() => { this.isPlaying = true; this.renderPlaylist(); }).catch(() => {});
     }
     this.playBtn.innerHTML = this.isPlaying
-      ? '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>'
-      : '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><polygon points="6,3 20,12 6,21"/></svg>';
+      ? '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>'
+      : '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="6,3 20,12 6,21"/></svg>';
+    this.renderPlaylist();
   },
 
   prev() {
     if (this.playlist.length === 0) return;
-    this.currentSong = (this.currentSong - 1 + this.playlist.length) % this.playlist.length;
-    this.loadSong(this.currentSong);
+    this.play((this.currentSong - 1 + this.playlist.length) % this.playlist.length);
   },
 
   next() {
     if (this.playlist.length === 0) return;
-    this.currentSong = (this.currentSong + 1) % this.playlist.length;
-    this.loadSong(this.currentSong);
-  },
-
-  loadSong(idx) {
-    const s = this.playlist[idx];
-    if (!s) return;
-    this.songName.textContent = s.title || '';
-    this.artistName.textContent = s.artist || '';
-    this.audio.src = 'assets/sounds/' + (s.fileName || '').replace(/^\//, '');
-    if (this.isPlaying) {
-      this.audio.play().catch(() => {});
-    }
-  },
-
-  updateMusicProgress() {
-    if (!this.audio || !this.audio.duration) return;
-    this.progressFill.style.width = (this.audio.currentTime / this.audio.duration * 100) + '%';
+    this.play((this.currentSong + 1) % this.playlist.length);
   },
 
   autoPlay() {
@@ -207,5 +206,7 @@ const KalbimWidget = {
       this.loadSong(0);
       setTimeout(() => this.togglePlay(), 500);
     }, 1000);
-  }
+  },
+
+  esc(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
 };

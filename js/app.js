@@ -37,7 +37,8 @@ const App = {
   initializeWidgets() {
     try { LoginWidget.init(); } catch (e) { console.warn('Login hatasi:', e); }
     try { KalbimWidget.init(); } catch (e) { console.warn('Kalbim hatasi:', e); }
-    try { LocketWidget.init(); } catch (e) { console.warn('Sipsak hatasi:', e); }
+    try { AnilarWidget.init(); } catch (e) { console.warn('Anilar hatasi:', e); }
+    try { ProfilWidget.init(); } catch (e) { console.warn('Profil hatasi:', e); }
     try { initTheme(); } catch (e) { console.warn('Tema hatasi:', e); }
 
     // MessageWidget welcome sonrasi init edilir (login.js icinde)
@@ -59,9 +60,7 @@ const App = {
   setupKeyboardHandler() {
     if (window.visualViewport) {
       window.visualViewport.addEventListener('resize', () => {
-        if (typeof MessageWidget !== 'undefined' && MessageWidget.initialized) {
-          setTimeout(() => MessageWidget.scrollToBottom(), 100);
-        }
+        // keyboard handling
       });
     }
   },
@@ -104,20 +103,6 @@ const App = {
     if (target) {
       target.classList.add('active');
       target.style.display = '';
-    }
-
-    if (targetId === 'petWidget' && typeof MessageWidget !== 'undefined') {
-      MessageWidget.hideBadge();
-      MessageWidget.scrollToBottom();
-    }
-
-    if (typeof LocketWidget !== 'undefined' && targetId !== 'locketWidget') {
-      LocketWidget._hasActivated = false;
-      LocketWidget.stopCamera();
-    }
-
-    if (targetId === 'locketWidget' && typeof LocketWidget !== 'undefined') {
-      setTimeout(() => LocketWidget.onActivate(), 100);
     }
   },
 
