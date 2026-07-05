@@ -270,6 +270,49 @@ function requestNotificationPermission() {
 }
 
 // ============================================
+// CONTEXT MENU
+// ============================================
+
+function showContextMenu(title, items) {
+  const overlay = document.getElementById('contextMenuOverlay');
+  const titleEl = document.getElementById('contextMenuTitle');
+  const container = document.getElementById('contextMenuItems');
+  const cancelBtn = document.getElementById('contextMenuCancel');
+  if (!overlay) return;
+
+  titleEl.textContent = title;
+  container.innerHTML = '';
+
+  items.forEach((item, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'context-menu-item' + (item.danger ? ' danger' : '');
+    btn.innerHTML = '<span class="menu-icon">' + (item.icon || '') + '</span>' + item.label;
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      overlay.style.display = 'none';
+      document.body.style.overflow = '';
+      if (item.onClick) item.onClick();
+    });
+    container.appendChild(btn);
+  });
+
+  cancelBtn.addEventListener('click', () => {
+    overlay.style.display = 'none';
+    document.body.style.overflow = '';
+  }, { once: true });
+
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) {
+      overlay.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+  }, { once: true });
+
+  overlay.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+// ============================================
 // BAŞLANGIÇ
 // ============================================
 

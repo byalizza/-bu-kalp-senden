@@ -439,10 +439,30 @@ const LocketWidget = {
           this.closeGallery();
           this.showPreview(p, false);
         });
+        // Long-press → sil
+        let timer = null;
+        const start = () => { timer = setTimeout(() => { timer = null; showContextMenu('Fotoğraf', [{ icon: '🗑️', label: 'Sil', danger: true, onClick: () => this.deletePhoto(p) }]); }, 500); };
+        const stop = () => { if (timer) { clearTimeout(timer); timer = null; } };
+        div.addEventListener('mousedown', start); div.addEventListener('mouseup', stop); div.addEventListener('mouseleave', stop);
+        div.addEventListener('touchstart', start, { passive: true }); div.addEventListener('touchend', stop); div.addEventListener('touchmove', stop);
         this.galleryGrid.appendChild(div);
       });
     }
     this.galleryOverlay.style.display = 'flex';
+  },
+
+  deletePhoto(photo) {
+    const db = getDatabase();
+    const pid = photo.id || photo.timestamp;
+    if (db) {
+      const query = db.ref(APP_CONFIG.firebasePaths.photos).orderByChild('id').equalTo(pid);
+      query.once('value', snap => {
+        snap.forEach(child => child.ref.remove());
+      });
+    }
+    this.allPhotos = this.allPhotos.filter(p => (p.id || p.timestamp) !== pid);
+    this.savePhotos();
+    this.openGallery();
   },
 
   closeGallery() {

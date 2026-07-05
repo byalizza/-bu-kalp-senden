@@ -16,22 +16,34 @@ const MemoriesWidget = {
 
     this.setupFirebase();
     this.loadLocal();
-    this.addEditButton();
+    this.setupLongPress();
 
     this.slideshowEl.addEventListener('click', () => this.togglePause());
   },
 
-  addEditButton() {
-    const btn = document.createElement('button');
-    btn.className = 'widget-edit-btn';
-    btn.id = 'memoriesEditBtn';
-    btn.textContent = '✏️ Düzenle';
-    btn.style.position = 'absolute';
-    btn.style.top = '12px';
-    btn.style.right = '12px';
-    btn.style.zIndex = '10';
-    btn.addEventListener('click', (e) => { e.stopPropagation(); this.openEditModal(-1); });
-    this.slideshowEl.appendChild(btn);
+  setupLongPress() {
+    let timer = null;
+    const start = () => {
+      timer = setTimeout(() => {
+        timer = null;
+        const idx = this.slideIndex;
+        const mem = this.memories[idx];
+        if (!mem) return;
+        showContextMenu('Anı: ' + (mem.title || ''), [
+          { icon: '✏️', label: 'Düzenle', onClick: () => this.openEditModal(idx) },
+          { icon: '🗑️', label: 'Sil', danger: true, onClick: () => this.deleteMemory(idx) }
+        ]);
+      }, 500);
+    };
+    const stop = () => {
+      if (timer) { clearTimeout(timer); timer = null; }
+    };
+    this.slideshowEl.addEventListener('mousedown', start);
+    this.slideshowEl.addEventListener('mouseup', stop);
+    this.slideshowEl.addEventListener('mouseleave', stop);
+    this.slideshowEl.addEventListener('touchstart', start, { passive: true });
+    this.slideshowEl.addEventListener('touchend', stop);
+    this.slideshowEl.addEventListener('touchmove', stop);
   },
 
   _memNotifReady: false,
@@ -220,6 +232,20 @@ const MemoriesWidget = {
 
   editModalClose() {
     document.getElementById('memoryEditModal').style.display = 'none';
+  },
+
+  deleteMemory(index) {
+    if (index < 0 || index >= this.memories.length) return;
+    const mem = this.memories[index];
+    const db = getDatabase();
+    if (mem._key && db) {
+      db.ref(`${APP_CONFIG.firebasePaths.memories}/${mem._key}`).remove();
+    }
+    this.memories.splice(index, 1);
+    this.saveLocal();
+    this.slideIndex = Math.min(this.slideIndex, this.memories.length - 1);
+    if (this.memories.length === 0) this.slideIndex = 0;
+    this.startSlideshow();
   },
 
   compressImage(file, callback) {
