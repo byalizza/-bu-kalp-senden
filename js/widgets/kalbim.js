@@ -15,7 +15,6 @@ const KalbimWidget = {
     this.carouselTitle = document.getElementById('carouselTitle');
     this.carouselDots = document.getElementById('carouselDots');
     this.carouselEl = document.getElementById('hmCarousel');
-    this.addBtn = document.getElementById('hmAddSlideBtn');
 
     this.daysEl = document.getElementById('hmDays');
     this.hoursEl = document.getElementById('hmHours');
@@ -39,35 +38,38 @@ const KalbimWidget = {
   },
 
   setupEdit() {
-    this.addBtn.addEventListener('click', () => this.addSlide());
+    const target = this.carouselImg;
 
     let timer = null;
     const start = () => {
       timer = setTimeout(() => {
         timer = null;
+        if (this.memories.length === 0) {
+          this.pickPhoto();
+          return;
+        }
         const idx = this.slideIdx;
         const m = this.memories[idx];
-        if (!m) return;
-        showContextMenu(m.title || 'Slayt', [
-          { icon: '✏️', label: 'Düzenle', onClick: () => this.editSlide(idx) },
-          { icon: '🗑️', label: 'Sil', danger: true, onClick: () => this.deleteSlide(idx) }
-        ]);
+        const items = [
+          { icon: '📸', label: 'Ekle', onClick: () => this.pickPhoto() }
+        ];
+        if (m) {
+          items.push({ icon: '✏️', label: 'Düzenle', onClick: () => this.editSlide(idx) });
+          items.push({ icon: '🗑️', label: 'Sil', danger: true, onClick: () => this.deleteSlide(idx) });
+        }
+        showContextMenu('Slayt', items);
       }, 500);
     };
     const stop = () => { if (timer) { clearTimeout(timer); timer = null; } };
-    this.carouselImg.addEventListener('mousedown', start);
-    this.carouselImg.addEventListener('mouseup', stop);
-    this.carouselImg.addEventListener('mouseleave', stop);
-    this.carouselImg.addEventListener('touchstart', start, { passive: true });
-    this.carouselImg.addEventListener('touchend', stop);
-    this.carouselImg.addEventListener('touchmove', stop);
+    target.addEventListener('mousedown', start);
+    target.addEventListener('mouseup', stop);
+    target.addEventListener('mouseleave', stop);
+    target.addEventListener('touchstart', start, { passive: true });
+    target.addEventListener('touchend', stop);
+    target.addEventListener('touchmove', stop);
   },
 
-  addSlide() {
-    const title = prompt('Slayt başlığı:');
-    if (!title) return;
-    const date = prompt('Tarih (opsiyonel):') || '';
-    const story = prompt('Hikaye (opsiyonel):') || '';
+  pickPhoto() {
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
     fileInput.accept = 'image/*';
@@ -86,6 +88,11 @@ const KalbimWidget = {
           const ctx = c.getContext('2d');
           ctx.drawImage(img, 0, 0, w, h);
           const dataUrl = c.toDataURL('image/jpeg', 0.7);
+
+          const title = prompt('Slayt başlığı:');
+          if (!title) return;
+          const date = prompt('Tarih (opsiyonel):') || '';
+          const story = prompt('Hikaye (opsiyonel):') || '';
 
           const mem = { title, date, story, image: dataUrl, emoji: '💖', timestamp: Date.now() };
           this.memories.push(mem);
