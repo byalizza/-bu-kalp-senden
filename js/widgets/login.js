@@ -6,9 +6,7 @@ const LoginWidget = {
   currentUser: null,
 
   init() {
-    this.dayInput = document.getElementById('loginDay');
-    this.monthInput = document.getElementById('loginMonth');
-    this.yearInput = document.getElementById('loginYear');
+    this.pinInput = document.getElementById('loginPin');
     this.loginBtn = document.getElementById('loginBtn');
     this.loginError = document.getElementById('loginError');
     this.loginScreen = document.getElementById('loginScreen');
@@ -86,23 +84,12 @@ const LoginWidget = {
 
     this.loginBtn.addEventListener('click', () => this.checkPassword());
 
-    const inputs = [this.dayInput, this.monthInput, this.yearInput];
-    inputs.forEach((input, i) => {
-      input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') this.checkPassword();
-        if (e.key === 'Tab') return;
-        const maxLen = parseInt(input.maxLength);
-        if (input.value.length >= maxLen && i < inputs.length - 1) {
-          inputs[i + 1].focus();
-        }
-      });
-      input.addEventListener('input', () => {
-        this.loginError.classList.remove('show');
-        const maxLen = parseInt(input.maxLength);
-        if (input.value.length >= maxLen && i < inputs.length - 1) {
-          inputs[i + 1].focus();
-        }
-      });
+    this.pinInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') this.checkPassword();
+    });
+    this.pinInput.addEventListener('input', () => {
+      this.loginError.classList.remove('show');
+      if (this.pinInput.value.length >= 8) this.checkPassword();
     });
   },
 
@@ -128,16 +115,17 @@ const LoginWidget = {
   },
 
   checkPassword() {
-    const day = parseInt(this.dayInput.value);
-    const month = parseInt(this.monthInput.value);
-    const year = parseInt(this.yearInput.value);
+    const pin = this.pinInput.value.trim();
     const secret = APP_CONFIG.secretDate;
+    const expected = String(secret.day).padStart(2, '0') + String(secret.month).padStart(2, '0') + String(secret.year);
 
-    if (day === secret.day && month === secret.month && year === secret.year) {
+    if (pin === expected) {
       this.goToApp();
     } else {
-      this.showError('Bu tarih bize ait değil... Bir daha dene 💕');
+      this.showError('Bu şifre bize ait değil... Bir daha dene 💕');
       this.shakeForm();
+      this.pinInput.value = '';
+      this.pinInput.focus();
     }
   },
 
