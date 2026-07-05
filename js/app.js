@@ -352,6 +352,9 @@ function showContextMenu(title, items) {
 document.addEventListener('DOMContentLoaded', () => {
   App.init();
 
+  // Mobil native context menüyü engelle
+  document.addEventListener('contextmenu', (e) => e.preventDefault());
+
   // Service Worker kaydı (PWA)
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(() => {});

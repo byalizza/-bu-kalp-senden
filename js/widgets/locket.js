@@ -449,7 +449,7 @@ const LocketWidget = {
           this.showPreview(p, false);
         });
         div.addEventListener('mousedown', start); div.addEventListener('mouseup', stop); div.addEventListener('mouseleave', stop);
-        div.addEventListener('touchstart', start, { passive: true }); div.addEventListener('touchend', () => { stop(); holdClick = false; }); div.addEventListener('touchmove', stop);
+        div.addEventListener('touchstart', start, { passive: true }); div.addEventListener('touchend', stop); div.addEventListener('touchmove', stop);
         this.galleryGrid.appendChild(div);
       });
     }

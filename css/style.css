@@ -100,6 +100,7 @@ html, body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   touch-action: manipulation;
+  -webkit-touch-callout: none;
   user-select: none;
   font-weight: 400;
   line-height: 1.6;

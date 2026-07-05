@@ -96,7 +96,7 @@ const AnilarWidget = {
       btn.addEventListener('mouseup', stop);
       btn.addEventListener('mouseleave', stop);
       btn.addEventListener('touchstart', start, { passive: true });
-      btn.addEventListener('touchend', () => { stop(); holdClick = false; });
+      btn.addEventListener('touchend', stop);
       btn.addEventListener('touchmove', stop);
 
       btn.addEventListener('click', () => {
