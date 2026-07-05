@@ -24,7 +24,6 @@ const LocketWidget = {
   init() {
     this.video = document.getElementById('cameraPreview');
     this.canvas = document.getElementById('cameraCanvas');
-    this.placeholder = document.getElementById('cameraPlaceholder');
     this.shutter = document.getElementById('cameraShutter');
     this.flash = document.getElementById('cameraFlash');
     this.countdown = document.getElementById('cameraCountdown');
@@ -48,7 +47,6 @@ const LocketWidget = {
   },
 
   setupListeners() {
-    this.placeholder.addEventListener('click', () => this.startCamera());
     this.shutter.addEventListener('click', () => this.capture());
     this.galleryBtn.addEventListener('click', () => this.openGallery());
 
@@ -94,8 +92,6 @@ const LocketWidget = {
   startCamera() {
     if (this._startingCamera) return;
     this._startingCamera = true;
-    this.placeholder.style.opacity = '0';
-    setTimeout(() => { this.placeholder.style.display = 'none'; }, 500);
 
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       navigator.mediaDevices.getUserMedia({
@@ -106,28 +102,16 @@ const LocketWidget = {
         this.stream = stream;
         this.video.srcObject = stream;
         this.video.play();
-        this.shutter.classList.add('visible');
-        this.shutter.style.removeProperty('display');
-        this.switchBtn.classList.add('visible');
-        this.switchBtn.style.removeProperty('display');
-        this.filtersEl.classList.add('visible');
-        this.filtersEl.style.removeProperty('display');
-        this.galleryBtn.style.display = 'flex';
         this._startingCamera = false;
 
-        // Kamera açıldı, sıradaki unseen varsa göster
         if (this.unseenPhotos.length > 0) {
           this.showFromQueue();
         }
       }).catch(() => {
         this._startingCamera = false;
-        this.placeholder.style.display = 'flex';
-        this.placeholder.style.opacity = '1';
-        this.placeholder.querySelector('p').textContent = 'Kamera açılamadı 🙁';
       });
     } else {
       this._startingCamera = false;
-      this.placeholder.querySelector('p').textContent = 'Kamera desteklenmiyor 🙁';
     }
   },
 
@@ -140,16 +124,6 @@ const LocketWidget = {
     }
     this.video.srcObject = null;
     this.video.className = 'camera-preview';
-    this.shutter.classList.remove('visible');
-    this.shutter.style.setProperty('display', 'none', 'important');
-    this.switchBtn.classList.remove('visible');
-    this.switchBtn.style.setProperty('display', 'none', 'important');
-    this.filtersEl.classList.remove('visible');
-    this.filtersEl.style.setProperty('display', 'none', 'important');
-    this.galleryBtn.style.display = 'none';
-    this.placeholder.style.display = 'flex';
-    this.placeholder.style.opacity = '1';
-    this.placeholder.querySelector('p').textContent = 'Kamerayı başlatmak için dokun';
     this.video.style.opacity = '1';
     this.isCapturing = false;
   },
@@ -162,7 +136,9 @@ const LocketWidget = {
     const myUser = this._myUser();
     this.loadSeen();
     this.buildUnseenQueue();
-    if (this.unseenPhotos.length > 0 && !this.isShowingQueue) {
+    if (!this.stream) {
+      this.startCamera();
+    } else if (this.unseenPhotos.length > 0 && !this.isShowingQueue) {
       this.showFromQueue();
     }
   },
@@ -280,12 +256,9 @@ const LocketWidget = {
   // ========== PREVIEW ==========
 
   showPreview(photo, isFromQueue) {
-    this.shutter.classList.remove('visible');
-    this.shutter.style.setProperty('display', 'none', 'important');
-    this.switchBtn.classList.remove('visible');
-    this.switchBtn.style.setProperty('display', 'none', 'important');
-    this.filtersEl.classList.remove('visible');
-    this.filtersEl.style.setProperty('display', 'none', 'important');
+    this.shutter.style.display = 'none';
+    this.switchBtn.style.display = 'none';
+    this.filtersEl.style.display = 'none';
     this.galleryBtn.style.display = 'none';
     if (this.video) this.video.style.opacity = '0';
 
@@ -328,15 +301,10 @@ const LocketWidget = {
 
   showCameraAfterDismiss() {
     this.video.style.opacity = '1';
-    if (this.stream) {
-      this.shutter.classList.add('visible');
-      this.shutter.style.removeProperty('display');
-      this.switchBtn.classList.add('visible');
-      this.switchBtn.style.removeProperty('display');
-      this.filtersEl.classList.add('visible');
-      this.filtersEl.style.removeProperty('display');
-      this.galleryBtn.style.display = 'flex';
-    }
+    this.shutter.style.display = '';
+    this.switchBtn.style.display = '';
+    this.filtersEl.style.display = '';
+    this.galleryBtn.style.display = '';
   },
 
   hidePreviewNow() {
@@ -406,7 +374,6 @@ const LocketWidget = {
 
     db.ref(APP_CONFIG.firebasePaths.photos).on('value', (snapshot) => {
       const data = snapshot.val();
-      const beforeCount = this.allPhotos.length;
       this.allPhotos = [];
 
       if (data) {
@@ -418,11 +385,9 @@ const LocketWidget = {
         });
       }
 
-      // En yeniden eskiye sırala
       this.allPhotos.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
       this.savePhotos();
 
-      // Widget aktifse unseen queue'yu güncelle ve göster
       if (this._hasActivated) {
         this.buildUnseenQueue();
         if (this.unseenPhotos.length > 0 && !this.isShowingQueue) {
@@ -452,7 +417,7 @@ const LocketWidget = {
       this.allPhotos.forEach(p => {
         const div = document.createElement('div');
         div.className = 'gallery-grid-item';
-        const badge = p.from; // 'Efe' or 'Ela'
+        const badge = p.from;
         const time = new Date(p.timestamp).toLocaleString('tr-TR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
         div.innerHTML = `<img src="${p.url}" alt=""><span class="gallery-grid-badge">${badge}</span><span class="gallery-grid-time">${time}</span>`;
         div.addEventListener('click', () => {

@@ -1518,8 +1518,6 @@ body {
   position: relative;
   width: 100%;
   flex: 1;
-  display: flex;
-  flex-direction: column;
   overflow: hidden;
   background: #000;
 }
@@ -1532,43 +1530,16 @@ body {
   top: 0; left: 0;
 }
 
-.camera-placeholder {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-  background: radial-gradient(ellipse at center, #1a1a2e 0%, #0d0d0d 100%);
-  z-index: 2;
-  cursor: pointer;
-  transition: opacity 0.5s ease;
-}
-
-.camera-placeholder p {
-  font-size: 14px;
-  color: var(--text-muted);
-  font-weight: 300;
-}
-
 .camera-shutter {
   position: absolute;
-  bottom: 40px;
+  bottom: 60px;
   left: 50%;
   transform: translateX(-50%);
-  width: 84px;
-  height: 84px;
+  width: 80px;
+  height: 80px;
   z-index: 5;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  display: none;
-}
-
-.camera-shutter.visible {
-  display: block;
 }
 
 .shutter-outer {
@@ -1622,16 +1593,12 @@ body {
 
 .camera-filters {
   position: absolute;
-  bottom: 130px;
+  bottom: 150px;
   left: 50%;
   transform: translateX(-50%);
-  display: none;
+  display: flex;
   gap: 6px;
   z-index: 5;
-}
-
-.camera-filters.visible {
-  display: flex;
 }
 
 .filter-btn {
@@ -1718,24 +1685,20 @@ body {
 
 .camera-switch-btn {
   position: absolute;
-  bottom: 70px;
-  right: 24px;
+  bottom: 68px;
+  right: 28px;
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.12);
   border: none;
   color: white;
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   z-index: 5;
   backdrop-filter: blur(5px);
-}
-
-.camera-switch-btn.visible {
-  display: flex;
 }
 
 /* ---------- INCOMING PHOTO (one-time view) ---------- */
@@ -1900,10 +1863,10 @@ body {
   height: 40px;
   border-radius: 50%;
   border: none;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0,0,0,0.45);
   color: white;
   font-size: 20px;
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
