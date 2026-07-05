@@ -1,18 +1,18 @@
 const CACHE_NAME = 'bks-v1';
 const ASSETS = [
-  '/-bu-kalp-senden/',
-  '/-bu-kalp-senden/index.html',
-  '/-bu-kalp-senden/manifest.json',
-  '/-bu-kalp-senden/css/style.css',
-  '/-bu-kalp-senden/js/config.js',
-  '/-bu-kalp-senden/js/firebase-init.js',
-  '/-bu-kalp-senden/js/app.js',
-  '/-bu-kalp-senden/js/widgets/login.js',
-  '/-bu-kalp-senden/js/widgets/counter.js',
-  '/-bu-kalp-senden/js/widgets/music.js',
-  '/-bu-kalp-senden/js/widgets/mascot.js',
-  '/-bu-kalp-senden/js/widgets/memories.js',
-  '/-bu-kalp-senden/js/widgets/locket.js'
+  '/-bu-ask-bitmez/',
+  '/-bu-ask-bitmez/index.html',
+  '/-bu-ask-bitmez/manifest.json',
+  '/-bu-ask-bitmez/css/style.css',
+  '/-bu-ask-bitmez/js/config.js',
+  '/-bu-ask-bitmez/js/firebase-init.js',
+  '/-bu-ask-bitmez/js/app.js',
+  '/-bu-ask-bitmez/js/widgets/login.js',
+  '/-bu-ask-bitmez/js/widgets/counter.js',
+  '/-bu-ask-bitmez/js/widgets/music.js',
+  '/-bu-ask-bitmez/js/widgets/mascot.js',
+  '/-bu-ask-bitmez/js/widgets/memories.js',
+  '/-bu-ask-bitmez/js/widgets/locket.js'
 ];
 
 self.addEventListener('install', (e) => {
@@ -38,11 +38,11 @@ self.addEventListener('fetch', (e) => {
 
 self.addEventListener('notificationclick', (e) => {
   e.notification.close();
-  const url = e.notification.data?.url || '/-bu-kalp-senden/';
+  const url = e.notification.data?.url || '/-bu-ask-bitmez/';
   e.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
       for (const c of list) {
-        if (c.url.includes('/-bu-kalp-senden/') && 'focus' in c) return c.focus();
+        if (c.url.includes('/-bu-ask-bitmez/') && 'focus' in c) return c.focus();
       }
       if (clients.openWindow) return clients.openWindow(url);
     })

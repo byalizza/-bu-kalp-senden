@@ -1,5 +1,5 @@
 // ============================================
-// APP CONFIGURATION - "Bu Kalp Senden Vazgeçmeyecek"
+// APP CONFIGURATION - "Bu Aşk Bitmez"
 // ============================================
 
 const APP_CONFIG = {
