@@ -165,7 +165,6 @@ const MessageWidget = {
               showNotification('💬', sender + ' sana mesaj gönderdi', msg.text || 'Fotoğraf');
             }
           }
-        }
       } catch (e) { /* ignore */ }
     }, (err) => { /* permission denied - ignore */ });
 
