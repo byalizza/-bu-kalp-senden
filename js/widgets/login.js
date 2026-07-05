@@ -141,9 +141,6 @@ const LoginWidget = {
   },
 
   goToApp() {
-    const name = this.currentUser === 'ela' ? 'Ela' : 'Efe';
-    document.getElementById('welcomeName').textContent = name;
-
     this.loginScreen.style.display = 'none';
     this.welcomeOverlay.style.display = 'flex';
 
