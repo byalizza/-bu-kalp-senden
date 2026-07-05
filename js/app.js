@@ -39,6 +39,8 @@ const App = {
     try { KalbimWidget.init(); } catch (e) { console.warn('Kalbim hatasi:', e); }
     try { AnilarWidget.init(); } catch (e) { console.warn('Anilar hatasi:', e); }
     try { ProfilWidget.init(); } catch (e) { console.warn('Profil hatasi:', e); }
+    try { MessageWidget.init(); } catch (e) { console.warn('Mesaj hatasi:', e); }
+    try { LocketWidget.init(); } catch (e) { console.warn('Locket hatasi:', e); }
     try { initTheme(); } catch (e) { console.warn('Tema hatasi:', e); }
 
     // MessageWidget welcome sonrasi init edilir (login.js icinde)
@@ -103,6 +105,12 @@ const App = {
     if (target) {
       target.classList.add('active');
       target.style.display = '';
+      if (targetId === 'petWidget' && typeof MessageWidget !== 'undefined') {
+        MessageWidget.scrollToBottom();
+      }
+      if (targetId === 'locketWidget' && typeof LocketWidget !== 'undefined') {
+        LocketWidget.onActivate();
+      }
     }
   },
 
@@ -111,6 +119,9 @@ const App = {
     navItems.forEach(item => {
       item.addEventListener('click', () => {
         this.switchTo(item.dataset.target, true);
+        if (item.dataset.target === 'petWidget' && typeof MessageWidget !== 'undefined') {
+          MessageWidget.hideBadge();
+        }
       });
     });
   },
