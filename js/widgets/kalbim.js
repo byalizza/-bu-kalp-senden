@@ -6,22 +6,22 @@ const KalbimWidget = {
   isPlaying: false,
   currentSong: 0,
   playlist: [],
+  dbRef: null,
 
   init() {
     this.audio = document.getElementById('bgMusic');
 
-    // Carousel
     this.carouselImg = document.getElementById('carouselImg');
     this.carouselTitle = document.getElementById('carouselTitle');
     this.carouselDots = document.getElementById('carouselDots');
+    this.carouselEl = document.getElementById('hmCarousel');
+    this.addBtn = document.getElementById('hmAddSlideBtn');
 
-    // Counter
     this.daysEl = document.getElementById('hmDays');
     this.hoursEl = document.getElementById('hmHours');
     this.minsEl = document.getElementById('hmMinutes');
     this.secsEl = document.getElementById('hmSeconds');
 
-    // Music
     this.playBtn = document.getElementById('hmPlayBtn');
     this.prevBtn = document.getElementById('hmPrevBtn');
     this.nextBtn = document.getElementById('hmNextBtn');
@@ -35,6 +35,120 @@ const KalbimWidget = {
     this.loadLocal();
     this.startCounter();
     this.setupMusic();
+    this.setupEdit();
+  },
+
+  setupEdit() {
+    this.addBtn.addEventListener('click', () => this.addSlide());
+
+    let timer = null;
+    const start = () => {
+      timer = setTimeout(() => {
+        timer = null;
+        const idx = this.slideIdx;
+        const m = this.memories[idx];
+        if (!m) return;
+        showContextMenu(m.title || 'Slayt', [
+          { icon: '✏️', label: 'Düzenle', onClick: () => this.editSlide(idx) },
+          { icon: '🗑️', label: 'Sil', danger: true, onClick: () => this.deleteSlide(idx) }
+        ]);
+      }, 500);
+    };
+    const stop = () => { if (timer) { clearTimeout(timer); timer = null; } };
+    this.carouselImg.addEventListener('mousedown', start);
+    this.carouselImg.addEventListener('mouseup', stop);
+    this.carouselImg.addEventListener('mouseleave', stop);
+    this.carouselImg.addEventListener('touchstart', start, { passive: true });
+    this.carouselImg.addEventListener('touchend', stop);
+    this.carouselImg.addEventListener('touchmove', stop);
+  },
+
+  addSlide() {
+    const title = prompt('Slayt başlığı:');
+    if (!title) return;
+    const date = prompt('Tarih (opsiyonel):') || '';
+    const story = prompt('Hikaye (opsiyonel):') || '';
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const img = new Image();
+        img.onload = () => {
+          const c = document.createElement('canvas');
+          let w = img.width, h = img.height;
+          const max = 800;
+          if (w > max || h > max) { const r = Math.min(max/w, max/h); w *= r; h *= r; }
+          c.width = w; c.height = h;
+          const ctx = c.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          const dataUrl = c.toDataURL('image/jpeg', 0.7);
+
+          const mem = { title, date, story, image: dataUrl, emoji: '💖', timestamp: Date.now() };
+          this.memories.push(mem);
+          this.saveToFirebase(mem);
+          this.saveLocal();
+          this.startCarousel();
+          this.showSlide(this.memories.length - 1);
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+    fileInput.click();
+  },
+
+  editSlide(idx) {
+    const m = this.memories[idx];
+    if (!m) return;
+    const title = prompt('Başlık:', m.title || '');
+    if (!title) return;
+    const date = prompt('Tarih:', m.date || '');
+    const story = prompt('Hikaye:', m.story || '');
+    m.title = title;
+    m.date = date || '';
+    m.story = story || '';
+    this.updateFirebase(idx);
+    this.saveLocal();
+    if (idx === this.slideIdx) this.showSlide(idx);
+  },
+
+  deleteSlide(idx) {
+    const m = this.memories[idx];
+    if (!m) return;
+    if (!confirm('Bu slaytı silmek istediğine emin misin?')) return;
+    if (m._key && this.dbRef) {
+      this.dbRef.child(m._key).remove().catch(() => {});
+    }
+    this.memories.splice(idx, 1);
+    this.saveLocal();
+    if (this.memories.length === 0) {
+      this.carouselImg.src = '';
+      this.carouselTitle.textContent = 'Henüz slayt eklenmemiş';
+      this.carouselDots.innerHTML = '';
+      if (this.slideTimer) clearInterval(this.slideTimer);
+    } else {
+      this.startCarousel();
+    }
+  },
+
+  saveToFirebase(mem) {
+    if (!this.dbRef) return;
+    const ref = this.dbRef.push(mem);
+    mem._key = ref.key;
+  },
+
+  updateFirebase(idx) {
+    const m = this.memories[idx];
+    if (!m || !m._key || !this.dbRef) return;
+    this.dbRef.child(m._key).update({ title: m.title, date: m.date, story: m.story }).catch(() => {});
+  },
+
+  saveLocal() {
+    try { localStorage.setItem('kalbim_data', JSON.stringify(this.memories)); } catch (e) {}
   },
 
   /* --- CAROUSEL --- */
@@ -42,7 +156,8 @@ const KalbimWidget = {
     const db = getDatabase();
     if (!db) return;
     const path = APP_CONFIG.firebasePaths.kalbim;
-    db.ref(path).on('value', (snap) => {
+    this.dbRef = db.ref(path);
+    this.dbRef.on('value', (snap) => {
       const data = snap.val();
       this.memories = [];
       if (data) Object.keys(data).forEach(k => { const m = data[k]; if (m) { m._key = k; this.memories.push(m); } });
@@ -63,16 +178,21 @@ const KalbimWidget = {
     this.renderDots();
     this.slideIdx = 0;
     this.showSlide(0);
-    this.slideTimer = setInterval(() => {
-      if (this.memories.length === 0) return;
-      this.slideIdx = (this.slideIdx + 1) % this.memories.length;
-      this.showSlide(this.slideIdx);
-    }, 2500);
+    if (this.memories.length > 1) {
+      this.slideTimer = setInterval(() => {
+        this.slideIdx = (this.slideIdx + 1) % this.memories.length;
+        this.showSlide(this.slideIdx);
+      }, 2500);
+    }
   },
 
   showSlide(idx) {
     const mem = this.memories[idx];
-    if (!mem) return;
+    if (!mem) {
+      this.carouselImg.src = '';
+      this.carouselTitle.textContent = 'Henüz slayt eklenmemiş';
+      return;
+    }
     this.carouselImg.style.opacity = '0';
     setTimeout(() => {
       this.carouselImg.src = mem.image || '';
