@@ -158,6 +158,7 @@ const LoginWidget = {
         this.mainApp.style.display = 'flex';
 
         if (typeof KalbimWidget !== 'undefined') KalbimWidget.autoPlay();
+        if (typeof MusicWidget !== 'undefined') MusicWidget.autoPlay();
         requestNotificationPermission();
       }, 600);
     }, 3000);

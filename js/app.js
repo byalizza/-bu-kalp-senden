@@ -39,6 +39,7 @@ const App = {
     try { KalbimWidget.init(); } catch (e) { console.warn('Kalbim hatasi:', e); }
     try { AnilarWidget.init(); } catch (e) { console.warn('Anilar hatasi:', e); }
     try { ProfilWidget.init(); } catch (e) { console.warn('Profil hatasi:', e); }
+    try { MusicWidget.init(); } catch (e) { console.warn('Müzik hatasi:', e); }
     try { MessageWidget.init(); } catch (e) { console.warn('Mesaj hatasi:', e); }
     try { LocketWidget.init(); } catch (e) { console.warn('Locket hatasi:', e); }
     try { initTheme(); } catch (e) { console.warn('Tema hatasi:', e); }
