@@ -2,6 +2,7 @@ const AnilarWidget = {
   memories: [],
   dbRef: null,
   editIdx: -1,
+  _pendingClose: false,
 
   init() {
     this.gridEl = document.getElementById('anilarGrid');
@@ -51,7 +52,9 @@ const AnilarWidget = {
       const data = snap.val();
       this.memories = [];
       if (data) Object.keys(data).forEach(k => { const m = data[k]; if (m) { m._key = k; this.memories.push(m); } });
+      this.saveLocal();
       this.renderGrid();
+      if (this._pendingClose) { this._pendingClose = false; this.closeEditModal(); }
     }, () => {});
   },
 
@@ -140,6 +143,7 @@ const AnilarWidget = {
   saveEdit() {
     if (this._saving) return;
     this._saving = true;
+    this._pendingClose = false;
     const title = document.getElementById('memEditTitle').value.trim();
     const date = document.getElementById('memEditDate').value.trim();
     const emoji = document.getElementById('memEditEmoji').value.trim() || '📸';
@@ -157,20 +161,25 @@ const AnilarWidget = {
       if (this.editIdx >= 0 && this.editIdx < this.memories.length) {
         const existing = this.memories[this.editIdx];
         if (existing._key && db) {
+          this._pendingClose = true;
           db.ref(`${APP_CONFIG.firebasePaths.memories}/${existing._key}`).update(memory).catch(() => {});
+        } else {
+          this.memories[this.editIdx] = { ...memory, _key: existing._key };
+          this.saveLocal();
+          this.renderGrid();
+          this.closeEditModal();
         }
-        this.memories[this.editIdx] = { ...memory, _key: existing._key };
       } else {
         if (db && this.dbRef) {
-          const ref = this.dbRef.push(memory);
-          this.memories.push({ ...memory, _key: ref.key });
+          this._pendingClose = true;
+          this.dbRef.push(memory);
         } else {
           this.memories.push({ ...memory });
+          this.saveLocal();
+          this.renderGrid();
+          this.closeEditModal();
         }
       }
-      this.saveLocal();
-      this.renderGrid();
-      this.closeEditModal();
       this._saving = false;
     };
 
