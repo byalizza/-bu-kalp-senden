@@ -13,12 +13,19 @@ const MemoriesWidget = {
     this.dateEl = document.getElementById('slideshowDate');
     this.storyEl = document.getElementById('slideshowStory');
     this.dotsEl = document.getElementById('slideshowDots');
+    this.addBtn = document.getElementById('addMemoryBtn');
 
     this.setupFirebase();
     this.loadLocal();
     this.setupLongPress();
 
-    this.slideshowEl.addEventListener('click', () => this.togglePause());
+    this.slideshowEl.addEventListener('click', (e) => {
+      if (e.target === this.addBtn) return;
+      this.togglePause();
+    });
+    if (this.addBtn) {
+      this.addBtn.addEventListener('click', () => this.openEditModal(-1));
+    }
   },
 
   setupLongPress() {
