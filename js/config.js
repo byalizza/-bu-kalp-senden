@@ -45,6 +45,7 @@ const APP_CONFIG = {
   // Şarkı listesi (assets/sounds/ klasöründen çalar)
   // Kullanım: MP3'ü assets/sounds/ klasörüne yükle, buraya adını ekle
   playlist: [
+    { title: 'Liselim', artist: 'Cengiz Kurtoğlu', fileName: 'Cengiz Kurtoğlu - Liselim.mp3', lyrics: '' },
     { title: 'Bana Ondan Bahsetmeyin', artist: 'Alihan', fileName: 'Alihan - Bana Ondan Bahsetmeyin [HQ] [_6wmWTsfLJ4].mp3', lyrics: '' }
   ],
 
