@@ -37,6 +37,7 @@ const APP_CONFIG = {
     photos: 'locket/photos',
     messages: 'chat/messages',
     memories: 'data/memories',
+    kalbim: 'data/kalbim',
     playlist: 'data/playlist',
     songs: 'songs'
   },

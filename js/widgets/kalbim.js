@@ -41,7 +41,7 @@ const KalbimWidget = {
   setupFirebase() {
     const db = getDatabase();
     if (!db) return;
-    const path = APP_CONFIG.firebasePaths.memories;
+    const path = APP_CONFIG.firebasePaths.kalbim;
     db.ref(path).on('value', (snap) => {
       const data = snap.val();
       this.memories = [];
@@ -53,7 +53,7 @@ const KalbimWidget = {
   loadLocal() {
     if (this.memories.length > 0) return;
     try {
-      const s = JSON.parse(localStorage.getItem('memories_data') || '[]');
+      const s = JSON.parse(localStorage.getItem('kalbim_data') || '[]');
       if (s.length > 0) { this.memories = s; this.startCarousel(); }
     } catch (e) {}
   },
