@@ -40,6 +40,7 @@ const App = {
     try { MusicWidget.init(); } catch (e) { console.warn('Müzik hatası:', e); }
     try { MemoriesWidget.init(); } catch (e) { console.warn('Anılar hatası:', e); }
     try { LocketWidget.init(); } catch (e) { console.warn('Şipşak hatası:', e); }
+    try { initTheme(); } catch (e) { console.warn('Tema hatası:', e); }
 
     // MessageWidget sadece welcome sonrası init edilir (login.js içinde)
     this.setupFullscreen();
@@ -140,6 +141,43 @@ const App = {
     });
   }
 };
+
+// ============================================
+// THEME SYSTEM
+// ============================================
+
+const THEMES = [
+  { id: 'romantic', label: 'Romantik', icon: '❤️' },
+  { id: 'ocean', label: 'Okyanus', icon: '🌊' },
+  { id: 'midnight', label: 'Gece', icon: '🌙' },
+  { id: 'sunset', label: 'Günbatımı', icon: '🌅' }
+];
+
+let currentThemeIdx = 0;
+
+function initTheme() {
+  const saved = localStorage.getItem('bks_theme');
+  if (saved) {
+    const idx = THEMES.findIndex(t => t.id === saved);
+    if (idx >= 0) currentThemeIdx = idx;
+  }
+  applyTheme(currentThemeIdx);
+
+  const btn = document.getElementById('themeBtn');
+  if (!btn) return;
+  btn.addEventListener('click', () => {
+    currentThemeIdx = (currentThemeIdx + 1) % THEMES.length;
+    applyTheme(currentThemeIdx);
+    const theme = THEMES[currentThemeIdx];
+    showNotification(theme.icon, 'Tema Değişti', theme.label);
+  });
+}
+
+function applyTheme(idx) {
+  const theme = THEMES[idx];
+  document.body.className = theme.id === 'romantic' ? '' : 'theme-' + theme.id;
+  localStorage.setItem('bks_theme', theme.id);
+}
 
 // ============================================
 // CONFETTI EFFECTS
