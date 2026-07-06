@@ -1,17 +1,45 @@
 // ============================================
-// APP CONFIGURATION - "Bu Aşk Bitmez"
+// YAPILANDIRMA DOSYASI - "Bu Aşk Bitmez"
+// ============================================
+//
+// Bu dosyadaki değerleri değiştirerek uygulamayı
+// kendi ilişkinize göre özelleştirebilirsiniz.
+//
 // ============================================
 
 const APP_CONFIG = {
-  // Özel tarih şifresi (GG/AA/YYYY)
-  // DEĞİŞTİR: Buraya kendi özel tarihinizi girin
+
+  // -------------------------------------------
+  // 1. UYGULAMA ADI
+  // -------------------------------------------
+  // Tarayıcı sekmesinde ve başlıklarda görünür.
+  appName: 'Bu Aşk Bitmez',
+  appTitle: 'Efe ❤️ Ela',
+
+  // -------------------------------------------
+  // 2. GİTHUB REPO YOLU
+  // -------------------------------------------
+  // GitHub Pages'de yayınlarken repo adınız neyse
+  // onu yazın. Örn: "benim-repo-adim"
+  // https://kullaniciadi.github.io/REPO_ADI/
+  repoPath: '-bu-kalp-senden',
+
+  // -------------------------------------------
+  // 3. GİRİŞ ŞİFRESİ (Özel Tarih)
+  // -------------------------------------------
+  // Uygulamaya girmek için istenen tarih.
+  // GG/AA/YYYY formatında kendi özel tarihinizi girin.
   secretDate: {
     day: 18,
     month: 4,
     year: 2025
   },
 
-  // İlişki başlangıç tarihi (sayaç için)
+  // -------------------------------------------
+  // 4. İLİŞKİ BAŞLANGIÇ TARİHİ (Sayaç)
+  // -------------------------------------------
+  // "Senle geçen her saniyem bir ömür" sayacının
+  // başlangıç noktası.
   relationshipStart: {
     day: 19,
     month: 3,
@@ -20,7 +48,10 @@ const APP_CONFIG = {
     minute: 30
   },
 
-  // Kullanıcılar
+  // -------------------------------------------
+  // 5. KULLANICI İSİMLERİ
+  // -------------------------------------------
+  // İki kullanıcının adı, emojisi ve rengi.
   users: {
     efe: { name: 'Efe', emoji: '💪', color: '#4a90d9' },
     ela: { name: 'Ela', emoji: '🌸', color: '#ff6b6b' }
@@ -29,23 +60,68 @@ const APP_CONFIG = {
   // Hoş geldin mesajında görünecek isim
   welcomeName: 'Ela',
 
-  // Bildirim aralığı (milisaniye cinsinden) - varsayılan: 1 saat
-  notificationInterval: 60 * 60 * 1000,
+  // -------------------------------------------
+  // 6. TEMA RENKLERİ
+  // -------------------------------------------
+  // Uygulamanın ana renk paleti.
+  // İstersen CSS'deki :root değişkenlerini de güncelle.
+  theme: {
+    primary: '#ff4757',
+    secondary: '#4a90d9',
+    background: '#07070d',
+    card: '#1a1a2e',
+    text: '#ffffff',
+    textMuted: '#888'
+  },
 
-  // Firebase yolu
+  // -------------------------------------------
+  // 7. ARKA PLAN GÖRSELLERİ
+  // -------------------------------------------
+  // Splash, kullanıcı seçim ve giriş ekranlarındaki
+  // arka plan resimleri. assets/ klasörüne koyup
+  // yolunu buraya yazın.
+  backgroundImages: {
+    splash: 'assets/splash-bg.jpg',
+    select: 'assets/select-bg.jpg',
+    login: 'assets/login-bg.jpg'
+  },
+
+  // -------------------------------------------
+  // 8. FIREBASE YAPILANDIRMASI
+  // -------------------------------------------
+  // Firebase Console'dan (https://console.firebase.google.com)
+  // yeni bir proje oluşturun.
+  // Proje Ayarları > Genel > Web uygulaması bölümünden
+  // aşağıdaki bilgileri alın.
+  firebase: {
+    apiKey: "AIzaSyD36TC6n4kR6wBoiownR7L2iCQyBrAwq1k",
+    authDomain: "a-79192.firebaseapp.com",
+    databaseURL: "https://a-79192-default-rtdb.firebaseio.com",
+    projectId: "a-79192",
+    messagingSenderId: "29833951990",
+    appId: "1:29833951990:web:36cda4e2ce8fb9ef4b4ad7",
+    measurementId: "G-7J1189L9M6"
+  },
+
+  // Firebase veritabanı yolları (değiştirmeyin)
   firebasePaths: {
     photos: 'locket/photos',
     messages: 'chat/messages'
   },
 
-  // Lokal veri dosyaları (Firebase'den hızlı, fetch ile yüklenir)
+  // -------------------------------------------
+  // 9. VERİ DOSYALARI (değiştirmeyin)
+  // -------------------------------------------
   localDataPaths: {
     kalbim: 'data/kalbim.json',
     memories: 'data/memories.json'
   },
 
-  // Şarkı listesi (assets/sounds/ klasöründen çalar)
-  // Kullanım: MP3'ü assets/sounds/ klasörüne yükle, buraya adını ekle
+  // -------------------------------------------
+  // 10. MÜZİK ÇALMA LİSTESİ
+  // -------------------------------------------
+  // MP3 dosyalarını assets/sounds/ klasörüne atın.
+  // İsimler BÜYÜK/KÜÇÜK harf dahil TAM EŞLEŞMELİ.
   playlist: [
     { title: 'Sensiz Yapamıyorum', artist: 'Uygar Doğanay', fileName: 'Uygar Doğanay - Sensiz Yapamıyorum Klip 2022.mp3' },
     { title: 'İlle de Sen', artist: 'Azer Bülbül', fileName: 'Azer Bülbül - İlle de Sen.mp3' },
@@ -58,7 +134,9 @@ const APP_CONFIG = {
     { title: 'Sevdiğim', artist: 'Son Yaz', fileName: 'Son Yaz - Sevdiğim (Slowed & Reverb).mp3' }
   ],
 
-  // Sanal evcil hayvan mesajları
+  // -------------------------------------------
+  // 11. KEDİ MESAJLARI
+  // -------------------------------------------
   petMessages: [
     'Seni çok seviyorum! 💕',
     'Seni çok özledim! 😊',
@@ -77,7 +155,9 @@ const APP_CONFIG = {
     'Sen benim her şeyimsin! 💝'
   ],
 
-  // Sohbet yanıtları (anahtar kelimeye göre)
+  // -------------------------------------------
+  // 12. SOHBET YANITLARI
+  // -------------------------------------------
   chatResponses: [
     { keywords: ['aşk', 'sevgi', 'love'], response: 'Seni sonsuza kadar seveceğim! 💕' },
     { keywords: ['özledim', 'miss', 'hasret'], response: 'Ben de seni çok özledim! Ne zaman geleceksin? 😊' },
@@ -91,4 +171,26 @@ const APP_CONFIG = {
     { keywords: ['dans', 'oyna', 'şarkı', 'müzik'], response: 'Müzik mi? Hadi dans edelim! 🎵💃' }
   ],
 
+  // -------------------------------------------
+  // 13. BİLDİRİM AYARI (değiştirmeyin)
+  // -------------------------------------------
+  notificationInterval: 60 * 60 * 1000
+
 };
+
+// ============================================
+// KURULUM NOTLARI:
+// ============================================
+// 1. Bu dosyadaki değerleri kendi bilgilerinle değiştir.
+// 2. sw.js dosyasının tepesindeki importScripts yolunu
+//    kendi repo adına göre güncelle.
+// 3. manifest.json dosyasındaki start_url ve scope
+//    değerlerini kendi repo adına göre güncelle.
+// 4. index.html'deki <title> ve <meta> etiketlerini
+//    kendi isimlerinle değiştir.
+// 5. MP3 dosyalarını assets/sounds/ klasörüne yükle.
+// 6. Arka plan resimlerini assets/ klasörüne yükle.
+// 7. Firebase Console'da Realtime Database oluştur.
+//    Veri yapısı: data/kalbim.json ve data/memories.json
+//    formatında olmalı.
+// ============================================

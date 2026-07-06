@@ -1,16 +1,11 @@
 // ============================================
-// FIREBASE INITIALIZATION
+// FIREBASE INIT - config.js'den okur
+// ============================================
+// Firebase ayarlarını değiştirmek için
+// js/config.js dosyasını düzenleyin.
 // ============================================
 
-const firebaseConfig = {
-  apiKey: "AIzaSyD36TC6n4kR6wBoiownR7L2iCQyBrAwq1k",
-  authDomain: "a-79192.firebaseapp.com",
-  databaseURL: "https://a-79192-default-rtdb.firebaseio.com",
-  projectId: "a-79192",
-  messagingSenderId: "29833951990",
-  appId: "1:29833951990:web:36cda4e2ce8fb9ef4b4ad7",
-  measurementId: "G-7J1189L9M6"
-};
+const firebaseConfig = APP_CONFIG.firebase;
 
 let firebaseApp = null;
 let database = null;
