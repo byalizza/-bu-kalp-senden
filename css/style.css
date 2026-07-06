@@ -3430,7 +3430,7 @@ body {
   100% { transform: scale(1); opacity: 1; }
 }
 
-/* Profil bottom row: food bowl + game button */
+/* Profil bottom row: food bowl */
 .profil-bottom-row {
   display: flex;
   align-items: center;
@@ -3439,25 +3439,6 @@ body {
   width: 100%;
   max-width: 320px;
   margin: 0 auto;
-}
-
-.profil-game-btn {
-  padding: 10px 18px;
-  border-radius: 14px;
-  border: 1px solid rgba(102,126,234,0.3);
-  background: linear-gradient(135deg, rgba(102,126,234,0.15), rgba(118,75,162,0.15));
-  color: var(--text-primary);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-  font-family: var(--font-body);
-  letter-spacing: 0.3px;
-  white-space: nowrap;
-}
-.profil-game-btn:active {
-  transform: scale(0.92);
-  background: linear-gradient(135deg, rgba(102,126,234,0.3), rgba(118,75,162,0.3));
 }
 
 /* ============= BLOCK BLAST GAME ============= */
