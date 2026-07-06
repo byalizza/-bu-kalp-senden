@@ -138,21 +138,20 @@ const APP_CONFIG = {
   // 11. KEDİ MESAJLARI
   // -------------------------------------------
   petMessages: [
-    'Seni çok seviyorum! 💕',
-    'Seni çok özledim! 😊',
-    'Karnım acıktı, beni doyur! 🐾',
-    'Hadi oyun oynayalım! 🎾',
-    'Seninle olmak çok güzel! ✨',
-    'Dünyanın en tatlı insanısın! 🌟',
-    'Sarıl bana lütfen! 🤗',
-    'Bugün harika görünüyorsun! 💫',
-    'Seni düşünüyorum hep... 💭',
-    'Beraber çok mutluyum! 🥰',
-    'Şanslı bir maskotum seninle! 🍀',
-    'Hiç bıkmam senden! 💖',
-    'Gülüşün dünyayı aydınlatıyor! ☀️',
-    'Bir öpücük alabilir miyim? 😘',
-    'Sen benim her şeyimsin! 💝'
+    'Seni çok seviyorum 💕',
+    'Sen çok özelsin ✨',
+    'Seni çok özledim güzelim 😊',
+    'Kurban olduğum 💖',
+    'Çok güzel kokuyorsun 🌸',
+    'Çok güzel gözüküyorsun ✨',
+    'Saçların çok güzel 🌸',
+    'Güneş seni kıskanıyor ☀️',
+    'Hayatımı aydınlatıyorsun 💫',
+    'Işıltınla dünyam güzelleşiyor 🌟',
+    'Bu kalp senden vazgeçmez fıstıkk 💖',
+    'Kalbimm 🫀',
+    'Prenses her zaman prensestir 👑',
+    'Prensesimm 🌷'
   ],
 
   // -------------------------------------------
