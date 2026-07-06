@@ -309,12 +309,16 @@ const KalbimWidget = {
     if (this.isPlaying) {
       this.audio.pause();
       this.isPlaying = false;
+      this.playBtn.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="6,3 20,12 6,21"/></svg>';
+      this.playBtn.classList.remove('pulsing');
     } else {
-      this.audio.play().then(() => { this.isPlaying = true; this.renderPlaylist(); }).catch(() => {});
+      this.audio.play().then(() => {
+        this.isPlaying = true;
+        this.playBtn.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>';
+        this.playBtn.classList.add('pulsing');
+        this.renderPlaylist();
+      }).catch(() => {});
     }
-    this.playBtn.innerHTML = this.isPlaying
-      ? '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>'
-      : '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="6,3 20,12 6,21"/></svg>';
     this.renderPlaylist();
   },
 

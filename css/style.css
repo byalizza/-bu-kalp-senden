@@ -2883,6 +2883,15 @@ body {
   box-shadow: 0 2px 8px var(--theme-glow);
 }
 
+.hm-play-btn.pulsing {
+  animation: pulsePlay 1.2s ease-in-out infinite, gradientFlow 4s ease infinite;
+}
+
+@keyframes pulsePlay {
+  0%, 100% { box-shadow: 0 4px 16px var(--theme-glow), 0 0 0 0 rgba(255,71,87,0.4); }
+  50% { box-shadow: 0 4px 16px var(--theme-glow), 0 0 0 12px rgba(255,71,87,0); }
+}
+
 .hm-progress {
   height: 3px;
   background: rgba(255,255,255,0.04);
