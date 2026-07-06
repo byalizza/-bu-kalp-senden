@@ -110,7 +110,7 @@ const ProfilWidget = {
     const nod = Math.sin(t * 2) * 0.5;
     const blink = (t % 4) > 3.85 ? 0 : 1;
 
-    if (this.bodyPart) this.bodyPart.setAttribute('transform', `scaleY(${1 + breathe/100})`);
+    if (this.bodyPart) this.bodyPart.setAttribute('transform', `scale(1, ${1 + breathe/100})`);
     if (this.headPart) this.headPart.setAttribute('transform', `translate(0, ${nod})`);
     if (this.tailPart) this.tailPart.setAttribute('transform', `rotate(${tailWag}, 155, 150)`);
     if (this.openEyes) this.openEyes.style.opacity = blink;
