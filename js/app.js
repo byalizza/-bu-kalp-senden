@@ -45,6 +45,15 @@ const App = {
     if (audio && first) {
       audio.src = 'assets/sounds/' + first.fileName.replace(/^\//, '');
       audio.volume = 0.7;
+
+      // MVSN.mp3 ortasından başlasın
+      if (first.fileName === 'MVSN.mp3') {
+        audio.addEventListener('loadedmetadata', function seekMid() {
+          audio.currentTime = audio.duration * 0.5;
+          audio.removeEventListener('loadedmetadata', seekMid);
+        });
+      }
+
       audio.play().then(() => {
         window._splashMusicStarted = true;
       }).catch(() => {});
