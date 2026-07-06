@@ -373,8 +373,9 @@ const LocketWidget = {
   setupFirebase() {
     const db = getDatabase();
     if (!db) return;
+    this._photosRef = db.ref(APP_CONFIG.firebasePaths.photos);
 
-    db.ref(APP_CONFIG.firebasePaths.photos).on('value', (snapshot) => {
+    this._photosRef.on('value', (snapshot) => {
       const data = snapshot.val();
       this.allPhotos = [];
 
@@ -401,7 +402,7 @@ const LocketWidget = {
 
     // Bildirimler için child_added
     const myName = this._myName();
-    db.ref(APP_CONFIG.firebasePaths.photos).on('child_added', (snapshot) => {
+    this._photosRef.on('child_added', (snapshot) => {
       if (!this._notifReady) return;
       const photo = snapshot.val();
       if (!photo || !photo.from) return;
@@ -472,5 +473,14 @@ const LocketWidget = {
 
   closeGallery() {
     this.galleryOverlay.style.display = 'none';
+  },
+
+  onDeactivate() {
+    if (this._photosRef) this._photosRef.off();
+    if (this.stream) {
+      this.stream.getTracks().forEach(t => t.stop());
+      this.stream = null;
+    }
+    this.isCapturing = false;
   }
 };

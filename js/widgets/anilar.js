@@ -21,7 +21,6 @@ const AnilarWidget = {
     // Edit modal listeners (cloned to avoid dupes)
     this.setupEditModal();
 
-    this.setupFirebase();
     this.loadLocal();
   },
 
@@ -232,5 +231,13 @@ const AnilarWidget = {
       img.src = e.target.result;
     };
     reader.readAsDataURL(file);
+  },
+
+  onActivate() {
+    this.setupFirebase();
+  },
+
+  onDeactivate() {
+    if (this.dbRef) this.dbRef.off();
   }
 };

@@ -30,7 +30,6 @@ const KalbimWidget = {
     this.progressBar = document.getElementById('hmProgressBar');
     this.playlistEl = document.getElementById('hmPlaylist');
 
-    this.setupFirebase();
     this.loadLocal();
     this.startCounter();
     this.setupMusic();
@@ -337,5 +336,14 @@ const KalbimWidget = {
     }, 1000);
   },
 
-  esc(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+  esc(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; },
+
+  onActivate() {
+    this.setupFirebase();
+  },
+
+  onDeactivate() {
+    if (this.dbRef) this.dbRef.off();
+    if (this.slideTimer) { clearInterval(this.slideTimer); this.slideTimer = null; }
+  }
 };
