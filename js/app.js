@@ -40,29 +40,18 @@ const App = {
 
   startSplashMusic() {
     if (window._splashMusicStarted || window._splashMusicLoading) return;
+    window._splashMusicLoading = true;
     const audio = document.getElementById('bgMusic');
     const first = APP_CONFIG.playlist && APP_CONFIG.playlist[0];
     if (audio && first) {
       audio.src = 'assets/sounds/' + first.fileName.replace(/^\//, '');
       audio.volume = 0.7;
-
-      // İlk şarkı: metadata yüklenip ortasına seek edilir, sonra çalar
-      window._splashMusicLoading = true;
-      audio.addEventListener('loadedmetadata', function seekMid() {
-        audio.currentTime = audio.duration * 0.5;
-        audio.removeEventListener('loadedmetadata', seekMid);
-        audio.play().then(() => {
-          window._splashMusicStarted = true;
-          window._splashMusicLoading = false;
-        }).catch(() => { window._splashMusicLoading = false; });
-      });
-      audio.load();
-      setTimeout(() => {
-        if (!window._splashMusicStarted) {
-          audio.play().then(() => { window._splashMusicStarted = true; }).catch(() => {});
-          window._splashMusicLoading = false;
-        }
-      }, 10000);
+      audio.play().then(() => {
+        window._splashMusicStarted = true;
+        window._splashMusicLoading = false;
+      }).catch(() => { window._splashMusicLoading = false; });
+    } else {
+      window._splashMusicLoading = false;
     }
   },
 
