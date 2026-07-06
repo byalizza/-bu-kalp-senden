@@ -140,7 +140,7 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background: radial-gradient(ellipse at center, rgba(18,8,8,0.65) 0%, rgba(7,7,13,0.8) 60%), url('../assets/images/splash-bg.jpg') center/cover no-repeat;
+  background: linear-gradient(180deg, rgba(13,13,13,0.7) 0%, rgba(26,10,10,0.6) 40%, rgba(13,13,13,0.8) 100%), url('../assets/images/splash-bg.jpg') center/cover no-repeat;
   z-index: 100;
   animation: splashFadeOut 0.8s ease forwards;
   animation-delay: 2.2s;
