@@ -35,6 +35,12 @@ const APP_CONFIG = {
     year: 2025
   },
 
+  // Şifreyi atlamak için IP adresleri
+  // Bu IP'lerden girilince direkt ana sayfa açılır.
+  // IP'nizi öğrenmek için: https://api.ipify.org
+  // Boş [] bırakırsanız herkesten şifre istenir.
+  bypassIPs: [],
+
   // -------------------------------------------
   // 4. İLİŞKİ BAŞLANGIÇ TARİHİ (Sayaç)
   // -------------------------------------------

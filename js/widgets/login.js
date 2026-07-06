@@ -4,6 +4,7 @@
 
 const LoginWidget = {
   currentUser: null,
+  _checkedBypass: false,
 
   init() {
     this.pinInput = document.getElementById('loginPin');
@@ -17,6 +18,9 @@ const LoginWidget = {
     this.setupListeners();
     this.createParticles('loginParticles');
     this.createParticles('selectParticles');
+
+    // IP bazlı şifre atlama kontrolü
+    this.checkBypass();
 
     // Eski sistem varsa temizle
     if (localStorage.getItem('last_user')) localStorage.removeItem('last_user');
@@ -36,22 +40,50 @@ const LoginWidget = {
       db.ref('claimed').once('value', (snap) => {
         const data = snap.val() || {};
         if (!data.efe) {
-          // Efe alınmamış → seçim ekranı
           this.userSelectScreen.style.display = 'flex';
         } else if (!data.ela) {
-          // Ela alınmamış → otomatik Ela ata
           this.autoAssign('ela');
         } else {
-          // İkisi de alınmış → seçim ekranı (manuel seçtir)
           this.userSelectScreen.style.display = 'flex';
         }
       }, () => {
-        // Firebase hatası → seçim ekranı
         this.userSelectScreen.style.display = 'flex';
       });
     } else {
       this.userSelectScreen.style.display = 'flex';
     }
+  },
+
+  checkBypass() {
+    const ips = APP_CONFIG.bypassIPs;
+    if (!ips || ips.length === 0) return;
+
+    // sessionStorage'da kontrol et (tekrar tekrar API çağırma)
+    const cached = sessionStorage.getItem('bypass_ok');
+    if (cached === '1') { this.bypassLogin(); return; }
+    if (cached === '0') return;
+
+    fetch('https://api.ipify.org?format=json')
+      .then(r => r.json())
+      .then(data => {
+        if (data.ip && ips.includes(data.ip)) {
+          sessionStorage.setItem('bypass_ok', '1');
+          this.bypassLogin();
+        } else {
+          sessionStorage.setItem('bypass_ok', '0');
+        }
+      })
+      .catch(() => {});
+  },
+
+  bypassLogin() {
+    this.currentUser = localStorage.getItem('app_user') || 'ela';
+    window.currentUser = this.currentUser;
+    this.userSelectScreen.style.display = 'none';
+    this.loginScreen.style.display = 'none';
+    this.mainApp.style.display = 'flex';
+    this.welcomeOverlay.style.display = 'none';
+    if (typeof KalbimWidget !== 'undefined') KalbimWidget.autoPlay();
   },
 
   autoAssign(user) {

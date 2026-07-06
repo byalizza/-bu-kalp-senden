@@ -366,17 +366,9 @@ document.addEventListener('DOMContentLoaded', () => {
     navigator.serviceWorker.register('sw.js').catch(() => {});
   }
 
-  // Install prompt
-  let deferredPrompt;
+  // Install prompt'u tamamen gizle
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
-    deferredPrompt = e;
-    document.addEventListener('click', () => {
-      if (!deferredPrompt) return;
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.catch(() => {});
-      deferredPrompt = null;
-    }, { once: true });
   });
 });
 
