@@ -3223,38 +3223,264 @@ body {
   display: block;
 }
 
-.cat-body-group {
-  animation: catBreathe 3s ease-in-out infinite;
+.cat-all {
+  transition: transform 0.3s ease;
+}
+
+.cat-body-part {
   transform-origin: 100px 145px;
+  transition: transform 0.3s ease;
 }
 
-.cat-head-group {
-  animation: catBreathe 3s ease-in-out infinite;
+.cat-head-part {
   transform-origin: 100px 82px;
+  transition: transform 0.25s ease;
 }
 
-.cat-tail {
-  animation: tailWag 2.5s ease-in-out infinite;
+.cat-tail-part {
   transform-origin: 155px 150px;
+  transition: transform 0.3s ease;
 }
 
-.cat-eyes {
-  animation: catBlink 4s ease-in-out infinite;
+.cat-ear-l {
+  transform-origin: 66px 31px;
+  transition: transform 0.2s ease;
 }
 
-@keyframes catBreathe {
+.cat-ear-r {
+  transform-origin: 134px 31px;
+  transition: transform 0.2s ease;
+}
+
+.cat-paw-l, .cat-paw-r {
+  transition: transform 0.3s ease;
+}
+
+.cat-paw-l { transform-origin: 68px 175px; }
+.cat-paw-r { transform-origin: 132px 175px; }
+
+/* === IDLE STATE (default) === */
+.cat-all.idle .cat-body-part {
+  animation: idleBreathe 3s ease-in-out infinite;
+}
+.cat-all.idle .cat-head-part {
+  animation: idleNod 3s ease-in-out infinite;
+}
+.cat-all.idle .cat-tail-part {
+  animation: idleTail 2.5s ease-in-out infinite;
+}
+.cat-all.idle .cat-eyes-open {
+  animation: idleBlink 4s ease-in-out infinite;
+}
+
+/* === HAPPY / STAND UP === */
+.cat-all.happy .cat-body-part {
+  animation: happyStand 0.5s ease forwards, happyBounce 1.2s ease-in-out 0.5s infinite;
+}
+.cat-all.happy .cat-head-part {
+  animation: happyTilt 0.4s ease forwards, happyHeadBob 1.2s ease-in-out 0.4s infinite;
+}
+.cat-all.happy .cat-tail-part {
+  animation: happyTail 0.5s ease forwards, happyTailSway 0.6s ease-in-out 0.5s infinite;
+}
+.cat-all.happy .cat-paw-l {
+  animation: happyPawL 0.5s ease forwards, happyPawWiggle 0.5s ease-in-out 0.5s infinite;
+}
+.cat-all.happy .cat-paw-r {
+  animation: happyPawR 0.5s ease forwards, happyPawWiggle 0.5s ease-in-out 0.5s infinite;
+}
+.cat-all.happy .cat-ear-l {
+  animation: earPerk 0.3s ease forwards;
+}
+.cat-all.happy .cat-ear-r {
+  animation: earPerk 0.3s ease 0.1s forwards;
+}
+.cat-all.happy .cat-eyes-open {
+  display: none;
+}
+.cat-all.happy .cat-eyes-big {
+  display: block;
+  animation: eyeSparkle 1.2s ease-in-out infinite;
+}
+
+/* === WALK === */
+.cat-all.walk .cat-body-part {
+  animation: walkBody 0.6s ease-in-out infinite;
+}
+.cat-all.walk .cat-head-part {
+  animation: walkHead 0.6s ease-in-out infinite;
+}
+.cat-all.walk .cat-tail-part {
+  animation: walkTail 0.6s ease-in-out infinite;
+}
+.cat-all.walk .cat-paw-l {
+  animation: walkPawL 0.6s ease-in-out infinite;
+}
+.cat-all.walk .cat-paw-r {
+  animation: walkPawR 0.6s ease-in-out infinite;
+}
+.cat-all.walk .cat-eyes-open {
+  display: none;
+}
+.cat-all.walk .cat-eyes-big {
+  display: block;
+}
+
+/* === SHAKE === */
+.cat-all.shake .cat-body-part {
+  animation: shakeBody 0.3s ease-in-out 3;
+}
+.cat-all.shake .cat-head-part {
+  animation: shakeHead 0.2s ease-in-out 4;
+}
+.cat-all.shake .cat-tail-part {
+  animation: shakeTail 0.25s ease-in-out 3;
+}
+.cat-all.shake .cat-eyes-open {
+  display: none;
+}
+.cat-all.shake .cat-eyes-closed {
+  display: block;
+}
+.cat-all.shake .cat-ears-part {
+  animation: shakeEars 0.2s ease-in-out 3;
+}
+
+/* === KEYFRAMES === */
+@keyframes idleBreathe {
   0%, 100% { transform: scaleY(1); }
   50% { transform: scaleY(1.015); }
 }
 
-@keyframes tailWag {
+@keyframes idleNod {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-1px); }
+}
+
+@keyframes idleTail {
   0%, 100% { transform: rotate(-3deg); }
   50% { transform: rotate(8deg); }
 }
 
-@keyframes catBlink {
+@keyframes idleBlink {
   0%, 92%, 100% { opacity: 1; }
   94%, 98% { opacity: 0; }
+}
+
+@keyframes happyStand {
+  0% { transform: translateY(0) rotate(0); }
+  60% { transform: translateY(-28px) rotate(-6deg); }
+  100% { transform: translateY(-25px) rotate(-4deg); }
+}
+
+@keyframes happyBounce {
+  0%, 100% { transform: translateY(-25px) rotate(-4deg); }
+  50% { transform: translateY(-30px) rotate(-4deg); }
+}
+
+@keyframes happyTilt {
+  0% { transform: translateY(0) rotate(0); }
+  100% { transform: translateY(-30px) rotate(8deg); }
+}
+
+@keyframes happyHeadBob {
+  0%, 100% { transform: translateY(-30px) rotate(8deg); }
+  50% { transform: translateY(-33px) rotate(6deg); }
+}
+
+@keyframes happyTail {
+  0% { transform: rotate(-3deg); }
+  100% { transform: rotate(-20deg); }
+}
+
+@keyframes happyTailSway {
+  0%, 100% { transform: rotate(-20deg); }
+  50% { transform: rotate(-15deg); }
+}
+
+@keyframes happyPawL {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(-10px, -20px); }
+}
+
+@keyframes happyPawR {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(10px, -20px); }
+}
+
+@keyframes happyPawWiggle {
+  0%, 100% { transform: translateY(-20px); }
+  50% { transform: translateY(-18px); }
+}
+
+@keyframes earPerk {
+  0% { transform: rotate(0); }
+  100% { transform: rotate(-5deg); }
+}
+
+@keyframes eyeSparkle {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+@keyframes walkBody {
+  0%, 100% { transform: translateY(-5px) rotate(0); }
+  25% { transform: translateY(-8px) rotate(-3deg); }
+  75% { transform: translateY(-8px) rotate(3deg); }
+}
+
+@keyframes walkHead {
+  0%, 100% { transform: translateY(-3px) rotate(0); }
+  25% { transform: translateY(-6px) rotate(-5deg); }
+  75% { transform: translateY(-6px) rotate(5deg); }
+}
+
+@keyframes walkTail {
+  0%, 100% { transform: rotate(5deg); }
+  50% { transform: rotate(-10deg); }
+}
+
+@keyframes walkPawL {
+  0%, 100% { transform: translateX(0) translateY(0); }
+  25% { transform: translateX(-8px) translateY(-4px); }
+  50% { transform: translateX(0) translateY(0); }
+  75% { transform: translateX(8px) translateY(-4px); }
+}
+
+@keyframes walkPawR {
+  0%, 100% { transform: translateX(0) translateY(0); }
+  25% { transform: translateX(8px) translateY(-4px); }
+  50% { transform: translateX(0) translateY(0); }
+  75% { transform: translateX(-8px) translateY(-4px); }
+}
+
+@keyframes walkTail {
+  0%, 100% { transform: rotate(-5deg); }
+  50% { transform: rotate(15deg); }
+}
+
+@keyframes shakeBody {
+  0%, 100% { transform: translateX(0) rotate(0); }
+  25% { transform: translateX(-6px) rotate(-2deg); }
+  75% { transform: translateX(6px) rotate(2deg); }
+}
+
+@keyframes shakeHead {
+  0%, 100% { transform: translateX(0) rotate(0); }
+  25% { transform: translateX(-8px) rotate(-5deg); }
+  75% { transform: translateX(8px) rotate(5deg); }
+}
+
+@keyframes shakeTail {
+  0%, 100% { transform: rotate(0); }
+  30% { transform: rotate(20deg); }
+  70% { transform: rotate(-20deg); }
+}
+
+@keyframes shakeEars {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(-10deg); }
+  75% { transform: rotate(10deg); }
 }
 
 .cat-hearts {
@@ -3264,6 +3490,34 @@ body {
 @keyframes heartsFloat {
   0% { opacity: 1; transform: translateY(0) scale(0.5); }
   100% { opacity: 0; transform: translateY(-40px) scale(1.2); }
+}
+
+/* Face animations for happy state */
+.cat-all.happy .cat-nose-mouth {
+  animation: happyMouth 1.2s ease-in-out infinite;
+}
+
+@keyframes happyMouth {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(1.3); }
+}
+
+.cat-all.happy .cat-whiskers {
+  animation: happyWhiskers 0.8s ease-in-out infinite alternate;
+}
+
+@keyframes happyWhiskers {
+  0% { transform: scaleX(0.9); }
+  100% { transform: scaleX(1.1); }
+}
+
+.cat-all.shake .cat-nose-mouth {
+  animation: shakeMouth 0.2s ease-in-out 3;
+}
+
+@keyframes shakeMouth {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(3px); }
 }
 
 .profil-pet-bubble {

@@ -25,12 +25,15 @@ const ProfilWidget = {
     this.feedBtn = document.getElementById('profilFeedBtn');
     this.playBtn = document.getElementById('profilPlayBtn');
 
-    this.closedEyes = this.petEmoji.querySelector('.cat-closed-eyes');
-    this.openEyes = this.petEmoji.querySelector('.cat-eyes');
+    this.catAll = document.getElementById('catSvg').querySelector('.cat-all');
+    this.openEyes = this.petEmoji.querySelector('.cat-eyes-open');
+    this.closedEyes = this.petEmoji.querySelector('.cat-eyes-closed');
+    this.bigEyes = this.petEmoji.querySelector('.cat-eyes-big');
     this.hearts = this.petEmoji.querySelector('.cat-hearts');
 
     this.loadNeeds();
     this.render();
+    this.setCatState('idle');
     this.startNeedsDecay();
     this.startAutoMessages();
 
@@ -39,6 +42,7 @@ const ProfilWidget = {
     this.playBtn.addEventListener('click', () => this.playtime());
 
     this.setupPetting();
+    this.startWalkAnimation();
   },
 
   setupPetting() {
@@ -48,16 +52,17 @@ const ProfilWidget = {
     const startPet = () => {
       isPetting = true;
       petCount++;
-      this.setCatEars('happy');
+      this.setCatState('happy');
       setTimeout(() => {
-        if (!isPetting) this.setCatEars('normal');
-      }, 600);
+        if (!isPetting) this.setCatState('idle');
+      }, 800);
     };
 
     const endPet = () => {
       if (!isPetting) return;
       isPetting = false;
-      this.setCatEars('normal');
+      this.setCatState('shake');
+      setTimeout(() => { this.setCatState('idle'); }, 800);
       if (petCount > 3) {
         const msg = this.messages[Math.floor(Math.random() * this.messages.length)];
         this.showBubblePop(msg);
@@ -76,10 +81,22 @@ const ProfilWidget = {
     this.petEl.addEventListener('touchcancel', endPet);
   },
 
-  setCatEars(state) {
-    if (state === 'happy') {
+  setCatState(state) {
+    if (!this.catAll) return;
+    const states = ['idle', 'happy', 'walk', 'shake'];
+    states.forEach(s => this.catAll.classList.remove(s));
+
+    if (state === 'idle') {
+      this.catAll.classList.add('idle');
+      if (this.openEyes) this.openEyes.style.display = 'block';
+      if (this.closedEyes) this.closedEyes.style.display = 'none';
+      if (this.bigEyes) this.bigEyes.style.display = 'none';
+      if (this.hearts) this.hearts.style.display = 'none';
+    } else if (state === 'happy') {
+      this.catAll.classList.add('happy');
       if (this.openEyes) this.openEyes.style.display = 'none';
-      if (this.closedEyes) this.closedEyes.style.display = 'block';
+      if (this.closedEyes) this.closedEyes.style.display = 'none';
+      if (this.bigEyes) this.bigEyes.style.display = 'block';
       if (this.hearts) {
         this.hearts.style.display = 'block';
         const texts = this.hearts.querySelectorAll('text');
@@ -89,12 +106,18 @@ const ProfilWidget = {
           t.style.animation = 'heartsFloat 1.5s ease-out forwards';
         });
       }
-    } else {
-      if (this.openEyes) this.openEyes.style.display = 'block';
+    } else if (state === 'walk') {
+      this.catAll.classList.add('walk');
+      if (this.openEyes) this.openEyes.style.display = 'none';
       if (this.closedEyes) this.closedEyes.style.display = 'none';
-      if (this.hearts) {
-        setTimeout(() => { this.hearts.style.display = 'none'; }, 1500);
-      }
+      if (this.bigEyes) this.bigEyes.style.display = 'block';
+      if (this.hearts) this.hearts.style.display = 'none';
+    } else if (state === 'shake') {
+      this.catAll.classList.add('shake');
+      if (this.openEyes) this.openEyes.style.display = 'none';
+      if (this.closedEyes) this.closedEyes.style.display = 'block';
+      if (this.bigEyes) this.bigEyes.style.display = 'none';
+      if (this.hearts) this.hearts.style.display = 'none';
     }
   },
 
@@ -141,11 +164,22 @@ const ProfilWidget = {
     else this.currentState = 'normal';
   },
 
+  startWalkAnimation() {
+    setInterval(() => {
+      if (Math.random() > 0.3) return;
+      this.setCatState('walk');
+      setTimeout(() => { this.setCatState('idle'); }, 1000 + Math.random() * 500);
+    }, 8000 + Math.random() * 5000);
+  },
+
   petTap() {
     const msg = this.messages[Math.floor(Math.random() * this.messages.length)];
     this.showBubblePop(msg);
-    this.setCatEars('happy');
-    setTimeout(() => { this.setCatEars('normal'); }, 1200);
+    this.setCatState('happy');
+    setTimeout(() => {
+      this.setCatState('shake');
+      setTimeout(() => { this.setCatState('idle'); }, 600);
+    }, 1200);
     this.needs.happiness = Math.min(100, this.needs.happiness + 5);
     this.updateState();
     this.saveNeeds();
@@ -165,8 +199,11 @@ const ProfilWidget = {
     this.currentState = 'happy';
     this.saveNeeds();
     this.render();
-    this.setCatEars('happy');
-    setTimeout(() => { this.setCatEars('normal'); }, 1200);
+    this.setCatState('happy');
+    setTimeout(() => {
+      this.setCatState('shake');
+      setTimeout(() => { this.setCatState('idle'); }, 600);
+    }, 1200);
   },
 
   playtime() {
@@ -176,8 +213,11 @@ const ProfilWidget = {
     this.currentState = 'happy';
     this.saveNeeds();
     this.render();
-    this.setCatEars('happy');
-    setTimeout(() => { this.setCatEars('normal'); }, 1200);
+    this.setCatState('happy');
+    setTimeout(() => {
+      this.setCatState('walk');
+      setTimeout(() => { this.setCatState('idle'); }, 1000);
+    }, 1000);
   },
 
   startAutoMessages() {
