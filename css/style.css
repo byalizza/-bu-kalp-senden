@@ -334,7 +334,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: radial-gradient(ellipse at center, #120808 0%, #07070d 60%);
+  background: radial-gradient(ellipse at center, rgba(18,8,8,0.7) 0%, rgba(7,7,13,0.85) 60%), url('../assets/images/login-bg.jpg') center/cover no-repeat;
 }
 
 .login-bg-particles {
