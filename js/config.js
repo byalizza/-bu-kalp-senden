@@ -37,9 +37,13 @@ const APP_CONFIG = {
     photos: 'locket/photos',
     messages: 'chat/messages',
     memories: 'data/memories',
-    kalbim: 'data/kalbim',
-    playlist: 'data/playlist',
-    songs: 'songs'
+    kalbim: 'data/kalbim'
+  },
+
+  // Lokal veri dosyaları (Firebase'den hızlı, fetch ile yüklenir)
+  localDataPaths: {
+    kalbim: 'data/kalbim.json',
+    memories: 'data/memories.json'
   },
 
   // Şarkı listesi (assets/sounds/ klasöründen çalar)

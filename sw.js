@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bks-v2';
+const CACHE_NAME = 'bks-v3';
 const ASSETS = [
   '/-bu-kalp-senden/',
   '/-bu-kalp-senden/index.html',
@@ -15,8 +15,9 @@ const ASSETS = [
   '/-bu-kalp-senden/js/widgets/mascot.js',
   '/-bu-kalp-senden/js/widgets/locket.js',
   '/-bu-kalp-senden/js/widgets/anilar.js',
-  '/-bu-kalp-senden/js/widgets/memories.js',
-  '/-bu-kalp-senden/js/widgets/profil.js'
+  '/-bu-kalp-senden/js/widgets/profil.js',
+  '/-bu-kalp-senden/data/kalbim.json',
+  '/-bu-kalp-senden/data/memories.json'
 ];
 
 self.addEventListener('install', (e) => {

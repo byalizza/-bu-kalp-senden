@@ -159,18 +159,30 @@ const KalbimWidget = {
 
   /* --- CAROUSEL --- */
   setupFirebase() {
-    const db = getDatabase();
-    if (!db) return;
-    const path = APP_CONFIG.firebasePaths.kalbim;
-    this.dbRef = db.ref(path);
-    this.dbRef.off();
-    this.dbRef.on('value', (snap) => {
-      const data = snap.val();
-      this.memories = [];
-      if (data) Object.keys(data).forEach(k => { const m = data[k]; if (m) { m._key = k; this.memories.push(m); } });
-      this.saveLocal();
-      this.startCarousel();
-    }, () => {});
+    // Önce lokal JSON'dan yükle (anında)
+    fetch(APP_CONFIG.localDataPaths.kalbim)
+      .then(r => r.json())
+      .then(data => {
+        this.memories = data.map((m, i) => ({ ...m, _key: 'local_' + i }));
+        this.saveLocal();
+        this.startCarousel();
+      })
+      .catch(() => {
+        // Lokal yoksa Firebase'den yükle
+        const db = getDatabase();
+        if (!db) return;
+        const path = APP_CONFIG.firebasePaths.kalbim;
+        if (!path) return;
+        this.dbRef = db.ref(path);
+        this.dbRef.off();
+        this.dbRef.on('value', (snap) => {
+          const data = snap.val();
+          this.memories = [];
+          if (data) Object.keys(data).forEach(k => { const m = data[k]; if (m) { m._key = k; this.memories.push(m); } });
+          this.saveLocal();
+          this.startCarousel();
+        }, () => {});
+      });
   },
 
   loadLocal() {

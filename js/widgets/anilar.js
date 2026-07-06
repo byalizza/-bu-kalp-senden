@@ -43,18 +43,30 @@ const AnilarWidget = {
   },
 
   setupFirebase() {
-    const db = getDatabase();
-    if (!db) return;
-    const path = APP_CONFIG.firebasePaths.memories;
-    this.dbRef = db.ref(path);
-    this.dbRef.on('value', (snap) => {
-      const data = snap.val();
-      this.memories = [];
-      if (data) Object.keys(data).forEach(k => { const m = data[k]; if (m) { m._key = k; this.memories.push(m); } });
-      this.saveLocal();
-      this.renderGrid();
-      if (this._pendingClose) { this._pendingClose = false; this.closeEditModal(); }
-    }, () => {});
+    // Önce lokal JSON'dan yükle (anında)
+    fetch(APP_CONFIG.localDataPaths.memories)
+      .then(r => r.json())
+      .then(data => {
+        this.memories = data.map((m, i) => ({ ...m, _key: 'local_' + i }));
+        this.saveLocal();
+        this.renderGrid();
+      })
+      .catch(() => {
+        // Lokal yoksa Firebase'den yükle
+        const db = getDatabase();
+        if (!db) return;
+        const path = APP_CONFIG.firebasePaths.memories;
+        if (!path) return;
+        this.dbRef = db.ref(path);
+        this.dbRef.on('value', (snap) => {
+          const data = snap.val();
+          this.memories = [];
+          if (data) Object.keys(data).forEach(k => { const m = data[k]; if (m) { m._key = k; this.memories.push(m); } });
+          this.saveLocal();
+          this.renderGrid();
+          if (this._pendingClose) { this._pendingClose = false; this.closeEditModal(); }
+        }, () => {});
+      });
   },
 
   loadLocal() {
@@ -163,21 +175,25 @@ const AnilarWidget = {
       const db = getDatabase();
       if (this.editIdx >= 0 && this.editIdx < this.memories.length) {
         const existing = this.memories[this.editIdx];
-        if (existing._key && db) {
+        if (existing._key && !existing._key.startsWith('local_') && db) {
           this._pendingClose = true;
           db.ref(`${APP_CONFIG.firebasePaths.memories}/${existing._key}`).update(memory).catch(() => {});
         } else {
-          this.memories[this.editIdx] = { ...memory, _key: existing._key };
+          this.memories[this.editIdx] = { ...memory, _key: 'local_' + Date.now() };
           this.saveLocal();
           this.renderGrid();
           this.closeEditModal();
         }
       } else {
-        if (db && this.dbRef) {
+        if (db && APP_CONFIG.firebasePaths.memories) {
           this._pendingClose = true;
-          this.dbRef.push(memory);
+          const ref = db.ref(APP_CONFIG.firebasePaths.memories).push(memory);
+          this.memories.push({ ...memory, _key: ref.key || 'local_' + Date.now() });
+          this.saveLocal();
+          this.renderGrid();
+          setTimeout(() => this.closeEditModal(), 300);
         } else {
-          this.memories.push({ ...memory });
+          this.memories.push({ ...memory, _key: 'local_' + Date.now() });
           this.saveLocal();
           this.renderGrid();
           this.closeEditModal();
@@ -203,7 +219,7 @@ const AnilarWidget = {
     if (idx < 0 || idx >= this.memories.length) return;
     const mem = this.memories[idx];
     const db = getDatabase();
-    if (mem._key && db) {
+    if (mem._key && !mem._key.startsWith('local_') && db) {
       db.ref(`${APP_CONFIG.firebasePaths.memories}/${mem._key}`).remove().catch(() => {});
     }
     this.memories.splice(idx, 1);

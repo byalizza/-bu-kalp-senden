@@ -1,0 +1,23 @@
+[
+  {
+    "title": "İlk tanışmamız",
+    "date": "Nisan 2025",
+    "story": "Her şeyin başladığı an. Gözlerinin içi gülüyordu.",
+    "image": "https://picsum.photos/seed/kalbim1/400/600",
+    "emoji": "💕"
+  },
+  {
+    "title": "En mutlu günümüz",
+    "date": "Mayıs 2025",
+    "story": "Seninle geçen her gün bir hediye.",
+    "image": "https://picsum.photos/seed/kalbim2/400/600",
+    "emoji": "🥰"
+  },
+  {
+    "title": "Birlikte Geçen Zaman",
+    "date": "Haziran 2025",
+    "story": "Her saniyen ayrı bir güzel. Seninle her an bir ömür.",
+    "image": "https://picsum.photos/seed/kalbim3/400/600",
+    "emoji": "🌸"
+  }
+]
