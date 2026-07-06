@@ -39,24 +39,30 @@ const App = {
   },
 
   startSplashMusic() {
-    if (window._splashMusicStarted) return;
+    if (window._splashMusicStarted || window._splashMusicLoading) return;
     const audio = document.getElementById('bgMusic');
     const first = APP_CONFIG.playlist && APP_CONFIG.playlist[0];
     if (audio && first) {
       audio.src = 'assets/sounds/' + first.fileName.replace(/^\//, '');
       audio.volume = 0.7;
 
-      // MVSN.mp3 ortasından başlasın
+      // MVSN.mp3: metadata gelince ortasına git, sonra çal
       if (first.fileName === 'MVSN.mp3') {
+        window._splashMusicLoading = true;
         audio.addEventListener('loadedmetadata', function seekMid() {
           audio.currentTime = audio.duration * 0.5;
           audio.removeEventListener('loadedmetadata', seekMid);
+          audio.play().then(() => {
+            window._splashMusicStarted = true;
+            window._splashMusicLoading = false;
+          }).catch(() => { window._splashMusicLoading = false; });
         });
+        audio.load();
+      } else {
+        audio.play().then(() => {
+          window._splashMusicStarted = true;
+        }).catch(() => {});
       }
-
-      audio.play().then(() => {
-        window._splashMusicStarted = true;
-      }).catch(() => {});
     }
   },
 
