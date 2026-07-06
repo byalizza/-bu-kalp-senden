@@ -39,7 +39,7 @@ const APP_CONFIG = {
   // Bu IP'lerden girilince direkt ana sayfa açılır.
   // IP'nizi öğrenmek için: https://api.ipify.org
   // Boş [] bırakırsanız herkesten şifre istenir.
-  bypassIPs: [78.173.80.181],
+  bypassIPs: ["78.173.80.181"],
 
   // -------------------------------------------
   // 4. İLİŞKİ BAŞLANGIÇ TARİHİ (Sayaç)
