@@ -164,10 +164,12 @@ const KalbimWidget = {
     if (!db) return;
     const path = APP_CONFIG.firebasePaths.kalbim;
     this.dbRef = db.ref(path);
+    this.dbRef.off();
     this.dbRef.on('value', (snap) => {
       const data = snap.val();
       this.memories = [];
       if (data) Object.keys(data).forEach(k => { const m = data[k]; if (m) { m._key = k; this.memories.push(m); } });
+      this.saveLocal();
       this.startCarousel();
     }, () => {});
   },

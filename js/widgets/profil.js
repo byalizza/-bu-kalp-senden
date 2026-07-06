@@ -17,6 +17,8 @@ const ProfilWidget = {
   animFrame: null,
   animTime: 0,
   currentAnim: 'idle',
+  _paused: false,
+  _autoMsgInterval: null,
 
   init() {
     this.petEl = document.getElementById('profilPet');
@@ -56,6 +58,7 @@ const ProfilWidget = {
   },
 
   startAnimLoop() {
+    if (this.animFrame) return;
     const loop = (t) => {
       this.animTime = (t || 0) / 1000;
       this.updateAnimation();
@@ -340,7 +343,8 @@ const ProfilWidget = {
   },
 
   startNeedsDecay() {
-    setInterval(() => {
+    this._needsDecayInterval = setInterval(() => {
+      if (!document.getElementById('profilWidget').classList.contains('active')) return;
       this.needs.hunger = Math.max(0, this.needs.hunger - 2);
       this.needs.happiness = Math.max(0, this.needs.happiness - 1);
       this.needs.energy = Math.max(0, this.needs.energy - 1);
@@ -457,7 +461,8 @@ const ProfilWidget = {
   },
 
   startAutoMessages() {
-    setInterval(() => {
+    this._autoMsgInterval = setInterval(() => {
+      if (!document.getElementById('profilWidget').classList.contains('active')) return;
       if (Math.random() > 0.6) return;
       const msgs = [];
       if (this.needs.hunger < 40) msgs.push('Karnım acıktı! 🍽️');
@@ -466,5 +471,20 @@ const ProfilWidget = {
       if (msgs.length === 0) msgs.push(this.messages[Math.floor(Math.random() * this.messages.length)]);
       this.showBubblePop(msgs[Math.floor(Math.random() * msgs.length)]);
     }, 15000 + Math.random() * 10000);
+  },
+
+  onActivate() {
+    if (this._paused) {
+      this._paused = false;
+      this.startAnimLoop();
+    }
+  },
+
+  onDeactivate() {
+    this._paused = true;
+    if (this.animFrame) {
+      cancelAnimationFrame(this.animFrame);
+      this.animFrame = null;
+    }
   }
 };

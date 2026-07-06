@@ -159,7 +159,8 @@ const MessageWidget = {
   },
 
   startPetAnimations() {
-    setInterval(() => {
+    this._petAnimInterval = setInterval(() => {
+      if (!document.getElementById('petWidget').classList.contains('active')) return;
       if (Math.random() > 0.5) return;
       const msg = this.petMessages[Math.floor(Math.random() * this.petMessages.length)];
       this.petText.textContent = msg;

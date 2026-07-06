@@ -40,9 +40,8 @@ const LocketWidget = {
     this.galleryGrid = document.getElementById('galleryOverlayGrid');
 
     this.setupListeners();
-    this.loadPhotos();
     this.loadLikes();
-    this.watchFirebase();
+    this.setupFirebase();
     this.startCleanup();
   },
 
@@ -132,6 +131,7 @@ const LocketWidget = {
 
   onActivate() {
     this._hasActivated = true;
+    if (this.allPhotos.length === 0) this.loadPhotos();
     const myName = this._myName();
     const myUser = this._myUser();
     this.loadSeen();
@@ -370,7 +370,7 @@ const LocketWidget = {
 
   _notifReady: false,
 
-  watchFirebase() {
+  setupFirebase() {
     const db = getDatabase();
     if (!db) return;
 

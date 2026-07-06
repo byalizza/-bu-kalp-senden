@@ -23,7 +23,8 @@ function initFirebase() {
       firebaseApp = firebase.app();
     }
     database = firebase.database();
-    console.log('Firebase başarıyla başlatıldı.');
+    database.setPersistenceEnabled(true);
+    database.goOnline();
     return true;
   } catch (error) {
     console.warn('Firebase başlatılamadı:', error.message);

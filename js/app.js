@@ -94,6 +94,16 @@ const App = {
       if (prevId !== targetId) this.navHistory.push(prevId);
     }
 
+    // Deactivate current widget
+    if (currentActive) {
+      const prevWidget = document.querySelector('.widget.active');
+      if (prevWidget && prevWidget.id) {
+        const wName = prevWidget.id.replace('Widget', '');
+        const wObj = window[wName + 'Widget'];
+        if (wObj && typeof wObj.onDeactivate === 'function') wObj.onDeactivate();
+      }
+    }
+
     navItems.forEach(n => n.classList.remove('active'));
     const targetNav = document.querySelector(`.nav-item[data-target="${targetId}"]`);
     if (targetNav) targetNav.classList.add('active');
@@ -106,12 +116,9 @@ const App = {
     if (target) {
       target.classList.add('active');
       target.style.display = '';
-      if (targetId === 'petWidget' && typeof MessageWidget !== 'undefined') {
-        MessageWidget.scrollToBottom();
-      }
-      if (targetId === 'locketWidget' && typeof LocketWidget !== 'undefined') {
-        LocketWidget.onActivate();
-      }
+      const wName = targetId.replace('Widget', '');
+      const wObj = window[wName + 'Widget'];
+      if (wObj && typeof wObj.onActivate === 'function') wObj.onActivate();
     }
   },
 
