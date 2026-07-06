@@ -23,11 +23,8 @@ const ProfilWidget = {
     this.petEmoji = document.getElementById('profilPetEmoji');
     this.petBubble = document.getElementById('profilPetBubble');
     this.petText = document.getElementById('profilPetText');
-    this.hungerBar = document.getElementById('profilHunger');
-    this.happinessBar = document.getElementById('profilHappiness');
-    this.energyBar = document.getElementById('profilEnergy');
-    this.feedBtn = document.getElementById('profilFeedBtn');
-    this.playBtn = document.getElementById('profilPlayBtn');
+    this.foodBowl = document.getElementById('foodBowl');
+    this.foodPiece = document.getElementById('foodPiece');
 
     const svg = document.getElementById('catSvg');
     this.catAll = svg.querySelector('.cat-all');
@@ -54,9 +51,8 @@ const ProfilWidget = {
     this.startAutoMessages();
 
     this.petEl.addEventListener('click', () => this.petTap());
-    this.feedBtn.addEventListener('click', () => this.feed());
-    this.playBtn.addEventListener('click', () => this.playtime());
     this.setupPetting();
+    this.setupDragFeed();
   },
 
   startAnimLoop() {
@@ -305,6 +301,8 @@ const ProfilWidget = {
         const msg = this.messages[Math.floor(Math.random() * this.messages.length)];
         this.showBubblePop(msg);
         this.needs.happiness = Math.min(100, this.needs.happiness + 3);
+        this.needs.energy = Math.min(100, this.needs.energy + 2);
+        this.updateState();
         this.saveNeeds();
       }
       petCount = 0;
@@ -338,9 +336,6 @@ const ProfilWidget = {
       sleepy: 'linear-gradient(145deg, rgba(150,150,255,0.12), rgba(100,100,255,0.08))'
     };
     this.petBubble.style.background = bgColors[this.currentState] || bgColors.normal;
-    this.hungerBar.style.width = this.needs.hunger + '%';
-    this.happinessBar.style.width = this.needs.happiness + '%';
-    this.energyBar.style.width = this.needs.energy + '%';
   },
 
   startNeedsDecay() {
@@ -370,6 +365,7 @@ const ProfilWidget = {
       setTimeout(() => { this.setAnim('idle'); }, 900);
     }, 1200);
     this.needs.happiness = Math.min(100, this.needs.happiness + 5);
+    this.needs.energy = Math.min(100, this.needs.energy + 3);
     this.updateState();
     this.saveNeeds();
     this.render();
@@ -382,31 +378,81 @@ const ProfilWidget = {
     this.petBubble.classList.add('bubble-pop');
   },
 
-  feed() {
-    this.needs.hunger = Math.min(100, this.needs.hunger + 30);
-    this.petText.textContent = 'Çok lezzetliydi! 🥰';
-    this.currentState = 'happy';
-    this.saveNeeds();
-    this.render();
-    this.setAnim('happy');
-    setTimeout(() => {
-      this.setAnim('shake');
-      setTimeout(() => { this.setAnim('idle'); }, 900);
-    }, 1200);
-  },
+  setupDragFeed() {
+    let dragClone = null;
+    let isDragging = false;
+    const catEl = this.petEmoji;
 
-  playtime() {
-    this.needs.happiness = Math.min(100, this.needs.happiness + 25);
-    this.needs.energy = Math.max(0, this.needs.energy - 10);
-    this.petText.textContent = 'Yumakla oynadığımız için çok mutluyum! 🧶';
-    this.currentState = 'happy';
-    this.saveNeeds();
-    this.render();
-    this.setAnim('play');
-    setTimeout(() => {
-      this.setAnim('shake');
-      setTimeout(() => { this.setAnim('idle'); }, 900);
-    }, 2500);
+    const getCatCenter = () => {
+      const rect = catEl.getBoundingClientRect();
+      return { x: rect.left + rect.width * 0.5, y: rect.top + rect.height * 0.25 };
+    };
+
+    const onStart = (e) => {
+      e.preventDefault();
+      isDragging = true;
+      this.foodPiece.style.opacity = '0.3';
+      dragClone = this.foodPiece.cloneNode(true);
+      dragClone.className = 'food-drag-clone';
+      dragClone.style.position = 'fixed';
+      dragClone.style.pointerEvents = 'none';
+      dragClone.style.zIndex = '9999';
+      dragClone.style.fontSize = '32px';
+      dragClone.style.transition = 'none';
+      document.body.appendChild(dragClone);
+      onMove(e);
+    };
+
+    const onMove = (e) => {
+      if (!isDragging || !dragClone) return;
+      const p = e.touches ? e.touches[0] : e;
+      dragClone.style.left = (p.clientX - 16) + 'px';
+      dragClone.style.top = (p.clientY - 16) + 'px';
+
+      const center = getCatCenter();
+      const dist = Math.hypot(p.clientX - center.x, p.clientY - center.y);
+      if (dist < 60 && this.noseMouth) {
+        this.noseMouth.setAttribute('transform', 'scale(1, 1.3)');
+        if (this.openEyes) this.openEyes.style.display = 'none';
+        if (this.closedEyes) this.closedEyes.style.display = 'none';
+        if (this.bigEyes) { this.bigEyes.style.display = 'block'; }
+      }
+    };
+
+    const onEnd = (e) => {
+      if (!isDragging) return;
+      isDragging = false;
+      if (dragClone) {
+        dragClone.remove();
+        dragClone = null;
+      }
+      this.foodPiece.style.opacity = '1';
+      if (this.noseMouth) this.noseMouth.setAttribute('transform', '');
+
+      const p = e.changedTouches ? e.changedTouches[0] : e;
+      const center = getCatCenter();
+      const dist = Math.hypot(p.clientX - center.x, p.clientY - center.y);
+
+      if (dist < 60) {
+        this.needs.hunger = Math.min(100, this.needs.hunger + 30);
+        this.currentState = 'happy';
+        this.saveNeeds();
+        this.render();
+        this.setAnim('happy');
+        this.showBubblePop('Çok lezzetliydi, teşekkür ederimm! 🥰');
+        setTimeout(() => {
+          this.setAnim('shake');
+          setTimeout(() => { this.setAnim('idle'); }, 900);
+        }, 1200);
+      }
+    };
+
+    this.foodPiece.addEventListener('mousedown', onStart);
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onEnd);
+    this.foodPiece.addEventListener('touchstart', onStart, { passive: false });
+    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('touchend', onEnd);
   },
 
   startAutoMessages() {
