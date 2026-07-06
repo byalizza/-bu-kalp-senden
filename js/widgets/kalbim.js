@@ -366,7 +366,19 @@ var KalbimWidget = {
 
   autoPlay() {
     if (this.playlist.length === 0) return;
-    // Splash'tan zaten çalıyorsa tekrar başlatma
+    // Splash'tan MVSN.mp3 zaten yüklüyse sadece play yap, baştan başlatma
+    if (this.currentSong === 0 && this.audio && this.audio.src && this.audio.src.indexOf('MVSN.mp3') !== -1) {
+      if (this.audio.paused) {
+        this.audio.play().then(() => {
+          this.isPlaying = true;
+          this.playBtn.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>';
+          this.playBtn.classList.add('pulsing');
+          this.renderPlaylist();
+        }).catch(() => {});
+      }
+      return;
+    }
+    // Normal autoPlay
     if (this.isPlaying && this.audio && !this.audio.paused) return;
     setTimeout(() => {
       this.loadSong(0);
