@@ -192,7 +192,7 @@ var KalbimWidget = {
       this.slideTimer = setInterval(() => {
         this.slideIdx = (this.slideIdx + 1) % this.memories.length;
         this.showSlide(this.slideIdx);
-      }, 2500);
+      }, 1500);
     }
   },
 
