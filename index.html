@@ -511,6 +511,23 @@
     </div>
   </div>
 
+  <!-- ========== GAME BUTTON ========== -->
+  <button class="game-fab" id="gameFab">🎮</button>
+
+  <!-- ========== GAME OVERLAY ========== -->
+  <div class="game-overlay" id="gameOverlay">
+    <div class="game-panel">
+      <div class="game-header">
+        <span class="game-title">Block Blast</span>
+        <span class="game-score" id="gameScore">0</span>
+        <button class="game-close" id="gameClose">✕</button>
+      </div>
+      <div class="game-grid" id="gameGrid"></div>
+      <div class="game-pieces" id="gamePieces"></div>
+      <button class="game-reset" id="gameReset">🔄 Yeni Oyun</button>
+    </div>
+  </div>
+
   <!-- ========== CONFETTI CANVAS ========== -->
   <canvas id="confettiCanvas" class="confetti-canvas"></canvas>
 
@@ -527,6 +544,7 @@
   <script src="js/widgets/locket.js"></script>
   <script src="js/widgets/anilar.js"></script>
   <script src="js/widgets/profil.js"></script>
+  <script src="js/blockblast.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

@@ -3429,3 +3429,180 @@ body {
   70% { transform: scale(0.95); }
   100% { transform: scale(1); opacity: 1; }
 }
+
+/* ============= BLOCK BLAST GAME ============= */
+.game-fab {
+  position: fixed;
+  bottom: 80px;
+  right: 16px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 100;
+  box-shadow: 0 4px 20px rgba(102,126,234,0.5);
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.game-fab:active {
+  transform: scale(0.9);
+  box-shadow: 0 2px 10px rgba(102,126,234,0.4);
+}
+
+.game-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(8px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.game-overlay.open { display: flex; }
+
+.game-panel {
+  background: #1a1a2e;
+  border-radius: 20px;
+  padding: 20px;
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.game-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.game-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.5px;
+}
+
+.game-score {
+  font-size: 20px;
+  font-weight: 800;
+  color: #ffd700;
+  font-variant-numeric: tabular-nums;
+}
+
+.game-close {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.4);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+.game-close:hover { background: rgba(255,255,255,0.1); }
+
+.game-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 2px;
+  background: rgba(255,255,255,0.04);
+  padding: 4px;
+  border-radius: 10px;
+  width: 100%;
+  aspect-ratio: 1;
+}
+
+.game-cell {
+  background: rgba(255,255,255,0.03);
+  border-radius: 3px;
+  aspect-ratio: 1;
+  transition: background 0.15s;
+}
+.game-cell.filled { background: #667eea; border-radius: 4px; }
+.game-cell.highlight { background: rgba(102,126,234,0.25); }
+
+.game-pieces {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  min-height: 100px;
+  padding: 8px;
+  background: rgba(255,255,255,0.02);
+  border-radius: 12px;
+}
+
+.game-piece {
+  cursor: grab;
+  display: grid;
+  gap: 2px;
+  padding: 4px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 6px;
+  transition: transform 0.15s;
+  touch-action: none;
+}
+.game-piece:active { cursor: grabbing; transform: scale(0.95); }
+
+.game-piece-cell {
+  width: 22px;
+  height: 22px;
+  border-radius: 3px;
+  background: #667eea;
+}
+
+.game-piece.selected { outline: 2px solid #ffd700; box-shadow: 0 0 12px rgba(255,215,0,0.3); }
+
+.game-drag-ghost { pointer-events: none; }
+
+.game-toast {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0,0,0,0.85);
+  color: #fff;
+  padding: 16px 32px;
+  border-radius: 14px;
+  font-size: 18px;
+  font-weight: 700;
+  z-index: 10000;
+  animation: toastPop 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  text-align: center;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.game-reset {
+  padding: 10px 24px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.03);
+  color: rgba(255,255,255,0.7);
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background 0.2s;
+  font-family: var(--font-body);
+}
+.game-reset:hover { background: rgba(255,255,255,0.08); }
+
+@keyframes toastPop {
+  0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
