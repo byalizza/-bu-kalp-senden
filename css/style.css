@@ -2645,6 +2645,41 @@ body {
   flex-shrink: 0;
 }
 
+.carousel-frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: 8px;
+  background: var(--theme-gradient);
+  background-size: 200% 200%;
+  animation: frameShift 4s ease infinite;
+  border-radius: 16px;
+  box-shadow: 0 0 30px var(--theme-glow), inset 0 0 20px rgba(0,0,0,0.15);
+}
+
+.carousel-frame .carousel-img {
+  border-radius: 10px;
+  background: var(--bg-dark);
+}
+
+.carousel-frame-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  background: var(--theme-gradient);
+  background-size: 200% 200%;
+  animation: frameShift 4s ease infinite;
+  z-index: -1;
+  filter: blur(16px);
+  opacity: 0.5;
+}
+
+@keyframes frameShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
 .carousel-img {
   width: 100%;
   height: 100%;
