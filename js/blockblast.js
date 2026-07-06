@@ -48,7 +48,10 @@ const BlockBlast = {
     this.closeEl = document.getElementById('gameClose');
     this.resetEl = document.getElementById('gameReset');
 
-    this.fabEl.addEventListener('click', () => this.open());
+    this.fabEl.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.open();
+    });
     this.closeEl.addEventListener('click', () => this.close());
     this.resetEl.addEventListener('click', () => this.resetGame());
     this.overlayEl.addEventListener('click', (e) => {
