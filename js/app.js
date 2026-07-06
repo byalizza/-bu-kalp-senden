@@ -365,10 +365,12 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
-    setTimeout(() => {
+    document.addEventListener('click', () => {
+      if (!deferredPrompt) return;
       deferredPrompt.prompt();
       deferredPrompt.userChoice.catch(() => {});
-    }, 5000);
+      deferredPrompt = null;
+    }, { once: true });
   });
 });
 
