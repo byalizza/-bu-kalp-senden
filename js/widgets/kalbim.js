@@ -159,14 +159,39 @@ const KalbimWidget = {
 
   /* --- CAROUSEL --- */
   setupFirebase() {
-    fetch(APP_CONFIG.localDataPaths.kalbim + '?v=' + Date.now())
+    const cacheBust = '?v=' + Date.now();
+
+    // 1. Metadata JSON'dan anlık yükle (resimsiz, küçük)
+    fetch(APP_CONFIG.localDataPaths.kalbim + cacheBust)
       .then(r => r.json())
       .then(data => {
-        this.memories = data.map((m, i) => ({ ...m, _key: 'local_' + i }));
+        const fromJson = data.map((m, i) => ({ ...m, _key: m._firebaseKey || 'local_' + i }));
+        // Local'de eklenen kayıtları koru (_firebaseKey'siz olanlar)
+        const localOnly = this.memories.filter(m => !m._firebaseKey);
+        this.memories = [...fromJson, ...localOnly];
         this.saveLocal();
         this.startCarousel();
+
+        // 2. Firebase REST'ten resimleri arkaplanda getir
+        return fetch(APP_CONFIG.firebaseRestBase + 'data/kalbim.json' + cacheBust);
       })
-      .catch(() => {});
+      .then(r => r.json())
+      .then(firebaseData => {
+        if (!firebaseData) return;
+        const keys = Object.keys(firebaseData);
+        if (keys.length === 0) return;
+
+        // Firebase key'e göre eşleştir ve resimleri merge et
+        keys.forEach(key => {
+          const fItem = firebaseData[key];
+          if (!fItem || !fItem.image) return;
+          const match = this.memories.find(m => m._firebaseKey === key);
+          if (match) match.image = fItem.image;
+        });
+        this.saveLocal();
+        this.showSlide(this.slideIdx);
+      })
+      .catch(e => console.warn('Kalbim yukleme hatasi:', e));
   },
 
   loadLocal() {
@@ -199,9 +224,15 @@ const KalbimWidget = {
     }
     this.carouselImg.style.opacity = '0';
     setTimeout(() => {
-      this.carouselImg.src = mem.image || '';
+      if (mem.image) {
+        this.carouselImg.src = mem.image;
+        this.carouselImg.style.display = 'block';
+      } else {
+        this.carouselImg.src = '';
+        this.carouselImg.style.display = 'none';
+      }
       this.carouselImg.alt = mem.title || '';
-      this.carouselTitle.textContent = mem.title || '';
+      this.carouselTitle.textContent = (mem.emoji || '💖') + ' ' + (mem.title || '');
       this.carouselImg.style.opacity = '1';
     }, 200);
 

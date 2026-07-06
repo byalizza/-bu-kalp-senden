@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bks-v3';
+const CACHE_NAME = 'bks-v4';
 const ASSETS = [
   '/-bu-kalp-senden/',
   '/-bu-kalp-senden/index.html',

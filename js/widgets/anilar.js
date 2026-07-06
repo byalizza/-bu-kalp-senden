@@ -42,10 +42,33 @@ const AnilarWidget = {
   },
 
   setupFirebase() {
-    fetch(APP_CONFIG.localDataPaths.memories + '?v=' + Date.now())
+    const cacheBust = '?v=' + Date.now();
+
+    // 1. Metadata JSON'dan anlık yükle
+    fetch(APP_CONFIG.localDataPaths.memories + cacheBust)
       .then(r => r.json())
       .then(data => {
-        this.memories = data.map((m, i) => ({ ...m, _key: 'local_' + i }));
+        const fromJson = data.map((m, i) => ({ ...m, _key: m._firebaseKey || 'local_' + i }));
+        const localOnly = this.memories.filter(m => !m._firebaseKey);
+        this.memories = [...fromJson, ...localOnly];
+        this.saveLocal();
+        this.renderGrid();
+
+        // 2. Firebase REST'ten resimleri arkaplanda getir
+        return fetch(APP_CONFIG.firebaseRestBase + 'data/memories.json' + cacheBust);
+      })
+      .then(r => r.json())
+      .then(firebaseData => {
+        if (!firebaseData) return;
+        const keys = Object.keys(firebaseData);
+        if (keys.length === 0) return;
+
+        keys.forEach(key => {
+          const fItem = firebaseData[key];
+          if (!fItem || !fItem.image) return;
+          const match = this.memories.find(m => m._firebaseKey === key);
+          if (match) match.image = fItem.image;
+        });
         this.saveLocal();
         this.renderGrid();
       })
@@ -104,6 +127,7 @@ const AnilarWidget = {
   openViewer(idx) {
     const mem = this.memories[idx];
     if (!mem) return;
+    this.viewerImg.style.display = mem.image ? 'block' : 'none';
     this.viewerImg.src = mem.image || '';
     this.viewerImg.alt = mem.title || '';
     this.viewerTitle.textContent = mem.title || '';
