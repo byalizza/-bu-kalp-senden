@@ -8,17 +8,36 @@ const App = {
   async init() {
     initFirebase();
 
-    // Splash'ta MVSN.mp3 çalmaya başla
-    this.startSplashMusic();
+    // Splash'ta ilk şarkıyı yükle
+    const audio = document.getElementById('bgMusic');
+    const first = APP_CONFIG.playlist && APP_CONFIG.playlist[0];
+    if (audio && first) {
+      audio.src = 'assets/sounds/' + first.fileName.replace(/^\//, '');
+      audio.volume = 0.7;
+    }
 
-    // Splash'a tıklayınca tam ekran + login'e geç
+    // Herhangi bir kullanıcı etkileşiminde müziği başlat
+    const tryPlay = () => {
+      if (window._splashMusicStarted) return;
+      const a = document.getElementById('bgMusic');
+      if (a && a.src) {
+        a.play().then(() => {
+          window._splashMusicStarted = true;
+          window._splashMusicLoading = false;
+        }).catch(() => {});
+      }
+    };
+    document.addEventListener('touchstart', tryPlay, { once: true });
+    document.addEventListener('click', tryPlay, { once: true });
+
+    // Splash'a tıklayınca tam ekran
     const splash = document.getElementById('splashScreen');
     const splashInner = document.getElementById('splashInner');
     if (splashInner) {
       splashInner.style.cursor = 'pointer';
       const onSplashTap = () => {
         document.documentElement.requestFullscreen().catch(() => {});
-        this.startSplashMusic();
+        tryPlay();
         splashInner.removeEventListener('click', onSplashTap);
         splashInner.removeEventListener('touchstart', onSplashTap);
       };
@@ -27,6 +46,7 @@ const App = {
     }
 
     setTimeout(() => {
+      tryPlay();
       splash.style.display = 'none';
       document.getElementById('loginScreen').style.display = 'flex';
       document.getElementById('loginScreen').style.animation = 'fadeIn 0.6s ease';
@@ -36,23 +56,6 @@ const App = {
       this.setupNavigation();
       this.setupBackButton();
     }, 2800);
-  },
-
-  startSplashMusic() {
-    if (window._splashMusicStarted || window._splashMusicLoading) return;
-    window._splashMusicLoading = true;
-    const audio = document.getElementById('bgMusic');
-    const first = APP_CONFIG.playlist && APP_CONFIG.playlist[0];
-    if (audio && first) {
-      audio.src = 'assets/sounds/' + first.fileName.replace(/^\//, '');
-      audio.volume = 0.7;
-      audio.play().then(() => {
-        window._splashMusicStarted = true;
-        window._splashMusicLoading = false;
-      }).catch(() => { window._splashMusicLoading = false; });
-    } else {
-      window._splashMusicLoading = false;
-    }
   },
 
   initializeWidgets() {
