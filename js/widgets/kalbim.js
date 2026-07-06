@@ -262,8 +262,9 @@ var KalbimWidget = {
     this.playlist = APP_CONFIG.playlist ? [...APP_CONFIG.playlist] : [];
     this.renderPlaylist();
     if (this.playlist.length > 0) {
-      // Splash'tan MVSN.mp3 geliyorsa state'i senkronize et, yeniden yükleme
-      const srcSet = this.audio && this.audio.src && this.audio.src.indexOf('MVSN.mp3') !== -1;
+      // Splash'tan ilk şarkı geliyorsa state'i senkronize et, yeniden yükleme
+      const firstFileName = this.playlist[0].fileName;
+      const srcSet = this.audio && this.audio.src && this.audio.src.indexOf(firstFileName) !== -1;
       if (window._splashMusicStarted || srcSet) {
         this.currentSong = 0;
         this.isPlaying = this.audio && !this.audio.paused;
@@ -366,8 +367,9 @@ var KalbimWidget = {
 
   autoPlay() {
     if (this.playlist.length === 0) return;
-    // Splash'tan MVSN.mp3 zaten yüklüyse sadece play yap, baştan başlatma
-    if (this.currentSong === 0 && this.audio && this.audio.src && this.audio.src.indexOf('MVSN.mp3') !== -1) {
+    // Splash'tan ilk şarkı yüklüyse sadece play yap, baştan başlatma
+    const firstFileName = this.playlist[0].fileName;
+    if (this.currentSong === 0 && this.audio && this.audio.src && this.audio.src.indexOf(firstFileName) !== -1) {
       if (this.audio.paused) {
         this.audio.play().then(() => {
           this.isPlaying = true;

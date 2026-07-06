@@ -129,7 +129,7 @@ const APP_CONFIG = {
   // MP3 dosyalarını assets/sounds/ klasörüne atın.
   // İsimler BÜYÜK/KÜÇÜK harf dahil TAM EŞLEŞMELİ.
   playlist: [
-    { title: 'MVSN', artist: 'MVSN', fileName: 'MVSN.mp3' },
+    { title: 'Liselim', artist: 'Cengiz Kurtoğlu', fileName: 'Cengiz Kurtoğlu - Liselim.mp3' },
     { title: 'Sensiz Yapamıyorum', artist: 'Uygar Doğanay', fileName: 'Uygar Doğanay - Sensiz Yapamıyorum Klip 2022.mp3' },
     { title: 'İlle de Sen', artist: 'Azer Bülbül', fileName: 'Azer Bülbül - İlle de Sen.mp3' },
     { title: 'Gel', artist: 'Uygar Doğanay', fileName: 'UYGAR DOĞANAY GEL 2017 YENİ.mp3' },

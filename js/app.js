@@ -46,30 +46,23 @@ const App = {
       audio.src = 'assets/sounds/' + first.fileName.replace(/^\//, '');
       audio.volume = 0.7;
 
-      // MVSN.mp3: önce metadata yüklenip süresi alınır, ortasına seek edilir, sonra çalar
-      if (first.fileName === 'MVSN.mp3') {
-        window._splashMusicLoading = true;
-        audio.addEventListener('loadedmetadata', function seekMid() {
-          audio.currentTime = audio.duration * 0.5;
-          audio.removeEventListener('loadedmetadata', seekMid);
-          audio.play().then(() => {
-            window._splashMusicStarted = true;
-            window._splashMusicLoading = false;
-          }).catch(() => { window._splashMusicLoading = false; });
-        });
-        audio.load();
-        // Metadata 10sn'de gelmezse yine de çal (düşük ihtimal)
-        setTimeout(() => {
-          if (!window._splashMusicStarted) {
-            audio.play().then(() => { window._splashMusicStarted = true; }).catch(() => {});
-            window._splashMusicLoading = false;
-          }
-        }, 10000);
-      } else {
+      // İlk şarkı: metadata yüklenip ortasına seek edilir, sonra çalar
+      window._splashMusicLoading = true;
+      audio.addEventListener('loadedmetadata', function seekMid() {
+        audio.currentTime = audio.duration * 0.5;
+        audio.removeEventListener('loadedmetadata', seekMid);
         audio.play().then(() => {
           window._splashMusicStarted = true;
-        }).catch(() => {});
-      }
+          window._splashMusicLoading = false;
+        }).catch(() => { window._splashMusicLoading = false; });
+      });
+      audio.load();
+      setTimeout(() => {
+        if (!window._splashMusicStarted) {
+          audio.play().then(() => { window._splashMusicStarted = true; }).catch(() => {});
+          window._splashMusicLoading = false;
+        }
+      }, 10000);
     }
   },
 
