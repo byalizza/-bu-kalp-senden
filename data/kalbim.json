@@ -1,23 +1,751 @@
-[
-  {
-    "title": "İlk tanışmamız",
-    "date": "Nisan 2025",
-    "story": "Her şeyin başladığı an. Gözlerinin içi gülüyordu.",
-    "image": "https://picsum.photos/seed/kalbim1/400/600",
-    "emoji": "💕"
-  },
-  {
-    "title": "En mutlu günümüz",
-    "date": "Mayıs 2025",
-    "story": "Seninle geçen her gün bir hediye.",
-    "image": "https://picsum.photos/seed/kalbim2/400/600",
-    "emoji": "🥰"
-  },
-  {
-    "title": "Birlikte Geçen Zaman",
-    "date": "Haziran 2025",
-    "story": "Her saniyen ayrı bir güzel. Seninle her an bir ömür.",
-    "image": "https://picsum.photos/seed/kalbim3/400/600",
-    "emoji": "🌸"
-  }
+﻿[
+    {
+        "date":  ". ",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-Owm9_IIMO3Vdow_Kwvu",
+        "story":  ". "
+    },
+    {
+        "date":  "🫀",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmQwLigrfrhdP7ivFr",
+        "story":  ""
+    },
+    {
+        "date":  "🫀",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmR71ytu6jg4bYz4Pr",
+        "story":  ""
+    },
+    {
+        "date":  "🫀",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmRGjbONHQTu9IuGLE",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmS2AcRPO7lpc-66VS",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmS9Efi81SkVqKa6Gt",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmSGyeEfvlmxrrpWBe",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmSQga7WQakLFWo3Nm",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmSZgF-BNUBwQl8X0v",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmSmI8fOEcl8xRV0Fx",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmSvec-uz86kfyOD3S",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmT5aNAmCQ77GWG68Z",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmTEX9ipHOkr-KnQa2",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmTOZka9ZSBU7KIPMI",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmTXbg1S7BH6NS6Buf",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmTdOmQMic-XNRXZd7",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmTmaRkwVG9Alxe04A",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmTtxnF4rOuMqHv-G9",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmU-nV37dp13pXuTxU",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmU8QsrD3BIfn2113F",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmUF38m5XFThbakEh9",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmUMCPV5NtN1Me6xs9",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmUYk9EnN1V0Yo2TzM",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmUf5oksxQ2nqvCRZM",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmUtzzetA0j3sHpabt",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmV-nyuUHW9i7DrBNG",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmVrBAoWDRzmPlUi0F",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmW5u2JBOLSqkECPLw",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin hayatim",
+        "emoji":  "💖",
+        "_key":  "-OwmWCf4JpDmbf1d-mI4",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmWXdV5JRMox58ADCV",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmWgPR5_RmUTi6stnU",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmWoCGWDl2zuSGyMBm",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmWvhISWsJJuqYY1lx",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmX67P5MPfgCv7-jwZ",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmXEeJyoQRh2qgKuCk",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmXLgw-ezxygqM523H",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım ",
+        "emoji":  "💖",
+        "_key":  "-OwmXRUfKaEeW-Ht8cbw",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmXYSRr6_1aYqhhOEm",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmXczkh16nVzqwXG75",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmXodzP0nYtIs4NJ_y",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmXvBiHCoZHgDljabz",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmY0moILoVZaLnYQCK",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmY772ftXhkz1y0-7j",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmYJdNbooHPthT5iuH",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmYQKofN63W_mPJCJX",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmYcwmt9QM_WKCYddH",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım ",
+        "emoji":  "💖",
+        "_key":  "-Owmf6bEHnez3dY2v89J",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatim",
+        "emoji":  "💖",
+        "_key":  "-OwmfJFcyGB-cfcLpI5u",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmfWQYOqENE-j8g1HJ",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-Owmfcpbiv9h_H9II7jg",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmfmQSx8QQ6CBCUEBv",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmfzTfZORGgSH7FIw4",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwmgSGmomJu2UOsLbsK",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-Owmgd3qJ0fxnNTP4z2f",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-Ownfyi9gP1Rc04vTW-k",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-Owng4OHFEARXpuA7TPj",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwngD5sn_NWuuk9e7BF",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwngJvGovQ_2_GM2ksE",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwngTnE_PmMjbeX-ks0",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwngcrfTtbyQnCX09Ti",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwngrmKHsRA5A4UykJV",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwnhANXzNkTcuh7ajCW",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwnhKtOAEKPvpg4FfUl",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-Owni5LRygcUqN0uzeU0",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwniDp9dVeckDUWoITK",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-Owo49igwZEjkalRc7Bv",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-Owo4KmS5NXaX-aEZGQq",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-Owo4QXQxjVA-0r3Yi0E",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-Owo4gWNhZRZHY0Imqb2",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-Owo4tq64gQV8ZAkd3ol",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-Owo53IB2FA8N7F3lHzx",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-Owo5G9rHIkrBwsbnqMr",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-Owo5MX94SMs8yzxwiDs",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-Owo5_auELHTv1NMyaTu",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-Owo5pHv-7r6i9KrvHM8",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-Owo5xdYcVR4KLCISAVw",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-Owo64UFQaxhV_eVbXT6",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-Owo6BrFjjQj5ewBCQwe",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-Owo6ezM5E58OSyeijB9",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-Owo6s6kX3gznw6QUFJK",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-Owo7-qxL4dbT1O5cTgC",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-Owo75CCbH7I1UvvCr_V",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-Owo7aVRAfw6Yz8u7FpF",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-Owo7jPSwU_cnvCdsDnt",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-Owo7tkQledC-i1Lh1LB",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-Owo8DZQVHQFzK3d7RWL",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-Owo8TqEGk6bjeQscjqC",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-Owo8iXwifyRY9-w-vE0",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-Owo8osQTrjLF-2ggdSh",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-Owo8uHlkSxh44dIGDZl",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-Owo90Qmf-BVjr7qwESY",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-Owo9HJvuyzcs7o5y19I",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-Owo9q66GR_ywVPtRBph",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-Owo9y547GxSbhMIlKkQ",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwoA7KuqJp1DW_wHEY3",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwoAGp2DsAXJm1gSfi8",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwoAQ9NymlTXnmx3QSu",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwoAXA0fKjJrBkzbY5V",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwoB4ujRFENsJ4aTzH6",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwoBAoD3iaKaOy02MWB",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwoBPEY36Jw1Jo2G5Xp",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwoBXc9zjJs-gk4le5K",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwoCWhWbdGBbWAw5Wyz",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwoCp94VU8iTogs5JXa",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwoD1AhFcQ5-xhkokY_",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwoDLxvbtMa4Xn490AE",
+        "story":  ""
+    },
+    {
+        "date":  "",
+        "title":  "Hoşgeldin Hayatım",
+        "emoji":  "💖",
+        "_key":  "-OwoDxFSx4cFjYUulIzK",
+        "story":  ""
+    }
 ]

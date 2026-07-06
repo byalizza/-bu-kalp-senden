@@ -43,30 +43,33 @@ const AnilarWidget = {
   },
 
   setupFirebase() {
-    // Önce lokal JSON'dan yükle (anında)
+    // Lokal JSON'dan metadata yükle (anında)
     fetch(APP_CONFIG.localDataPaths.memories)
       .then(r => r.json())
-      .then(data => {
-        this.memories = data.map((m, i) => ({ ...m, _key: 'local_' + i }));
+      .then(localData => {
+        this.memories = localData.map((m, i) => ({ ...m, _key: m._key || 'local_' + i }));
         this.saveLocal();
         this.renderGrid();
       })
-      .catch(() => {
-        // Lokal yoksa Firebase'den yükle
-        const db = getDatabase();
-        if (!db) return;
-        const path = APP_CONFIG.firebasePaths.memories;
-        if (!path) return;
-        this.dbRef = db.ref(path);
-        this.dbRef.on('value', (snap) => {
-          const data = snap.val();
-          this.memories = [];
-          if (data) Object.keys(data).forEach(k => { const m = data[k]; if (m) { m._key = k; this.memories.push(m); } });
-          this.saveLocal();
-          this.renderGrid();
-          if (this._pendingClose) { this._pendingClose = false; this.closeEditModal(); }
-        }, () => {});
-      });
+      .catch(() => {});
+
+    // Firebase'den resimli tam veriyi çek (arka planda)
+    const db = getDatabase();
+    if (!db) return;
+    const path = APP_CONFIG.firebasePaths.memories;
+    if (!path) return;
+    const restUrl = `https://a-79192-default-rtdb.firebaseio.com/${path}.json`;
+    fetch(restUrl)
+      .then(r => r.json())
+      .then(data => {
+        if (!data) return;
+        this.memories = [];
+        Object.keys(data).forEach(k => { const m = data[k]; if (m) { m._key = k; this.memories.push(m); } });
+        this.saveLocal();
+        this.renderGrid();
+        if (this._pendingClose) { this._pendingClose = false; this.closeEditModal(); }
+      })
+      .catch(() => {});
   },
 
   loadLocal() {
