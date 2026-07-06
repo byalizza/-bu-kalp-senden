@@ -1,19 +1,19 @@
-const MessageWidget = {
+﻿var MessageWidget = {
   dbRef: null,
   messages: [],
   initialized: false,
   _pendingImages: {},
   petMessages: [
-    'Çok güzel kokuyorsun 💕',
-    'Çok güzel gözüküyorsun ✨',
-    'Saçların çok güzel 🌸',
-    'Güneş seni kıskanıyor ☀️',
-    'Hayatımı aydınlatıyorsun 💫',
-    'Işıltınla dünyam güzelleşiyor 🌟',
-    'Bu kalp senden vazgeçmez fıstıkk 💖',
-    'Kalbimm 🫀',
-    'Prenses her zaman prensestir 👑',
-    'Prensesimm 🌷'
+    'Ã‡ok gÃ¼zel kokuyorsun ğŸ’•',
+    'Ã‡ok gÃ¼zel gÃ¶zÃ¼kÃ¼yorsun âœ¨',
+    'SaÃ§larÄ±n Ã§ok gÃ¼zel ğŸŒ¸',
+    'GÃ¼neÅŸ seni kÄ±skanÄ±yor â˜€ï¸',
+    'HayatÄ±mÄ± aydÄ±nlatÄ±yorsun ğŸ’«',
+    'IÅŸÄ±ltÄ±nla dÃ¼nyam gÃ¼zelleÅŸiyor ğŸŒŸ',
+    'Bu kalp senden vazgeÃ§mez fÄ±stÄ±kk ğŸ’–',
+    'Kalbimm ğŸ«€',
+    'Prenses her zaman prensestir ğŸ‘‘',
+    'Prensesimm ğŸŒ·'
   ],
 
   init() {
@@ -59,16 +59,16 @@ const MessageWidget = {
     const startPet = () => {
       isPetting = true;
       petCount++;
-      this.petEmoji.textContent = '😊';
+      this.petEmoji.textContent = 'ğŸ˜Š';
       setTimeout(() => {
-        if (!isPetting) this.petEmoji.textContent = '🐱';
+        if (!isPetting) this.petEmoji.textContent = 'ğŸ±';
       }, 600);
     };
 
     const endPet = () => {
       if (!isPetting) return;
       isPetting = false;
-      this.petEmoji.textContent = '🐱';
+      this.petEmoji.textContent = 'ğŸ±';
       if (petCount > 3) {
         const msg = this.petMessages[Math.floor(Math.random() * this.petMessages.length)];
         this.petText.textContent = msg;
@@ -206,7 +206,7 @@ const MessageWidget = {
             }
             if (this._msgNotifReady && msg.from !== window.currentUser) {
               const sender = msg.from === 'efe' ? 'Efe' : 'Ela';
-              showNotification('💬', sender + ' sana mesaj gönderdi', msg.text || 'Fotoğraf');
+              showNotification('ğŸ’¬', sender + ' sana mesaj gÃ¶nderdi', msg.text || 'FotoÄŸraf');
             }
           }
       } catch (e) { /* ignore */ }
@@ -304,14 +304,14 @@ const MessageWidget = {
         const id = div.dataset.msgId;
         const key = div.dataset.msgKey;
         const m = this.messages.find(x => x.id === id);
-        const title = m?.text ? m.text.substring(0, 30) : (m?.image ? '📷 Fotoğraf' : 'Mesaj');
+        const title = m?.text ? m.text.substring(0, 30) : (m?.image ? 'ğŸ“· FotoÄŸraf' : 'Mesaj');
         const items = [
-          { icon: '✏️', label: 'Düzenle', onClick: () => this.editMessage(id) }
+          { icon: 'âœï¸', label: 'DÃ¼zenle', onClick: () => this.editMessage(id) }
         ];
         if (key) {
-          items.push({ icon: '🗑️', label: 'Sil', danger: true, onClick: () => this.deleteMessage(id) });
+          items.push({ icon: 'ğŸ—‘ï¸', label: 'Sil', danger: true, onClick: () => this.deleteMessage(id) });
         } else {
-          items.push({ icon: '🗑️', label: 'Sil', danger: true, onClick: () => this.deleteMessage(id) });
+          items.push({ icon: 'ğŸ—‘ï¸', label: 'Sil', danger: true, onClick: () => this.deleteMessage(id) });
         }
         showContextMenu(title, items);
       }, 500);
@@ -346,7 +346,7 @@ const MessageWidget = {
   editMessage(msgId) {
     const msg = this.messages.find(m => m.id === msgId);
     if (!msg) return;
-    const newText = prompt('Mesajı düzenle:', msg.text || '');
+    const newText = prompt('MesajÄ± dÃ¼zenle:', msg.text || '');
     if (newText === null) return;
     msg.text = newText.trim();
     const db = getDatabase();
@@ -362,7 +362,7 @@ const MessageWidget = {
   viewImage(img) {
     const overlay = document.createElement('div');
     overlay.className = 'msg-image-overlay';
-    overlay.innerHTML = `<div class="msg-image-viewer"><img src="${img.src}"><button class="msg-image-close" onclick="this.parentElement.parentElement.remove()">✕</button></div>`;
+    overlay.innerHTML = `<div class="msg-image-viewer"><img src="${img.src}"><button class="msg-image-close" onclick="this.parentElement.parentElement.remove()">âœ•</button></div>`;
     overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
     document.body.appendChild(overlay);
   },
@@ -408,3 +408,4 @@ const MessageWidget = {
     return div.innerHTML;
   }
 };
+

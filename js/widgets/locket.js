@@ -1,4 +1,4 @@
-const LocketWidget = {
+var LocketWidget = {
   stream: null,
   facingMode: 'environment',
   isCapturing: false,

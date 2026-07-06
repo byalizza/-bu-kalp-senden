@@ -1,4 +1,4 @@
-const MemoriesWidget = {
+﻿var MemoriesWidget = {
   memories: [],
   dbRef: null,
   editIndex: -1,
@@ -36,9 +36,9 @@ const MemoriesWidget = {
         const idx = this.slideIndex;
         const mem = this.memories[idx];
         if (!mem) return;
-        showContextMenu('Anı: ' + (mem.title || ''), [
-          { icon: '✏️', label: 'Düzenle', onClick: () => this.openEditModal(idx) },
-          { icon: '🗑️', label: 'Sil', danger: true, onClick: () => this.deleteMemory(idx) }
+        showContextMenu('AnÄ±: ' + (mem.title || ''), [
+          { icon: 'âœï¸', label: 'DÃ¼zenle', onClick: () => this.openEditModal(idx) },
+          { icon: 'ğŸ—‘ï¸', label: 'Sil', danger: true, onClick: () => this.deleteMemory(idx) }
         ]);
       }, 500);
     };
@@ -80,7 +80,7 @@ const MemoriesWidget = {
       if (!this._memNotifReady) return;
       const mem = snapshot.val();
       if (mem && mem.title) {
-        showNotification('📖', 'Yeni bir anı eklendi', mem.title + ' - ' + (mem.date || ''));
+        showNotification('ğŸ“–', 'Yeni bir anÄ± eklendi', mem.title + ' - ' + (mem.date || ''));
       }
     });
   },
@@ -91,9 +91,9 @@ const MemoriesWidget = {
       this.memories = JSON.parse(localStorage.getItem('memories_data') || '[]');
       if (this.memories.length === 0) {
         this.memories = [
-          { title: 'İlk Günümüz', date: '19 Mart 2025', story: 'Her şeyin başladığı gün... Gözlerinin içinde kaybolduğum an.', image: 'https://picsum.photos/seed/mem1/400/600', emoji: '💫' },
-          { title: 'Birlikte Geçen Zaman', date: 'Nisan 2025', story: 'Her saniyen ayrı bir güzel. Seninle her an bir ömür.', image: 'https://picsum.photos/seed/mem2/400/600', emoji: '🌸' },
-          { title: 'Sonsuz Sevgi', date: 'Her Zaman', story: 'Bu kalp senden vazgeçmeyecek. Sonsuza kadar seninle.', image: 'https://picsum.photos/seed/mem3/400/600', emoji: '💖' }
+          { title: 'Ä°lk GÃ¼nÃ¼mÃ¼z', date: '19 Mart 2025', story: 'Her ÅŸeyin baÅŸladÄ±ÄŸÄ± gÃ¼n... GÃ¶zlerinin iÃ§inde kaybolduÄŸum an.', image: 'https://picsum.photos/seed/mem1/400/600', emoji: 'ğŸ’«' },
+          { title: 'Birlikte GeÃ§en Zaman', date: 'Nisan 2025', story: 'Her saniyen ayrÄ± bir gÃ¼zel. Seninle her an bir Ã¶mÃ¼r.', image: 'https://picsum.photos/seed/mem2/400/600', emoji: 'ğŸŒ¸' },
+          { title: 'Sonsuz Sevgi', date: 'Her Zaman', story: 'Bu kalp senden vazgeÃ§meyecek. Sonsuza kadar seninle.', image: 'https://picsum.photos/seed/mem3/400/600', emoji: 'ğŸ’–' }
         ];
       }
       this.startSlideshow();
@@ -156,7 +156,7 @@ const MemoriesWidget = {
     const isEdit = index >= 0 && index < this.memories.length;
     const mem = isEdit ? this.memories[index] : {};
 
-    document.getElementById('memoryEditTitle').textContent = isEdit ? 'Anı Düzenle' : 'Yeni Anı Ekle';
+    document.getElementById('memoryEditTitle').textContent = isEdit ? 'AnÄ± DÃ¼zenle' : 'Yeni AnÄ± Ekle';
     document.getElementById('memEditTitle').value = mem.title || '';
     document.getElementById('memEditDate').value = mem.date || '';
     document.getElementById('memEditEmoji').value = mem.emoji || '';
@@ -185,11 +185,11 @@ const MemoriesWidget = {
   saveEdit() {
     const title = document.getElementById('memEditTitle').value.trim();
     const date = document.getElementById('memEditDate').value.trim();
-    const emoji = document.getElementById('memEditEmoji').value.trim() || '📸';
+    const emoji = document.getElementById('memEditEmoji').value.trim() || 'ğŸ“¸';
     const story = document.getElementById('memEditStory').value.trim();
     const photoFile = document.getElementById('memEditPhoto').files[0];
 
-    if (!title) { document.getElementById('memEditError').textContent = 'Başlık gerekli'; return; }
+    if (!title) { document.getElementById('memEditError').textContent = 'BaÅŸlÄ±k gerekli'; return; }
     if (!story) { document.getElementById('memEditError').textContent = 'Hikaye gerekli'; return; }
 
     const memory = { title, date, emoji, story, image: '' };
@@ -277,3 +277,4 @@ const MemoriesWidget = {
     reader.readAsDataURL(file);
   }
 };
+

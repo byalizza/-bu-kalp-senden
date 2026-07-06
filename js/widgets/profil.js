@@ -1,4 +1,4 @@
-const ProfilWidget = {
+var ProfilWidget = {
   needs: { hunger: 100, happiness: 100, energy: 100 },
   messages: [
     'Çok güzel kokuyorsun 💕',

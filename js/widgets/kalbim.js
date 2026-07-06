@@ -1,4 +1,4 @@
-const KalbimWidget = {
+var KalbimWidget = {
   memories: [],
   slideIdx: 0,
   slideTimer: null,
@@ -34,6 +34,7 @@ const KalbimWidget = {
     this.startCounter();
     this.setupMusic();
     this.setupEdit();
+    this.setupFirebase();
   },
 
   setupEdit() {
@@ -159,8 +160,8 @@ const KalbimWidget = {
 
   /* --- CAROUSEL --- */
   setupFirebase() {
-    fetch(APP_CONFIG.localDataPaths.kalbim + '?v=' + Date.now())
-      .then(r => r.json())
+    fetch(APP_CONFIG.localDataPaths.kalbim)
+      .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(data => {
         const fromJson = data.map((m, i) => ({ ...m, _key: m._firebaseKey || 'local_' + i }));
         const localOnly = this.memories.filter(m => !m._firebaseKey);
@@ -168,7 +169,10 @@ const KalbimWidget = {
         this.saveLocal();
         this.startCarousel();
       })
-      .catch(e => console.warn('Kalbim yukleme hatasi:', e));
+      .catch(e => {
+        console.warn('Kalbim yukleme hatasi:', e);
+        document.getElementById('carouselTitle').textContent = 'Yüklenemedi: ' + e.message;
+      });
   },
 
   loadLocal() {

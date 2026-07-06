@@ -1,4 +1,4 @@
-const AnilarWidget = {
+var AnilarWidget = {
   memories: [],
   dbRef: null,
   editIdx: -1,
@@ -21,6 +21,7 @@ const AnilarWidget = {
     this.setupEditModal();
 
     this.loadLocal();
+    this.setupFirebase();
   },
 
   setupEditModal() {
@@ -42,8 +43,8 @@ const AnilarWidget = {
   },
 
   setupFirebase() {
-    fetch(APP_CONFIG.localDataPaths.memories + '?v=' + Date.now())
-      .then(r => r.json())
+    fetch(APP_CONFIG.localDataPaths.memories)
+      .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(data => {
         const fromJson = data.map((m, i) => ({ ...m, _key: m._firebaseKey || 'local_' + i }));
         const localOnly = this.memories.filter(m => !m._firebaseKey);
@@ -51,7 +52,7 @@ const AnilarWidget = {
         this.saveLocal();
         this.renderGrid();
       })
-      .catch(() => {});
+      .catch(e => console.warn('Anilar yukleme hatasi:', e));
   },
 
   loadLocal() {

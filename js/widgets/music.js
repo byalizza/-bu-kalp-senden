@@ -1,4 +1,4 @@
-const MusicWidget = {
+﻿var MusicWidget = {
   currentIndex: 0,
   isPlaying: false,
   audio: null,
@@ -56,7 +56,7 @@ const MusicWidget = {
     this.audio.addEventListener('loadedmetadata', () => this.updateTotalTime());
     this.audio.addEventListener('ended', () => this.next());
     this.audio.addEventListener('error', () => {
-      if (this.nowPlayingBadge) this.nowPlayingBadge.textContent = 'Yükleme hatası';
+      if (this.nowPlayingBadge) this.nowPlayingBadge.textContent = 'YÃ¼kleme hatasÄ±';
     });
   },
 
@@ -107,7 +107,7 @@ const MusicWidget = {
       if (this.nowPlayingBadge) this.nowPlayingBadge.textContent = (song.title || '').substring(0, 15);
     } else {
       this.audio.src = '';
-      if (this.nowPlayingBadge) this.nowPlayingBadge.textContent = 'Dosya bulunamadı';
+      if (this.nowPlayingBadge) this.nowPlayingBadge.textContent = 'Dosya bulunamadÄ±';
     }
 
     document.querySelectorAll('.playlist-item').forEach((el, i) => {
@@ -179,7 +179,7 @@ const MusicWidget = {
   toggleLyrics(index) {
     if (!this.lyricsPanel || !this.lyricsContent) return;
     const song = this.playlist[index];
-    if (!song || !song.lyrics) { this.lyricsContent.textContent = 'Söz bulunamadı'; this.lyricsPanel.style.display = 'block'; return; }
+    if (!song || !song.lyrics) { this.lyricsContent.textContent = 'SÃ¶z bulunamadÄ±'; this.lyricsPanel.style.display = 'block'; return; }
     if (this.lyricsVisible && this.lyricsPanel.dataset.song === (song._key || song.id)) { this.hideLyrics(); return; }
     this.lyricsContent.textContent = song.lyrics;
     this.lyricsPanel.dataset.song = song._key || song.id || index;
@@ -203,3 +203,4 @@ const MusicWidget = {
 
   esc(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
 };
+
