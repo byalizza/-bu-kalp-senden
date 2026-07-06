@@ -47,7 +47,15 @@ const APP_CONFIG = {
   // Şarkı listesi (assets/sounds/ klasöründen çalar)
   // Kullanım: MP3'ü assets/sounds/ klasörüne yükle, buraya adını ekle
   playlist: [
-    { title: 'Liselim', artist: 'Cengiz Kurtoğlu', fileName: 'Cengiz Kurtoğlu - Liselim.mp3', lyrics: '' }
+    { title: 'Sensiz Yapamıyorum', artist: 'Uygar Doğanay', fileName: 'Uygar Doğanay - Sensiz Yapamıyorum Klip 2022.mp3' },
+    { title: 'İlle de Sen', artist: 'Azer Bülbül', fileName: 'Azer Bülbül - İlle de Sen.mp3' },
+    { title: 'Gel', artist: 'Uygar Doğanay', fileName: 'UYGAR DOĞANAY GEL 2017 YENİ.mp3' },
+    { title: 'Şiire Gazele', artist: 'Ahmet Kaya', fileName: 'Ahmet Kaya - Şiire Gazele.mp3' },
+    { title: 'Aşk', artist: 'Deniz Seki', fileName: 'Deniz Seki - Aşk.mp3' },
+    { title: 'Böyle Sever', artist: 'Kahraman Deniz', fileName: 'Kahraman Deniz - Böyle Sever (Official Video).mp3' },
+    { title: 'Ömrüm', artist: 'Eypio', fileName: 'Eypio - Ömrüm.mp3' },
+    { title: 'Herşeyim Oldun', artist: 'Güllü', fileName: 'Güllü - Herşeyim Oldun ( 1995 ).mp3' },
+    { title: 'Sevdiğim', artist: 'Son Yaz', fileName: 'Son Yaz - Sevdiğim (Slowed & Reverb).mp3' }
   ],
 
   // Sanal evcil hayvan mesajları
