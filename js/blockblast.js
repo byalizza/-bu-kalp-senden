@@ -44,7 +44,7 @@ const BlockBlast = {
     this.piecesEl = document.getElementById('gamePieces');
     this.scoreEl = document.getElementById('gameScore');
     this.overlayEl = document.getElementById('gameOverlay');
-    this.fabEl = document.getElementById('gameFab');
+    this.fabEl = document.getElementById('profilGameBtn');
     this.closeEl = document.getElementById('gameClose');
     this.resetEl = document.getElementById('gameReset');
 

@@ -3430,31 +3430,37 @@ body {
   100% { transform: scale(1); opacity: 1; }
 }
 
-/* ============= BLOCK BLAST GAME ============= */
-.game-fab {
-  position: fixed;
-  bottom: 80px;
-  right: 16px;
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  border: none;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: #fff;
-  font-size: 24px;
-  cursor: pointer;
-  z-index: 100;
-  box-shadow: 0 4px 20px rgba(102,126,234,0.5);
-  transition: transform 0.2s, box-shadow 0.2s;
+/* Profil bottom row: food bowl + game button */
+.profil-bottom-row {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-.game-fab:active {
-  transform: scale(0.9);
-  box-shadow: 0 2px 10px rgba(102,126,234,0.4);
+  gap: 16px;
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
 }
 
+.profil-game-btn {
+  padding: 10px 18px;
+  border-radius: 14px;
+  border: 1px solid rgba(102,126,234,0.3);
+  background: linear-gradient(135deg, rgba(102,126,234,0.15), rgba(118,75,162,0.15));
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  font-family: var(--font-body);
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+.profil-game-btn:active {
+  transform: scale(0.92);
+  background: linear-gradient(135deg, rgba(102,126,234,0.3), rgba(118,75,162,0.3));
+}
+
+/* ============= BLOCK BLAST GAME ============= */
 .game-overlay {
   position: fixed;
   inset: 0;
