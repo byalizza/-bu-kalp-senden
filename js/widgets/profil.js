@@ -278,6 +278,7 @@ const ProfilWidget = {
     };
 
     const startPet = () => {
+      if (isPetting) return;
       isPetting = true;
       petCount++;
       if (reactionTimeout) clearTimeout(reactionTimeout);
