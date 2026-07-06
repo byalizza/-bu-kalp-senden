@@ -159,7 +159,7 @@ const KalbimWidget = {
 
   /* --- CAROUSEL --- */
   setupFirebase() {
-    fetch(APP_CONFIG.localDataPaths.kalbim)
+    fetch(APP_CONFIG.localDataPaths.kalbim + '?v=' + Date.now())
       .then(r => r.json())
       .then(data => {
         this.memories = data.map((m, i) => ({ ...m, _key: 'local_' + i }));

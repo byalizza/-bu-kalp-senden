@@ -42,7 +42,7 @@ const AnilarWidget = {
   },
 
   setupFirebase() {
-    fetch(APP_CONFIG.localDataPaths.memories)
+    fetch(APP_CONFIG.localDataPaths.memories + '?v=' + Date.now())
       .then(r => r.json())
       .then(data => {
         this.memories = data.map((m, i) => ({ ...m, _key: 'local_' + i }));
