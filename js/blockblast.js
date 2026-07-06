@@ -79,11 +79,13 @@ const BlockBlast = {
   open() {
     this.isOpen = true;
     this.overlayEl.classList.add('open');
+    this.fabEl.classList.add('active');
   },
 
   close() {
     this.isOpen = false;
     this.overlayEl.classList.remove('open');
+    this.fabEl.classList.remove('active');
     this.clearGhost();
   },
 
