@@ -32,9 +32,6 @@ const APP_CONFIG = {
   // Bildirim aralığı (milisaniye cinsinden) - varsayılan: 1 saat
   notificationInterval: 60 * 60 * 1000,
 
-  // Firebase REST API base URL (resimler için)
-  firebaseRestBase: 'https://a-79192-default-rtdb.firebaseio.com/',
-
   // Firebase yolu
   firebasePaths: {
     photos: 'locket/photos',
