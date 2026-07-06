@@ -12,12 +12,6 @@ const ProfilWidget = {
     'Prenses her zaman prensestir 👑',
     'Prensesimm 🌷'
   ],
-  petStates: {
-    normal: { emoji: '🐱', bg: 'rgba(255,165,0,0.12)' },
-    happy: { emoji: '😊', bg: 'rgba(255,165,0,0.2)' },
-    hungry: { emoji: '🍽️', bg: 'rgba(255,165,2,0.12)' },
-    sleepy: { emoji: '😴', bg: 'rgba(100,100,255,0.12)' }
-  },
   currentState: 'normal',
 
   init() {
@@ -30,6 +24,10 @@ const ProfilWidget = {
     this.energyBar = document.getElementById('profilEnergy');
     this.feedBtn = document.getElementById('profilFeedBtn');
     this.playBtn = document.getElementById('profilPlayBtn');
+
+    this.closedEyes = this.petEmoji.querySelector('.cat-closed-eyes');
+    this.openEyes = this.petEmoji.querySelector('.cat-eyes');
+    this.hearts = this.petEmoji.querySelector('.cat-hearts');
 
     this.loadNeeds();
     this.render();
@@ -50,16 +48,16 @@ const ProfilWidget = {
     const startPet = () => {
       isPetting = true;
       petCount++;
-      this.petEmoji.textContent = '😊';
+      this.setCatEars('happy');
       setTimeout(() => {
-        if (!isPetting) this.petEmoji.textContent = '🐱';
+        if (!isPetting) this.setCatEars('normal');
       }, 600);
     };
 
     const endPet = () => {
       if (!isPetting) return;
       isPetting = false;
-      this.petEmoji.textContent = '🐱';
+      this.setCatEars('normal');
       if (petCount > 3) {
         const msg = this.messages[Math.floor(Math.random() * this.messages.length)];
         this.showBubblePop(msg);
@@ -78,6 +76,28 @@ const ProfilWidget = {
     this.petEl.addEventListener('touchcancel', endPet);
   },
 
+  setCatEars(state) {
+    if (state === 'happy') {
+      if (this.openEyes) this.openEyes.style.display = 'none';
+      if (this.closedEyes) this.closedEyes.style.display = 'block';
+      if (this.hearts) {
+        this.hearts.style.display = 'block';
+        const texts = this.hearts.querySelectorAll('text');
+        texts.forEach(t => {
+          t.style.animation = 'none';
+          void t.offsetWidth;
+          t.style.animation = 'heartsFloat 1.5s ease-out forwards';
+        });
+      }
+    } else {
+      if (this.openEyes) this.openEyes.style.display = 'block';
+      if (this.closedEyes) this.closedEyes.style.display = 'none';
+      if (this.hearts) {
+        setTimeout(() => { this.hearts.style.display = 'none'; }, 1500);
+      }
+    }
+  },
+
   loadNeeds() {
     try {
       const s = JSON.parse(localStorage.getItem('pet_needs') || 'null');
@@ -90,9 +110,13 @@ const ProfilWidget = {
   },
 
   render() {
-    const state = this.petStates[this.currentState] || this.petStates.normal;
-    this.petEmoji.textContent = state.emoji;
-    this.petBubble.style.background = state.bg;
+    const bgColors = {
+      normal: 'linear-gradient(145deg, rgba(255,215,160,0.18), rgba(255,165,0,0.1))',
+      happy: 'linear-gradient(145deg, rgba(255,215,160,0.25), rgba(255,165,0,0.18))',
+      hungry: 'linear-gradient(145deg, rgba(255,200,100,0.15), rgba(255,165,2,0.12))',
+      sleepy: 'linear-gradient(145deg, rgba(150,150,255,0.12), rgba(100,100,255,0.08))'
+    };
+    this.petBubble.style.background = bgColors[this.currentState] || bgColors.normal;
 
     this.hungerBar.style.width = this.needs.hunger + '%';
     this.happinessBar.style.width = this.needs.happiness + '%';
@@ -120,8 +144,8 @@ const ProfilWidget = {
   petTap() {
     const msg = this.messages[Math.floor(Math.random() * this.messages.length)];
     this.showBubblePop(msg);
-    this.petEmoji.style.transform = 'scale(1.4)';
-    setTimeout(() => { this.petEmoji.style.transform = 'scale(1)'; }, 300);
+    this.setCatEars('happy');
+    setTimeout(() => { this.setCatEars('normal'); }, 1200);
     this.needs.happiness = Math.min(100, this.needs.happiness + 5);
     this.updateState();
     this.saveNeeds();
@@ -141,8 +165,8 @@ const ProfilWidget = {
     this.currentState = 'happy';
     this.saveNeeds();
     this.render();
-    this.petEmoji.style.transform = 'scale(1.3)';
-    setTimeout(() => { this.petEmoji.style.transform = 'scale(1)'; }, 300);
+    this.setCatEars('happy');
+    setTimeout(() => { this.setCatEars('normal'); }, 1200);
   },
 
   playtime() {
@@ -152,6 +176,8 @@ const ProfilWidget = {
     this.currentState = 'happy';
     this.saveNeeds();
     this.render();
+    this.setCatEars('happy');
+    setTimeout(() => { this.setCatEars('normal'); }, 1200);
   },
 
   startAutoMessages() {
