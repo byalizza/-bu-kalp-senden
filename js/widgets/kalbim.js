@@ -261,7 +261,22 @@ var KalbimWidget = {
   setupMusic() {
     this.playlist = APP_CONFIG.playlist ? [...APP_CONFIG.playlist] : [];
     this.renderPlaylist();
-    if (this.playlist.length > 0) this.loadSong(0);
+    if (this.playlist.length > 0) {
+      // Splash'tan MVSN.mp3 geliyorsa state'i senkronize et, yeniden yükleme
+      const srcSet = this.audio && this.audio.src && this.audio.src.indexOf('MVSN.mp3') !== -1;
+      if (window._splashMusicStarted || srcSet) {
+        this.currentSong = 0;
+        this.isPlaying = this.audio && !this.audio.paused;
+        this.songName.textContent = this.playlist[0].title || '';
+        this.artistName.textContent = this.playlist[0].artist || '';
+        if (this.isPlaying) {
+          this.playBtn.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>';
+          this.playBtn.classList.add('pulsing');
+        }
+      } else {
+        this.loadSong(0);
+      }
+    }
     if (this.audio) this.audio.volume = 0.7;
 
     this.playBtn.addEventListener('click', () => this.togglePlay());
@@ -351,6 +366,8 @@ var KalbimWidget = {
 
   autoPlay() {
     if (this.playlist.length === 0) return;
+    // Splash'tan zaten çalıyorsa tekrar başlatma
+    if (this.isPlaying && this.audio && !this.audio.paused) return;
     setTimeout(() => {
       this.loadSong(0);
       setTimeout(() => this.togglePlay(), 500);

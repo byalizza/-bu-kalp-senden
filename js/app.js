@@ -8,6 +8,9 @@ const App = {
   async init() {
     initFirebase();
 
+    // Splash'ta MVSN.mp3 çalmaya başla
+    this.startSplashMusic();
+
     // Splash'a tıklayınca tam ekran + login'e geç
     const splash = document.getElementById('splashScreen');
     const splashInner = document.getElementById('splashInner');
@@ -15,6 +18,7 @@ const App = {
       splashInner.style.cursor = 'pointer';
       const onSplashTap = () => {
         document.documentElement.requestFullscreen().catch(() => {});
+        this.startSplashMusic();
         splashInner.removeEventListener('click', onSplashTap);
         splashInner.removeEventListener('touchstart', onSplashTap);
       };
@@ -32,6 +36,19 @@ const App = {
       this.setupNavigation();
       this.setupBackButton();
     }, 2800);
+  },
+
+  startSplashMusic() {
+    if (window._splashMusicStarted) return;
+    const audio = document.getElementById('bgMusic');
+    const first = APP_CONFIG.playlist && APP_CONFIG.playlist[0];
+    if (audio && first) {
+      audio.src = 'assets/sounds/' + first.fileName.replace(/^\//, '');
+      audio.volume = 0.7;
+      audio.play().then(() => {
+        window._splashMusicStarted = true;
+      }).catch(() => {});
+    }
   },
 
   initializeWidgets() {
