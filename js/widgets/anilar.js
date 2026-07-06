@@ -2,7 +2,6 @@ const AnilarWidget = {
   memories: [],
   dbRef: null,
   editIdx: -1,
-  _pendingClose: false,
 
   init() {
     this.gridEl = document.getElementById('anilarGrid');
@@ -43,31 +42,12 @@ const AnilarWidget = {
   },
 
   setupFirebase() {
-    // Lokal JSON'dan metadata yükle (anında)
     fetch(APP_CONFIG.localDataPaths.memories)
       .then(r => r.json())
-      .then(localData => {
-        this.memories = localData.map((m, i) => ({ ...m, _key: m._key || 'local_' + i }));
-        this.saveLocal();
-        this.renderGrid();
-      })
-      .catch(() => {});
-
-    // Firebase'den resimli tam veriyi çek (arka planda)
-    const db = getDatabase();
-    if (!db) return;
-    const path = APP_CONFIG.firebasePaths.memories;
-    if (!path) return;
-    const restUrl = `https://a-79192-default-rtdb.firebaseio.com/${path}.json`;
-    fetch(restUrl)
-      .then(r => r.json())
       .then(data => {
-        if (!data) return;
-        this.memories = [];
-        Object.keys(data).forEach(k => { const m = data[k]; if (m) { m._key = k; this.memories.push(m); } });
+        this.memories = data.map((m, i) => ({ ...m, _key: 'local_' + i }));
         this.saveLocal();
         this.renderGrid();
-        if (this._pendingClose) { this._pendingClose = false; this.closeEditModal(); }
       })
       .catch(() => {});
   },
@@ -161,7 +141,6 @@ const AnilarWidget = {
   saveEdit() {
     if (this._saving) return;
     this._saving = true;
-    this._pendingClose = false;
     const title = document.getElementById('memEditTitle').value.trim();
     const date = document.getElementById('memEditDate').value.trim();
     const emoji = document.getElementById('memEditEmoji').value.trim() || '📸';
@@ -175,33 +154,14 @@ const AnilarWidget = {
 
     const saveToDb = (imgUrl) => {
       if (imgUrl) memory.image = imgUrl;
-      const db = getDatabase();
       if (this.editIdx >= 0 && this.editIdx < this.memories.length) {
-        const existing = this.memories[this.editIdx];
-        if (existing._key && !existing._key.startsWith('local_') && db) {
-          this._pendingClose = true;
-          db.ref(`${APP_CONFIG.firebasePaths.memories}/${existing._key}`).update(memory).catch(() => {});
-        } else {
-          this.memories[this.editIdx] = { ...memory, _key: 'local_' + Date.now() };
-          this.saveLocal();
-          this.renderGrid();
-          this.closeEditModal();
-        }
+        this.memories[this.editIdx] = { ...memory, _key: 'local_' + Date.now() };
       } else {
-        if (db && APP_CONFIG.firebasePaths.memories) {
-          this._pendingClose = true;
-          const ref = db.ref(APP_CONFIG.firebasePaths.memories).push(memory);
-          this.memories.push({ ...memory, _key: ref.key || 'local_' + Date.now() });
-          this.saveLocal();
-          this.renderGrid();
-          setTimeout(() => this.closeEditModal(), 300);
-        } else {
-          this.memories.push({ ...memory, _key: 'local_' + Date.now() });
-          this.saveLocal();
-          this.renderGrid();
-          this.closeEditModal();
-        }
+        this.memories.push({ ...memory, _key: 'local_' + Date.now() });
       }
+      this.saveLocal();
+      this.renderGrid();
+      this.closeEditModal();
       this._saving = false;
     };
 
@@ -220,11 +180,6 @@ const AnilarWidget = {
 
   deleteMemory(idx) {
     if (idx < 0 || idx >= this.memories.length) return;
-    const mem = this.memories[idx];
-    const db = getDatabase();
-    if (mem._key && !mem._key.startsWith('local_') && db) {
-      db.ref(`${APP_CONFIG.firebasePaths.memories}/${mem._key}`).remove().catch(() => {});
-    }
     this.memories.splice(idx, 1);
     this.saveLocal();
     this.renderGrid();

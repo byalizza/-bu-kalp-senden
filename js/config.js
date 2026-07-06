@@ -35,9 +35,7 @@ const APP_CONFIG = {
   // Firebase yolu
   firebasePaths: {
     photos: 'locket/photos',
-    messages: 'chat/messages',
-    memories: 'data/memories',
-    kalbim: 'data/kalbim'
+    messages: 'chat/messages'
   },
 
   // Lokal veri dosyaları (Firebase'den hızlı, fetch ile yüklenir)

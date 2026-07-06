@@ -159,28 +159,10 @@ const KalbimWidget = {
 
   /* --- CAROUSEL --- */
   setupFirebase() {
-    // Lokal JSON'dan metadata yükle (anında)
     fetch(APP_CONFIG.localDataPaths.kalbim)
       .then(r => r.json())
-      .then(localData => {
-        this.memories = localData.map((m, i) => ({ ...m, _key: m._key || 'local_' + i }));
-        this.saveLocal();
-        this.startCarousel();
-      })
-      .catch(() => { this.memories = []; this.startCarousel(); });
-
-    // Firebase'den resimli tam veriyi de çek (arka planda)
-    const db = getDatabase();
-    if (!db) return;
-    const path = APP_CONFIG.firebasePaths.kalbim;
-    if (!path) return;
-    const restUrl = `https://a-79192-default-rtdb.firebaseio.com/${path}.json`;
-    fetch(restUrl)
-      .then(r => r.json())
       .then(data => {
-        if (!data) return;
-        this.memories = [];
-        Object.keys(data).forEach(k => { const m = data[k]; if (m) { m._key = k; this.memories.push(m); } });
+        this.memories = data.map((m, i) => ({ ...m, _key: 'local_' + i }));
         this.saveLocal();
         this.startCarousel();
       })
