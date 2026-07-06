@@ -1,18 +1,22 @@
-const CACHE_NAME = 'bks-v1';
+const CACHE_NAME = 'bks-v2';
 const ASSETS = [
   '/-bu-kalp-senden/',
   '/-bu-kalp-senden/index.html',
   '/-bu-kalp-senden/manifest.json',
   '/-bu-kalp-senden/css/style.css',
   '/-bu-kalp-senden/js/config.js',
-  '/-bu-kalp-senden/js/firebase-init.js',
   '/-bu-kalp-senden/js/app.js',
+  '/-bu-kalp-senden/js/firebase-init.js',
+  '/-bu-kalp-senden/js/blockblast.js',
   '/-bu-kalp-senden/js/widgets/login.js',
   '/-bu-kalp-senden/js/widgets/counter.js',
+  '/-bu-kalp-senden/js/widgets/kalbim.js',
   '/-bu-kalp-senden/js/widgets/music.js',
   '/-bu-kalp-senden/js/widgets/mascot.js',
+  '/-bu-kalp-senden/js/widgets/locket.js',
+  '/-bu-kalp-senden/js/widgets/anilar.js',
   '/-bu-kalp-senden/js/widgets/memories.js',
-  '/-bu-kalp-senden/js/widgets/locket.js'
+  '/-bu-kalp-senden/js/widgets/profil.js'
 ];
 
 self.addEventListener('install', (e) => {
