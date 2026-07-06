@@ -4,16 +4,16 @@ const MessageWidget = {
   initialized: false,
   _pendingImages: {},
   petMessages: [
-    'Seni çok seviyorum! 💕',
-    'Seni çok özledim! 😊',
-    'Karnım acıktı, beni doyur! 🐾',
-    'Hadi oyun oynayalım! 🎾',
-    'Seninle olmak çok güzel! ✨',
-    'Dünyanın en tatlı insanısın! 🌟',
-    'Sarıl bana lütfen! 🤗',
-    'Bugün harika görünüyorsun! 💫',
-    'Beraber çok mutluyum! 🥰',
-    'Gülüşün dünyayı aydınlatıyor! ☀️'
+    'Çok güzel kokuyorsun 💕',
+    'Çok güzel gözüküyorsun ✨',
+    'Saçların çok güzel 🌸',
+    'Güneş seni kıskanıyor ☀️',
+    'Hayatımı aydınlatıyorsun 💫',
+    'Işıltınla dünyam güzelleşiyor 🌟',
+    'Bu kalp senden vazgeçmez fıstıkk 💖',
+    'Kalbimm 🫀',
+    'Prenses her zaman prensestir 👑',
+    'Prensesimm 🌷'
   ],
 
   init() {
@@ -49,6 +49,43 @@ const MessageWidget = {
     this.msgPhotoBtn.addEventListener('click', () => this.pickPhoto());
 
     this.petEl.addEventListener('click', () => this.petInteraction());
+    this.setupPetting();
+  },
+
+  setupPetting() {
+    let isPetting = false;
+    let petCount = 0;
+
+    const startPet = () => {
+      isPetting = true;
+      petCount++;
+      this.petEmoji.textContent = '😊';
+      setTimeout(() => {
+        if (!isPetting) this.petEmoji.textContent = '🐱';
+      }, 600);
+    };
+
+    const endPet = () => {
+      if (!isPetting) return;
+      isPetting = false;
+      this.petEmoji.textContent = '🐱';
+      if (petCount > 3) {
+        const msg = this.petMessages[Math.floor(Math.random() * this.petMessages.length)];
+        this.petText.textContent = msg;
+        this.petBubble.classList.remove('bubble-pop');
+        void this.petBubble.offsetWidth;
+        this.petBubble.classList.add('bubble-pop');
+      }
+      petCount = 0;
+    };
+
+    this.petEl.addEventListener('mousemove', (e) => {
+      if (e.buttons === 1) startPet();
+    });
+    this.petEl.addEventListener('mouseleave', endPet);
+    this.petEl.addEventListener('touchmove', startPet, { passive: true });
+    this.petEl.addEventListener('touchend', endPet);
+    this.petEl.addEventListener('touchcancel', endPet);
   },
 
   pickPhoto() {
@@ -114,8 +151,11 @@ const MessageWidget = {
 
     const msg = this.petMessages[Math.floor(Math.random() * this.petMessages.length)];
     this.petText.textContent = msg;
-    this.petBubble.style.background = 'rgba(255,71,87,0.15)';
-    setTimeout(() => { this.petBubble.style.background = 'rgba(255,71,87,0.06)'; }, 500);
+    this.petBubble.classList.remove('bubble-pop');
+    void this.petBubble.offsetWidth;
+    this.petBubble.classList.add('bubble-pop');
+    this.petBubble.style.background = 'rgba(255,165,0,0.15)';
+    setTimeout(() => { this.petBubble.style.background = 'rgba(255,165,0,0.06)'; }, 500);
   },
 
   startPetAnimations() {
@@ -123,6 +163,9 @@ const MessageWidget = {
       if (Math.random() > 0.5) return;
       const msg = this.petMessages[Math.floor(Math.random() * this.petMessages.length)];
       this.petText.textContent = msg;
+      this.petBubble.classList.remove('bubble-pop');
+      void this.petBubble.offsetWidth;
+      this.petBubble.classList.add('bubble-pop');
     }, 10000 + Math.random() * 8000);
   },
 

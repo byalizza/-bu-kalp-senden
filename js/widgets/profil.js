@@ -1,14 +1,20 @@
 const ProfilWidget = {
   needs: { hunger: 100, happiness: 100, energy: 100 },
   messages: [
-    'Seni çok seviyorum! 💕', 'Seni çok özledim! 😊', 'Karnım acıktı, beni doyur! 🐾',
-    'Hadi oyun oynayalım! 🎾', 'Seninle olmak çok güzel! ✨', 'Dünyanın en tatlı insanısın! 🌟',
-    'Sarıl bana lütfen! 🤗', 'Bugün harika görünüyorsun! 💫', 'Beraber çok mutluyum! 🥰',
-    'Gülüşün dünyayı aydınlatıyor! ☀️'
+    'Çok güzel kokuyorsun 💕',
+    'Çok güzel gözüküyorsun ✨',
+    'Saçların çok güzel 🌸',
+    'Güneş seni kıskanıyor ☀️',
+    'Hayatımı aydınlatıyorsun 💫',
+    'Işıltınla dünyam güzelleşiyor 🌟',
+    'Bu kalp senden vazgeçmez fıstıkk 💖',
+    'Kalbimm 🫀',
+    'Prenses her zaman prensestir 👑',
+    'Prensesimm 🌷'
   ],
   petStates: {
-    normal: { emoji: '🐣', bg: 'rgba(255,71,87,0.12)' },
-    happy: { emoji: '🥰', bg: 'rgba(255,71,87,0.2)' },
+    normal: { emoji: '🐱', bg: 'rgba(255,165,0,0.12)' },
+    happy: { emoji: '😊', bg: 'rgba(255,165,0,0.2)' },
     hungry: { emoji: '🍽️', bg: 'rgba(255,165,2,0.12)' },
     sleepy: { emoji: '😴', bg: 'rgba(100,100,255,0.12)' }
   },
@@ -33,6 +39,43 @@ const ProfilWidget = {
     this.petEl.addEventListener('click', () => this.petTap());
     this.feedBtn.addEventListener('click', () => this.feed());
     this.playBtn.addEventListener('click', () => this.playtime());
+
+    this.setupPetting();
+  },
+
+  setupPetting() {
+    let isPetting = false;
+    let petCount = 0;
+
+    const startPet = () => {
+      isPetting = true;
+      petCount++;
+      this.petEmoji.textContent = '😊';
+      setTimeout(() => {
+        if (!isPetting) this.petEmoji.textContent = '🐱';
+      }, 600);
+    };
+
+    const endPet = () => {
+      if (!isPetting) return;
+      isPetting = false;
+      this.petEmoji.textContent = '🐱';
+      if (petCount > 3) {
+        const msg = this.messages[Math.floor(Math.random() * this.messages.length)];
+        this.showBubblePop(msg);
+        this.needs.happiness = Math.min(100, this.needs.happiness + 3);
+        this.saveNeeds();
+      }
+      petCount = 0;
+    };
+
+    this.petEl.addEventListener('mousemove', (e) => {
+      if (e.buttons === 1) startPet();
+    });
+    this.petEl.addEventListener('mouseleave', endPet);
+    this.petEl.addEventListener('touchmove', startPet, { passive: true });
+    this.petEl.addEventListener('touchend', endPet);
+    this.petEl.addEventListener('touchcancel', endPet);
   },
 
   loadNeeds() {
@@ -76,13 +119,20 @@ const ProfilWidget = {
 
   petTap() {
     const msg = this.messages[Math.floor(Math.random() * this.messages.length)];
-    this.petText.textContent = msg;
+    this.showBubblePop(msg);
     this.petEmoji.style.transform = 'scale(1.4)';
     setTimeout(() => { this.petEmoji.style.transform = 'scale(1)'; }, 300);
     this.needs.happiness = Math.min(100, this.needs.happiness + 5);
     this.updateState();
     this.saveNeeds();
     this.render();
+  },
+
+  showBubblePop(text) {
+    this.petText.textContent = text;
+    this.petBubble.classList.remove('bubble-pop');
+    void this.petBubble.offsetWidth;
+    this.petBubble.classList.add('bubble-pop');
   },
 
   feed() {
@@ -112,7 +162,7 @@ const ProfilWidget = {
       if (this.needs.energy < 30) msgs.push('Uykum geldi... 😴');
       if (this.needs.happiness < 30) msgs.push('Benimle ilgilenir misin? 🥺');
       if (msgs.length === 0) msgs.push(this.messages[Math.floor(Math.random() * this.messages.length)]);
-      this.petText.textContent = msgs[Math.floor(Math.random() * msgs.length)];
+      this.showBubblePop(msgs[Math.floor(Math.random() * msgs.length)]);
     }, 15000 + Math.random() * 10000);
   }
 };

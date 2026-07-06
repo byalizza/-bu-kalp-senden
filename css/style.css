@@ -3306,3 +3306,39 @@ body {
     margin: 0 auto;
   }
 }
+
+.profil-pet-emoji {
+  filter: drop-shadow(0 8px 32px rgba(255,165,0,0.4));
+}
+
+.msg-pet-emoji {
+  filter: drop-shadow(0 2px 8px rgba(255,165,0,0.35));
+}
+
+.msg-pet {
+  background: rgba(255,165,0,0.04);
+}
+
+.msg-pet:active {
+  background: rgba(255,165,0,0.1);
+}
+
+.msg-pet-bubble {
+  border-color: rgba(255,165,0,0.15);
+  background: rgba(255,165,0,0.06);
+}
+
+.profil-pet-bubble {
+  border-color: rgba(255,165,0,0.1);
+}
+
+.bubble-pop {
+  animation: bubblePop 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes bubblePop {
+  0% { transform: scale(0.3); opacity: 0; }
+  50% { transform: scale(1.15); opacity: 1; }
+  70% { transform: scale(0.95); }
+  100% { transform: scale(1); opacity: 1; }
+}
