@@ -187,12 +187,9 @@ var LocketWidget = {
     this.loadSeen();
     this.buildUnseenQueue();
 
-    // Kamera zaten çalışıyorsa yeniden başlatma
-    if (!this.stream) {
-      this.startCamera();
-    } else if (this.unseenPhotos.length > 0 && !this.isShowingQueue) {
-      this.showFromQueue();
-    }
+    // Kamera takılı kalmasın — önce durdur, temiz başlat
+    this.stopCamera();
+    this.startCamera();
   },
 
   buildUnseenQueue() {
