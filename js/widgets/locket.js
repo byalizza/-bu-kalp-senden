@@ -55,6 +55,11 @@ var LocketWidget = {
       this.startCamera();
     });
 
+    this.switchBtn.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      this.switchBtn.click();
+    });
+
     this.filtersEl.querySelectorAll('.filter-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         this.filtersEl.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -94,7 +99,7 @@ var LocketWidget = {
 
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       navigator.mediaDevices.getUserMedia({
-        video: { facingMode: this.facingMode, width: { ideal: 1080 }, height: { ideal: 1920 } },
+        video: { facingMode: this.facingMode, width: { ideal: 480 }, height: { ideal: 640 } },
         audio: false
       }).then((stream) => {
         if (!this._startingCamera) { stream.getTracks().forEach(t => t.stop()); return; }
@@ -102,6 +107,20 @@ var LocketWidget = {
         this.video.srcObject = stream;
         this.video.play();
         this._startingCamera = false;
+
+        // Fade in
+        this.video.style.opacity = '0';
+        requestAnimationFrame(() => {
+          this.video.style.transition = 'opacity 0.4s ease';
+          this.video.style.opacity = '1';
+        });
+
+        // Ön kamerada object-fit: contain (daha geniş görüş)
+        if (this.facingMode === 'user') {
+          this.video.classList.add('front-camera');
+        } else {
+          this.video.classList.remove('front-camera');
+        }
 
         if (this.unseenPhotos.length > 0) {
           this.showFromQueue();
