@@ -1,9 +1,18 @@
 // ============================================
+// HAPTIC FEEDBACK
+// ============================================
+
+function haptic(ms) {
+  if (navigator.vibrate) navigator.vibrate(ms || 8);
+}
+
+// ============================================
 // MAIN APP - Bu Aşk Bitmez
 // ============================================
 
 const App = {
   isReady: false,
+  navOrder: ['kalbimWidget', 'anilarWidget', 'petWidget', 'locketWidget', 'profilWidget'],
 
   async init() {
     initFirebase();
@@ -85,8 +94,15 @@ const App = {
 
   setupKeyboardHandler() {
     if (window.visualViewport) {
+      const el = document.getElementById('appMain');
       window.visualViewport.addEventListener('resize', () => {
-        // keyboard handling
+        const diff = window.innerHeight - window.visualViewport.height;
+        if (diff > 100) {
+          // Klavye açıldı
+          if (el) el.style.height = window.visualViewport.height + 'px';
+        } else {
+          if (el) el.style.height = '';
+        }
       });
     }
   },
@@ -110,6 +126,7 @@ const App = {
 
   switchTo(targetId, saveHistory) {
     if (!targetId) return;
+    haptic(6);
     const navItems = document.querySelectorAll('.nav-item');
     const currentActive = document.querySelector('.nav-item.active');
     if (saveHistory && currentActive) {
@@ -118,8 +135,9 @@ const App = {
     }
 
     // Deactivate current widget
+    let prevWidget = null;
     if (currentActive) {
-      const prevWidget = document.querySelector('.widget.active');
+      prevWidget = document.querySelector('.widget.active');
       if (prevWidget && prevWidget.id) {
         const wName = prevWidget.id.replace('Widget', '');
         const wObj = window[wName + 'Widget'];
@@ -131,14 +149,26 @@ const App = {
     const targetNav = document.querySelector(`.nav-item[data-target="${targetId}"]`);
     if (targetNav) targetNav.classList.add('active');
 
+    // Yön tespiti: slide soldan mı sağdan mı
+    const prevIdx = prevWidget ? this.navOrder.indexOf(prevWidget.id) : -1;
+    const targetIdx = this.navOrder.indexOf(targetId);
+    const slideLeft = targetIdx > prevIdx;
+
     document.querySelectorAll('.widget').forEach(w => {
-      w.classList.remove('active');
+      w.classList.remove('active', 'slide-enter-right', 'slide-enter-left', 'slide-exit-right', 'slide-exit-left');
       w.style.display = 'none';
     });
+
     const target = document.getElementById(targetId);
     if (target) {
-      target.classList.add('active');
       target.style.display = '';
+      // Animasyon yönü
+      target.classList.add(slideLeft ? 'slide-enter-right' : 'slide-enter-left');
+      // Force reflow
+      void target.offsetHeight;
+      target.classList.remove(slideLeft ? 'slide-enter-right' : 'slide-enter-left');
+      target.classList.add('active');
+
       const wName = targetId.replace('Widget', '');
       const wObj = window[wName + 'Widget'];
       if (wObj && typeof wObj.onActivate === 'function') wObj.onActivate();
@@ -155,6 +185,36 @@ const App = {
         }
       });
     });
+
+    // Swipe ile geri gitme
+    this.setupSwipeBack();
+  },
+
+  setupSwipeBack() {
+    const container = document.querySelector('.widget-container');
+    if (!container) return;
+    let startX = 0, startY = 0;
+    container.addEventListener('touchstart', (e) => {
+      if (this.navHistory.length === 0) { startX = 0; return; }
+      if (e.touches.length !== 1) { startX = 0; return; }
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+    }, { passive: true });
+
+    container.addEventListener('touchmove', (e) => {
+      if (!startX || e.touches.length !== 1) return;
+      const dx = e.touches[0].clientX - startX;
+      const dy = e.touches[0].clientY - startY;
+      // Sadece yatay swipe, dikey kaydırmayı engelleme
+      if (Math.abs(dx) > Math.abs(dy) && dx > 60) {
+        startX = 0;
+        haptic(10);
+        const prev = this.navHistory.pop();
+        if (prev) this.switchTo(prev, false);
+      }
+    }, { passive: true });
+
+    container.addEventListener('touchend', () => { startX = 0; }, { passive: true });
   },
 
   setupBackButton() {
@@ -279,7 +339,9 @@ const ConfettiEffects = {
 let _notificationTimer = null;
 
 function showNotification(icon, title, message) {
-  // Sistem bildirimi (izin varsa)
+  haptic(12);
+
+  // Sistem bildirimi
   if (typeof Notification !== 'undefined' && Notification.permission === 'granted' && navigator.serviceWorker?.controller) {
     navigator.serviceWorker.ready.then(reg => {
       reg.showNotification(title, {
@@ -293,7 +355,7 @@ function showNotification(icon, title, message) {
     });
   }
 
-  // Toast bildirimi (ui icinde)
+  // Toast bildirimi
   const toast = document.getElementById('notificationToast');
   const toastIcon = document.getElementById('toastIcon');
   const toastTitle = document.getElementById('toastTitle');
@@ -311,18 +373,27 @@ function showNotification(icon, title, message) {
   void toast.offsetHeight;
   toast.style.animation = 'toastSlideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
 
-  _notificationTimer = setTimeout(() => {
-    toast.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+  // Toast'a swipe ile kapatma
+  toast._dismiss = () => {
+    toast.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
     toast.style.opacity = '0';
-    toast.style.transform = 'translateX(-50%) translateY(-10px)';
+    toast.style.transform = 'translateX(-50%) translateY(20px)';
     setTimeout(() => {
       toast.style.display = 'none';
       toast.style.opacity = '1';
       toast.style.transform = 'translateX(-50%) translateY(0)';
       toast.style.transition = '';
       _notificationTimer = null;
-    }, 400);
-  }, 3500);
+    }, 300);
+  };
+
+  _notificationTimer = setTimeout(toast._dismiss, 3500);
+
+  // Toast'a tıklayınca kapat
+  toast.onclick = () => {
+    if (_notificationTimer) clearTimeout(_notificationTimer);
+    toast._dismiss();
+  };
 }
 
 function requestNotificationPermission() {
