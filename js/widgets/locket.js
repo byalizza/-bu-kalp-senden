@@ -11,6 +11,7 @@ var LocketWidget = {
   _startingCamera: false,
   _hasActivated: false,
   _firebaseReady: false,
+  _cameraTimeout: null,
 
   _myName() {
     const u = window.currentUser || 'efe';
@@ -102,15 +103,27 @@ var LocketWidget = {
       this.loadingEl.querySelector('.camera-loading-text').textContent = 'Kamera açılıyor...';
     }
 
+    // 5 saniye timeout — kamera açılmazsa hata göster
+    this._cameraTimeout = setTimeout(() => {
+      if (this._startingCamera) {
+        this._startingCamera = false;
+        if (this.loadingEl) {
+          this.loadingEl.querySelector('.camera-loading-icon').textContent = '📸';
+          this.loadingEl.querySelector('.camera-loading-text').textContent = 'Kamera açılamadı, tekrar dene';
+        }
+      }
+    }, 5000);
+
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       navigator.mediaDevices.getUserMedia({
         video: { facingMode: this.facingMode, width: { ideal: 480 }, height: { ideal: 640 } },
         audio: false
       }).then((stream) => {
         if (!this._startingCamera) { stream.getTracks().forEach(t => t.stop()); return; }
+        clearTimeout(this._cameraTimeout);
         this.stream = stream;
         this.video.srcObject = stream;
-        this.video.play();
+        this.video.play().catch(() => {});
         this._startingCamera = false;
 
         // Yükleniyor göstergesini gizle
@@ -134,6 +147,7 @@ var LocketWidget = {
           this.showFromQueue();
         }
       }).catch(() => {
+        clearTimeout(this._cameraTimeout);
         this._startingCamera = false;
         if (this.loadingEl) {
           this.loadingEl.querySelector('.camera-loading-icon').textContent = '🚫';
@@ -151,6 +165,7 @@ var LocketWidget = {
 
   stopCamera() {
     this._startingCamera = false;
+    clearTimeout(this._cameraTimeout);
     this.hidePreviewNow();
     if (this.stream) {
       this.stream.getTracks().forEach(track => track.stop());
