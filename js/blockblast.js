@@ -18,6 +18,13 @@ const BlockBlast = {
   _gameOverShown: false,
 
   CELL_SIZE: 8,
+
+  getCellSize() {
+    if (!this.gridEl) return 22;
+    const first = this.gridEl.querySelector('.game-cell');
+    if (!first) return 22;
+    return first.offsetWidth || 22;
+  },
   PIECES_POOL: [
     { shape: [[1]] },
     { shape: [[1,1]] },
@@ -78,14 +85,14 @@ const BlockBlast = {
 
   open() {
     this.isOpen = true;
+    document.body.style.overflow = 'hidden';
     this.overlayEl.classList.add('open');
-    this.fabEl.classList.add('active');
   },
 
   close() {
     this.isOpen = false;
+    document.body.style.overflow = '';
     this.overlayEl.classList.remove('open');
-    this.fabEl.classList.remove('active');
     this.clearGhost();
   },
 
@@ -128,13 +135,14 @@ const BlockBlast = {
 
   renderPieces() {
     this.piecesEl.innerHTML = '';
+    const cellSize = this.getCellSize();
     this.pieces.forEach((piece, idx) => {
       const wrap = document.createElement('div');
       wrap.className = 'game-piece' + (this.selectedPiece === idx ? ' selected' : '');
       const rows = piece.shape.length;
       const cols = piece.shape[0].length;
-      wrap.style.gridTemplateColumns = `repeat(${cols}, 22px)`;
-      wrap.style.gridTemplateRows = `repeat(${rows}, 22px)`;
+      wrap.style.gridTemplateColumns = `repeat(${cols}, ${cellSize}px)`;
+      wrap.style.gridTemplateRows = `repeat(${rows}, ${cellSize}px)`;
       wrap.dataset.idx = idx;
 
       for (let r = 0; r < rows; r++) {
@@ -273,6 +281,7 @@ const BlockBlast = {
 
   startDrag(cx, cy, piece) {
     this.clearGhost();
+    const cellSize = this.getCellSize();
     this.dragGhost = document.createElement('div');
     this.dragGhost.className = 'game-drag-ghost';
     this.dragGhost.style.position = 'fixed';
@@ -283,21 +292,23 @@ const BlockBlast = {
     this.dragGhost.style.padding = '4px';
     this.dragGhost.style.background = 'rgba(102,126,234,0.2)';
     this.dragGhost.style.borderRadius = '6px';
-    this.dragGhost.style.left = (cx - 20) + 'px';
-    this.dragGhost.style.top = (cy - 20) + 'px';
 
     const rows = piece.shape.length;
     const cols = piece.shape[0].length;
-    this.dragGhost.style.gridTemplateColumns = `repeat(${cols}, 22px)`;
-    this.dragGhost.style.gridTemplateRows = `repeat(${rows}, 22px)`;
+    const ghostW = cols * cellSize + (cols - 1) * 2 + 8;
+    const ghostH = rows * cellSize + (rows - 1) * 2 + 8;
+    this.dragGhost.style.left = (cx - ghostW / 2) + 'px';
+    this.dragGhost.style.top = (cy - ghostH / 2) + 'px';
+    this.dragGhost.style.gridTemplateColumns = `repeat(${cols}, ${cellSize}px)`;
+    this.dragGhost.style.gridTemplateRows = `repeat(${rows}, ${cellSize}px)`;
 
     this.dragCells = [];
     for (let r = 0; r < rows; r++) {
       for (let c = 0; c < cols; c++) {
         const cell = document.createElement('div');
-        cell.style.width = '22px';
-        cell.style.height = '22px';
-        cell.style.borderRadius = '3px';
+        cell.style.width = cellSize + 'px';
+        cell.style.height = cellSize + 'px';
+        cell.style.borderRadius = '4px';
         cell.style.background = piece.shape[r][c] ? '#667eea' : 'transparent';
         cell.style.visibility = piece.shape[r][c] ? 'visible' : 'hidden';
         this.dragGhost.appendChild(cell);
@@ -317,8 +328,11 @@ const BlockBlast = {
 
   onDragMove(cx, cy) {
     if (!this.dragGhost) return;
-    this.dragGhost.style.left = (cx - 20) + 'px';
-    this.dragGhost.style.top = (cy - 20) + 'px';
+    const cellSize = this.getCellSize();
+    const rows = this.dragCells.length > 0 ? 1 : 0;
+    // approximate center
+    this.dragGhost.style.left = (cx - this.dragGhost.offsetWidth / 2) + 'px';
+    this.dragGhost.style.top = (cy - this.dragGhost.offsetHeight / 2) + 'px';
     // highlight cell under cursor
     this.clearHover();
     const el = document.elementFromPoint(cx, cy);
