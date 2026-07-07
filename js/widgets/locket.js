@@ -1,6 +1,6 @@
 var LocketWidget = {
   stream: null,
-  facingMode: 'environment',
+  facingMode: 'user',
   isCapturing: false,
   allPhotos: [],
   currentFilter: 'none',
