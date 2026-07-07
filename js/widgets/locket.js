@@ -65,8 +65,15 @@ var LocketWidget = {
         return;
       }
       this.facingMode = this.facingMode === 'environment' ? 'user' : 'environment';
-      this.stopCamera();
-      this.startCamera();
+      // Flip sessizce — loading gösterme, sadece döndür
+      if (this.stream) {
+        this.stream.getTracks().forEach(t => t.stop());
+        this.stream = null;
+      }
+      this.video.srcObject = null;
+      this._startingCamera = false;
+      clearTimeout(this._cameraTimeout);
+      this.startCamera(true);
     });
 
     this.switchBtn.addEventListener('touchstart', (e) => {
@@ -107,26 +114,28 @@ var LocketWidget = {
     }
   },
 
-  startCamera() {
+  startCamera(silent) {
     if (this._startingCamera) return;
     this._startingCamera = true;
 
-    // Buton metnini degistir
-    if (this.startBtn) {
-      this.startBtn.textContent = 'Kamera açılıyor...';
-      this.startBtn.disabled = true;
+    // Sessiz flip'te UI'i değiştirme
+    if (!silent) {
+      if (this.startBtn) {
+        this.startBtn.textContent = 'Kamera açılıyor...';
+        this.startBtn.disabled = true;
+      }
     }
 
-    // 8 saniye timeout
+    // 8 saniye timeout (sessiz flip'te daha kısa)
     this._cameraTimeout = setTimeout(() => {
       if (this._startingCamera) {
         this._startingCamera = false;
-        if (this.startBtn) {
+        if (!silent && this.startBtn) {
           this.startBtn.textContent = 'Kamerayı Aç';
           this.startBtn.disabled = false;
         }
       }
-    }, 8000);
+    }, silent ? 3000 : 8000);
 
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       navigator.mediaDevices.getUserMedia({
@@ -162,7 +171,7 @@ var LocketWidget = {
       }).catch(() => {
         clearTimeout(this._cameraTimeout);
         this._startingCamera = false;
-        if (this.startBtn) {
+        if (!silent && this.startBtn) {
           this.startBtn.textContent = 'Tekrar Dene';
           this.startBtn.disabled = false;
         }
