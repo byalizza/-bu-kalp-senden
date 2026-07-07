@@ -30,6 +30,7 @@ var LocketWidget = {
     this.switchBtn = document.getElementById('cameraSwitchBtn');
     this.filtersEl = document.getElementById('cameraFilters');
     this.galleryBtn = document.getElementById('cameraGalleryBtn');
+    this.loadingEl = document.getElementById('cameraLoading');
 
     this.preview = document.getElementById('locketPreview');
     this.previewImg = document.getElementById('previewImage');
@@ -40,9 +41,6 @@ var LocketWidget = {
     this.loadLikes();
     this.setupFirebase();
     this.startCleanup();
-
-    // Kamera uygulama açılır açılmaz başlasın (önbellek)
-    setTimeout(() => this.startCamera(), 100);
   },
 
   setupListeners() {
@@ -97,6 +95,13 @@ var LocketWidget = {
     if (this._startingCamera) return;
     this._startingCamera = true;
 
+    // Yükleniyor göster
+    if (this.loadingEl) {
+      this.loadingEl.style.display = 'flex';
+      this.loadingEl.querySelector('.camera-loading-icon').textContent = '📸';
+      this.loadingEl.querySelector('.camera-loading-text').textContent = 'Kamera açılıyor...';
+    }
+
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       navigator.mediaDevices.getUserMedia({
         video: { facingMode: this.facingMode, width: { ideal: 480 }, height: { ideal: 640 } },
@@ -107,6 +112,9 @@ var LocketWidget = {
         this.video.srcObject = stream;
         this.video.play();
         this._startingCamera = false;
+
+        // Yükleniyor göstergesini gizle
+        if (this.loadingEl) this.loadingEl.style.display = 'none';
 
         // Fade in
         this.video.style.opacity = '0';
@@ -127,9 +135,17 @@ var LocketWidget = {
         }
       }).catch(() => {
         this._startingCamera = false;
+        if (this.loadingEl) {
+          this.loadingEl.querySelector('.camera-loading-icon').textContent = '🚫';
+          this.loadingEl.querySelector('.camera-loading-text').textContent = 'Kameraya erişilemedi';
+        }
       });
     } else {
       this._startingCamera = false;
+      if (this.loadingEl) {
+        this.loadingEl.querySelector('.camera-loading-icon').textContent = '🚫';
+        this.loadingEl.querySelector('.camera-loading-text').textContent = 'Kamera desteklenmiyor';
+      }
     }
   },
 
