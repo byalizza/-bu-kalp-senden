@@ -36,13 +36,13 @@ var LocketWidget = {
     this.previewSender = document.getElementById('previewSender');
     this.previewLikeBtn = document.getElementById('previewLikeBtn');
 
-    this.galleryOverlay = document.getElementById('locketGalleryOverlay');
-    this.galleryGrid = document.getElementById('galleryOverlayGrid');
-
     this.setupListeners();
     this.loadLikes();
     this.setupFirebase();
     this.startCleanup();
+
+    // Kamera uygulama açılır açılmaz başlasın (önbellek)
+    setTimeout(() => this.startCamera(), 100);
   },
 
   setupListeners() {
@@ -155,6 +155,8 @@ var LocketWidget = {
     const myUser = this._myUser();
     this.loadSeen();
     this.buildUnseenQueue();
+
+    // Kamera zaten çalışıyorsa yeniden başlatma
     if (!this.stream) {
       this.startCamera();
     } else if (this.unseenPhotos.length > 0 && !this.isShowingQueue) {
@@ -496,10 +498,6 @@ var LocketWidget = {
 
   onDeactivate() {
     if (this._photosRef) this._photosRef.off();
-    if (this.stream) {
-      this.stream.getTracks().forEach(t => t.stop());
-      this.stream = null;
-    }
-    this.isCapturing = false;
+    // Kamerayı durdurma — anlık'a tekrar girince anında açılsın
   }
 };
