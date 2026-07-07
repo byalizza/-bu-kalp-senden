@@ -32,6 +32,7 @@ var LocketWidget = {
     this.filtersEl = document.getElementById('cameraFilters');
     this.galleryBtn = document.getElementById('cameraGalleryBtn');
     this.loadingEl = document.getElementById('cameraLoading');
+    this.startBtn = document.getElementById('cameraStartBtn');
 
     this.preview = document.getElementById('locketPreview');
     this.previewImg = document.getElementById('previewImage');
@@ -48,7 +49,21 @@ var LocketWidget = {
     this.shutter.addEventListener('click', () => this.capture());
     this.galleryBtn.addEventListener('click', () => this.openGallery());
 
+    // Kamerayı Aç butonu
+    if (this.startBtn) {
+      this.startBtn.addEventListener('click', () => this.startCamera());
+      this.startBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        this.startBtn.click();
+      });
+    }
+
     this.switchBtn.addEventListener('click', () => {
+      // Kamera kapalıysa flip yerine açma yap
+      if (!this.stream) {
+        this.startCamera();
+        return;
+      }
       this.facingMode = this.facingMode === 'environment' ? 'user' : 'environment';
       this.stopCamera();
       this.startCamera();
@@ -96,23 +111,22 @@ var LocketWidget = {
     if (this._startingCamera) return;
     this._startingCamera = true;
 
-    // Yükleniyor göster
-    if (this.loadingEl) {
-      this.loadingEl.style.display = 'flex';
-      this.loadingEl.querySelector('.camera-loading-icon').textContent = '📸';
-      this.loadingEl.querySelector('.camera-loading-text').textContent = 'Kamera açılıyor...';
+    // Buton metnini degistir
+    if (this.startBtn) {
+      this.startBtn.textContent = 'Kamera açılıyor...';
+      this.startBtn.disabled = true;
     }
 
-    // 5 saniye timeout — kamera açılmazsa hata göster
+    // 8 saniye timeout
     this._cameraTimeout = setTimeout(() => {
       if (this._startingCamera) {
         this._startingCamera = false;
-        if (this.loadingEl) {
-          this.loadingEl.querySelector('.camera-loading-icon').textContent = '📸';
-          this.loadingEl.querySelector('.camera-loading-text').textContent = 'Kamera açılamadı, tekrar dene';
+        if (this.startBtn) {
+          this.startBtn.textContent = 'Kamerayı Aç';
+          this.startBtn.disabled = false;
         }
       }
-    }, 5000);
+    }, 8000);
 
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       navigator.mediaDevices.getUserMedia({
@@ -126,17 +140,16 @@ var LocketWidget = {
         this.video.play().catch(() => {});
         this._startingCamera = false;
 
-        // Yükleniyor göstergesini gizle
+        // Yükleniyor göstergesini gizle, video göster
         if (this.loadingEl) this.loadingEl.style.display = 'none';
 
-        // Fade in
+        // Video fade in
         this.video.style.opacity = '0';
         requestAnimationFrame(() => {
-          this.video.style.transition = 'opacity 0.4s ease';
+          this.video.style.transition = 'opacity 0.3s ease';
           this.video.style.opacity = '1';
         });
 
-        // Ön kamerada object-fit: contain (daha geniş görüş)
         if (this.facingMode === 'user') {
           this.video.classList.add('front-camera');
         } else {
@@ -149,9 +162,9 @@ var LocketWidget = {
       }).catch(() => {
         clearTimeout(this._cameraTimeout);
         this._startingCamera = false;
-        if (this.loadingEl) {
-          this.loadingEl.querySelector('.camera-loading-icon').textContent = '🚫';
-          this.loadingEl.querySelector('.camera-loading-text').textContent = 'Kameraya erişilemedi';
+        if (this.startBtn) {
+          this.startBtn.textContent = 'Tekrar Dene';
+          this.startBtn.disabled = false;
         }
       });
     } else {
@@ -175,6 +188,13 @@ var LocketWidget = {
     this.video.className = 'camera-preview';
     this.video.style.opacity = '1';
     this.isCapturing = false;
+
+    // Butonu geri getir
+    if (this.loadingEl) this.loadingEl.style.display = 'flex';
+    if (this.startBtn) {
+      this.startBtn.textContent = 'Kamerayı Aç';
+      this.startBtn.disabled = false;
+    }
   },
 
   // ========== QUEUE / UNSEEN ==========
@@ -186,10 +206,7 @@ var LocketWidget = {
     const myUser = this._myUser();
     this.loadSeen();
     this.buildUnseenQueue();
-
-    // Kamera takılı kalmasın — önce durdur, temiz başlat
-    this.stopCamera();
-    this.startCamera();
+    // Kamera otomatik başlamaz — kullanıcı "Kamerayı Aç" butonuna basar
   },
 
   buildUnseenQueue() {
@@ -526,6 +543,7 @@ var LocketWidget = {
 
   onDeactivate() {
     if (this._photosRef) this._photosRef.off();
-    // Kamerayı durdurma — anlık'a tekrar girince anında açılsın
+    // Kamerayı durdurma ama kapatıldıysa butonu göster
+    if (!this.stream && this.loadingEl) this.loadingEl.style.display = 'flex';
   }
 };

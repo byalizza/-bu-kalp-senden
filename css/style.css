@@ -2250,7 +2250,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 16px;
   z-index: 2;
   color: rgba(255,255,255,0.8);
   transition: opacity 0.3s ease;
@@ -2266,10 +2266,23 @@ body {
   50% { transform: scale(1.1); opacity: 0.7; }
 }
 
-.camera-loading-text {
-  font-size: 14px;
-  font-weight: 500;
+.camera-start-btn {
+  background: rgba(255,255,255,0.2);
+  border: 2px solid rgba(255,255,255,0.5);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 12px 32px;
+  border-radius: 50px;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  transition: all 0.2s ease;
   letter-spacing: 0.5px;
+}
+
+.camera-start-btn:active {
+  transform: scale(0.95);
+  background: rgba(255,255,255,0.35);
 }
 
 .camera-preview {
